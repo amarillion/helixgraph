@@ -1,5 +1,5 @@
 import test from 'ava';
-import { indexGraph, dijkstra, FORWARD, REVERSE } from "../src/algorithm";
+import { indexGraph, shortedPathsFromSource, FORWARD, REVERSE } from "../src/algorithm";
 
 test('simple dijkstra', t => {
 	const graph = {
@@ -9,7 +9,7 @@ test('simple dijkstra', t => {
 		sinks: [ 'B' ]
 	}
 	const indexedGraph = indexGraph(graph);
-	const paths = dijkstra('A', indexedGraph, new Map());
+	const paths = shortedPathsFromSource('A', indexedGraph, new Map());
 	
 	const edges = graph.edges;
 	t.deepEqual (paths, [
@@ -26,13 +26,13 @@ test('impossible dijkstra', t => {
 		sinks: [ 'A', 'E' ]
 	}
 	const indexedGraph = indexGraph(graph);
-	let paths = dijkstra('B', indexedGraph, new Map());
+	let paths = shortedPathsFromSource('B', indexedGraph, new Map());
 	const edges = graph.edges;
 	t.deepEqual (paths, [
 		[ { edge: edges[1], dir: FORWARD }, { edge: edges[2], dir: FORWARD }, { edge: edges[3], dir: FORWARD } ],
 		[ { edge: edges[1], dir: FORWARD }, { edge: edges[0], dir: REVERSE } ]
 	]);
-	paths = dijkstra('F', indexedGraph, new Map());
+	paths = shortedPathsFromSource('F', indexedGraph, new Map());
 	t.deepEqual (paths, [
 		[ { edge: edges[4], dir: REVERSE }, { edge: edges[2], dir: REVERSE }, { edge: edges[0], dir: REVERSE } ],
 		[ { edge: edges[4], dir: REVERSE }, { edge: edges[3], dir: FORWARD } ]

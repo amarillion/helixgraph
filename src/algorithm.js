@@ -1,5 +1,3 @@
-import { symlinkSync } from "fs";
-
 /*
 
 Main algorithm:
@@ -58,7 +56,7 @@ findShortestPathsAndContestedEdges(graphWithSinksAndSources)
 export const FORWARD = 'F';
 export const REVERSE = 'R';
 
-export function dijkstra(source, indexedUndirectedGraph, partialSolutionEdgeDirections) {
+export function shortedPathsFromSource(source, indexedUndirectedGraph, partialSolutionEdgeDirections) {
 
 	const edges = indexedUndirectedGraph.edges;
 	// hardcoded for now...
@@ -81,31 +79,25 @@ export function dijkstra(source, indexedUndirectedGraph, partialSolutionEdgeDire
 
 }
 
-function suboptimalDirections(indexedUndirectedGraph, partialSolutionEdgeDirections) {
+/** 
 
-	// calculate the pairs of shortest paths from source to sink, taking into account the 
-	// directions provided in the partial solution
+all shortest paths from sources to sinks .
+Returns an array of arrays of steps.
 
+*/
+function allShortestPaths(indexedUndirectedGraph, partialSolutionEdgeDirections) {
 	let allPaths = [];
-	const newSolution = {
-		contestedEdges: [],
-		sumShortestPaths: 0,
-		paths: null, // filled in at end
-		edgeDirections: new Map()
-	};
-
 	for (let source of indexedUndirectedGraph.sources) {
-		const morePaths = dijkstra(source, indexedUndirectedGraph, partialSolutionEdgeDirections)
+		const morePaths = shortedPathsFromSource(source, indexedUndirectedGraph, partialSolutionEdgeDirections)
 		// note that it's possible that some source->sink paths are NOT possible.
 		// they will be omitted from the result
 		allPaths = allPaths.concat(morePaths);
 	}
+	return allPaths;
+}
 
-	for (let path of allPaths) {
-		newSolution.sumShortestPaths += path.length;
-	}
-
-	// build an index of which edges are used by shortest path steps.
+/* build an index of which edges are used by shortest path steps. */
+function calcEdgeUsage(allPaths) {
 	const edgeUsage = new Map();
 	for (let path of allPaths) {
 		for (let step of path) {
@@ -115,6 +107,28 @@ function suboptimalDirections(indexedUndirectedGraph, partialSolutionEdgeDirecti
 			edgeUsage.get(step.edge).add(step.dir);
 		}
 	}
+	return edgeUsage;
+}
+
+function suboptimalDirections(indexedUndirectedGraph, partialSolutionEdgeDirections) {
+
+	const newSolution = {
+		contestedEdges: [],
+		sumShortestPaths: 0,
+		paths: null, // filled in at end
+		edgeDirections: new Map()
+	};
+
+	// calculate the pairs of shortest paths from source to sink, taking into account the 
+	// directions provided in the partial solution
+	const allPaths = allShortestPaths(indexedUndirectedGraph, partialSolutionEdgeDirections);
+
+	for (let path of allPaths) {
+		newSolution.sumShortestPaths += path.length;
+	}
+
+	// build an index of which edges are used by shortest path steps.
+	const edgeUsage = calcEdgeUsage(allPaths);
 
 	// assign directions in a new partial solution given uncontested edges in the paths.
 	for (let edge of indexedUndirectedGraph.edges) {
