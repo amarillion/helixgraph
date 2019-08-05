@@ -1,6 +1,6 @@
 import test from 'ava';
 import { indexGraph, shortestPathsFromSource, FORWARD, REVERSE } from "../src/algorithm";
-import { LINEAR, ALTERNATING } from './helper/graphData';
+import { LINEAR, ALTERNATING, CYCLICAL } from './helper/graphData';
 
 test('simple dijkstra', t => {
 	const graph = indexGraph(LINEAR);
@@ -11,7 +11,15 @@ test('simple dijkstra', t => {
 			]);
 });
 
-test('impossible dijkstra', t => {
+test('no possible path dijkstra', t => {
+	const graph = indexGraph(LINEAR);
+	
+	// mark A-B as a reverse directed edge, making it impossible to find a path
+	const paths = shortestPathsFromSource('A', graph.sinks, graph, new Map().set('A-B', REVERSE));
+	t.deepEqual (paths, []);
+});
+
+test('alternating dijkstra', t => {
 	const graph = indexGraph(ALTERNATING);
 	let paths = shortestPathsFromSource('B', graph.sinks, graph, new Map());
 	t.deepEqual (paths, [
@@ -23,4 +31,18 @@ test('impossible dijkstra', t => {
 		[ { edge: 'D-F', dir: REVERSE }, { edge: 'C-D', dir: REVERSE }, { edge: 'A-C', dir: REVERSE } ],
 		[ { edge: 'D-F', dir: REVERSE }, { edge: 'D-E', dir: FORWARD } ]
 	]);
+});
+
+test('cyclical dijkstra with direction restrictions', t => {
+	const graph = indexGraph(CYCLICAL);
+	
+	let paths = shortestPathsFromSource('A', graph.sinks, graph, new Map().set('C-A', FORWARD));
+	t.deepEqual (paths, [
+		[ { edge: 'A-B', dir: FORWARD }, { edge: 'B-C', dir: FORWARD } ],
+	]);
+	paths = shortestPathsFromSource('A', graph.sinks, graph, new Map().set('C-A', REVERSE));
+	t.deepEqual (paths, [
+		[ { edge: 'C-A', dir: REVERSE } ],
+	]);
+
 });

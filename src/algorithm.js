@@ -39,13 +39,22 @@ export function shortestPathsFromSource(source, destinations, indexedUndirectedG
 		//    the smaller one. For example, if the current node A is marked with a distance of 6, and the edge connecting it with a neighbour B has length 2, then 
 		//    the distance to B through A will be 6 + 2 = 8. If B was previously marked with a distance greater than 8 then 
 		//    change it to 8. Otherwise, keep the current value.
+		const edges = indexedUndirectedGraph.edgesByNode[current]
+		if (edges) for (const [edge, dir, sibling] of edges) {
+			
+			// Skip edges that have a restriction and we're trying to go the wrong way
+			if (partialSolutionEdgeDirections.has(edge) &&
+				dir !== partialSolutionEdgeDirections.get(edge)
+			) {
+				continue;
+			}
 
-		for (const [edge, dir, sibling] of indexedUndirectedGraph.edgesByNode[current]) {			
 			if (!(visited.has(sibling))) {
 				const alt = dist.get(current) + indexedUndirectedGraph.getWeight(edge);
 				
 				// any node that is !visited and has a distance assigned should be in open set.
 				open.add (sibling); // may be already in there, that is OK.
+
 				const oldDist = dist.has(sibling) ? dist.get(sibling) : Infinity;
 
 				if (alt < oldDist) {
@@ -83,14 +92,20 @@ export function shortestPathsFromSource(source, destinations, indexedUndirectedG
 		// set a maximum no of iterations to prevent infinite loop
 		for(let i = 0; i < 1000; ++i) {
 			const step = prev.get(current);
+			if (!step) {
+				break; // no valid path
+			}
+
 			path.unshift({ edge: step.edge, dir: step.dir });
 			current = step.from;
+			
 			if (current === source) {
+				// path finished!
+				result.push(path);
 				break;
 			}
 		}
-
-		result.push(path);
+		
 	}
 
 	return result;
