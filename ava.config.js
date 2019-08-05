@@ -3,7 +3,6 @@ export default {
 		'esm'
 	],
 	files: [
-		'test/**/*',
-		'!test/testHelpers.mjs'
+		'test/*'
 	]
 };
