@@ -12,7 +12,7 @@ function spliceLowest (queue, comparator) {
 	return minElt;
 }
 
-export function shortedPathsFromSource(source, indexedUndirectedGraph, partialSolutionEdgeDirections) {
+export function shortestPathsFromSource(source, destinations, indexedUndirectedGraph, partialSolutionEdgeDirections) {
 
 	// Mark all nodes unvisited. Create a set of all the unvisited nodes called the unvisited set.
 	// Assign to every node a tentative distance value: set it to zero for our initial node and to infinity for all other nodes. Set the initial node as current.[13]
@@ -20,7 +20,6 @@ export function shortedPathsFromSource(source, indexedUndirectedGraph, partialSo
 	const dist = new Map();
 	const visited = new Set();
 	const prev = new Map();
-	const destinations = indexedUndirectedGraph.sinks;
 	let remain = new Set(destinations);
 	
 	// TODO: more efficient to use a priority queue here
@@ -103,10 +102,10 @@ all shortest paths from sources to sinks .
 Returns an array of arrays of steps.
 
 */
-function allShortestPaths(indexedUndirectedGraph, partialSolutionEdgeDirections) {
+function allShortestPaths(sources, sinks, indexedUndirectedGraph, partialSolutionEdgeDirections) {
 	let allPaths = [];
-	for (let source of indexedUndirectedGraph.sources) {
-		const morePaths = shortedPathsFromSource(source, indexedUndirectedGraph, partialSolutionEdgeDirections)
+	for (let source of sources) {
+		const morePaths = shortestPathsFromSource(source, sinks, indexedUndirectedGraph, partialSolutionEdgeDirections)
 		// note that it's possible that some source->sink paths are NOT possible.
 		// they will be omitted from the result
 		allPaths = allPaths.concat(morePaths);
@@ -128,7 +127,7 @@ function calcEdgeUsage(allPaths) {
 	return edgeUsage;
 }
 
-function suboptimalDirections(indexedUndirectedGraph, partialSolutionEdgeDirections) {
+function suboptimalDirections(graph, partialSolutionEdgeDirections) {
 
 	const newSolution = {
 		contestedEdges: [],
@@ -139,7 +138,7 @@ function suboptimalDirections(indexedUndirectedGraph, partialSolutionEdgeDirecti
 
 	// calculate the pairs of shortest paths from source to sink, taking into account the 
 	// directions provided in the partial solution
-	const allPaths = allShortestPaths(indexedUndirectedGraph, partialSolutionEdgeDirections);
+	const allPaths = allShortestPaths(graph.sources, graph.sinks, graph, partialSolutionEdgeDirections);
 
 	for (let path of allPaths) {
 		newSolution.sumShortestPaths += path.length;
@@ -149,7 +148,7 @@ function suboptimalDirections(indexedUndirectedGraph, partialSolutionEdgeDirecti
 	const edgeUsage = calcEdgeUsage(allPaths);
 
 	// assign directions in a new partial solution given uncontested edges in the paths.
-	for (let edge of indexedUndirectedGraph.edges) {
+	for (let edge of graph.edges) {
 		const dirs = edgeUsage.get(edge);
 		if (dirs === undefined) {
 			// this edge is not used at all
@@ -169,34 +168,44 @@ function suboptimalDirections(indexedUndirectedGraph, partialSolutionEdgeDirecti
 }
 
 /* add indices to the graph to make further processing more efficient */
-export function indexGraph(undirectedGraph) {
-	
+export function indexGraph(graphData) {
+
+	const result = {
+		...graphData,
+		edgesByNode: {},
+		sources: [],
+		sinks: []
+	}
 	// add getAdjacent function
 
-	undirectedGraph.edgesByNode = {};
-	for (const edge of undirectedGraph.edges) {
+	for (const edge of graphData.edges) {
 
-		const nodeLeft = edge[0];
-		const nodeRight = edge[1];
+		const nodeLeft = graphData.getLeft(edge);
+		const nodeRight = graphData.getRight(edge);
 		const edgeLeft = [ edge, FORWARD, nodeRight ];
 		const edgeRight = [ edge, REVERSE, nodeLeft ];
 		
-		if (nodeLeft in undirectedGraph.edgesByNode) {
-			undirectedGraph.edgesByNode[nodeLeft].push(edgeLeft);
+		if (nodeLeft in result.edgesByNode) {
+			result.edgesByNode[nodeLeft].push(edgeLeft);
 		}
 		else {
-			undirectedGraph.edgesByNode[nodeLeft] = [ edgeLeft ];
+			result.edgesByNode[nodeLeft] = [ edgeLeft ];
 		}
 
-		if (nodeRight in undirectedGraph.edgesByNode) {
-			undirectedGraph.edgesByNode[nodeRight].push(edgeRight);
+		if (nodeRight in result.edgesByNode) {
+			result.edgesByNode[nodeRight].push(edgeRight);
 		}
 		else {
-			undirectedGraph.edgesByNode[nodeRight] = [ edgeRight ];
+			result.edgesByNode[nodeRight] = [ edgeRight ];
 		}
 	}
 
-	return undirectedGraph;
+	for (let n of graphData.nodes) {
+		if (graphData.isSource(n)) result.sources.push(n);
+		if (graphData.isSink(n)) result.sinks.push(n);
+	}
+
+	return result;
 }
 
 /**  
@@ -230,17 +239,17 @@ pick the one with the fewest contested edges. If there are multiple, pick the on
 
 */
 
-export function optimalDirections(undirectedGraph) {
+export function optimalDirections(graphData) {
 
-	const indexedUndirectedGraph = indexGraph(undirectedGraph);
-	const baseSolution = suboptimalDirections(indexedUndirectedGraph, new Map());
+	const graph = indexGraph(graphData);
+	const baseSolution = suboptimalDirections(graph, new Map());
 	
 	let minSolution = baseSolution;
 	
 	for (let edge of baseSolution.contestedEdges) {
 		for (let dir of [FORWARD, REVERSE]) {
 			const modifiedEdgeDirections = new Map(baseSolution.edgeDirections).set(edge, dir);
-			const subsolution = suboptimalDirections(indexedUndirectedGraph, modifiedEdgeDirections);
+			const subsolution = suboptimalDirections(graph, modifiedEdgeDirections);
 			if (!subsolution) continue; // there are no possible paths with the given constraints, skip
 			if (minSolution === null) {
 				minSolution = subsolution;

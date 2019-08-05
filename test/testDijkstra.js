@@ -1,31 +1,26 @@
 import test from 'ava';
-import { indexGraph, shortedPathsFromSource, FORWARD, REVERSE } from "../src/algorithm";
+import { indexGraph, shortestPathsFromSource, FORWARD, REVERSE } from "../src/algorithm";
 import { LINEAR, ALTERNATING } from './helper/graphData';
 
 test('simple dijkstra', t => {
-	const graph = LINEAR;
-	const indexedGraph = indexGraph(graph);
-	const paths = shortedPathsFromSource('A', indexedGraph, new Map());
+	const graph = indexGraph(LINEAR);
+	const paths = shortestPathsFromSource('A', graph.sinks, graph, new Map());
 	
-	const edges = graph.edges;
 	t.deepEqual (paths, [
-				[ { edge: edges[0], dir: FORWARD } ]
+				[ { edge: 'A-B', dir: FORWARD } ]
 			]);
 });
 
 test('impossible dijkstra', t => {
-
-	const graph = ALTERNATING;	
-	const indexedGraph = indexGraph(graph);
-	let paths = shortedPathsFromSource('B', indexedGraph, new Map());
-	const edges = graph.edges;
+	const graph = indexGraph(ALTERNATING);
+	let paths = shortestPathsFromSource('B', graph.sinks, graph, new Map());
 	t.deepEqual (paths, [
-		[ { edge: edges[1], dir: FORWARD }, { edge: edges[0], dir: REVERSE } ],
-		[ { edge: edges[1], dir: FORWARD }, { edge: edges[2], dir: FORWARD }, { edge: edges[3], dir: FORWARD } ],
+		[ { edge: 'B-C', dir: FORWARD }, { edge: 'A-C', dir: REVERSE } ],
+		[ { edge: 'B-C', dir: FORWARD }, { edge: 'C-D', dir: FORWARD }, { edge: 'D-E', dir: FORWARD } ],
 	]);
-	paths = shortedPathsFromSource('F', indexedGraph, new Map());
+	paths = shortestPathsFromSource('F', graph.sinks, graph, new Map());
 	t.deepEqual (paths, [
-		[ { edge: edges[4], dir: REVERSE }, { edge: edges[2], dir: REVERSE }, { edge: edges[0], dir: REVERSE } ],
-		[ { edge: edges[4], dir: REVERSE }, { edge: edges[3], dir: FORWARD } ]
+		[ { edge: 'D-F', dir: REVERSE }, { edge: 'C-D', dir: REVERSE }, { edge: 'A-C', dir: REVERSE } ],
+		[ { edge: 'D-F', dir: REVERSE }, { edge: 'D-E', dir: FORWARD } ]
 	]);
 });
