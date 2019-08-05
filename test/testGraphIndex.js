@@ -1,8 +1,8 @@
 import test from 'ava';
-import { LINEAR, CYCLICAL } from './helper/graphData.js';
+import { LINEAR, TWO_ROUTES } from './helper/graphData.js';
 import { indexGraph, FORWARD, REVERSE } from '../src/algorithm.js';
 
-test('simple graph index', t => {
+test('linear graph index', t => {
 	const graph = indexGraph(LINEAR);	
 	t.deepEqual (graph.edgesByNode, {
 		'A': [ [ 'A-B', FORWARD, 'B'] ],
@@ -10,8 +10,8 @@ test('simple graph index', t => {
 	});
 });
 
-test('cyclical graph index', t => {
-	const graph = indexGraph(CYCLICAL);	
+test('two-route graph index', t => {
+	const graph = indexGraph(TWO_ROUTES);
 	t.deepEqual (graph.edgesByNode, {
 		'A': [ [ 'A-B', FORWARD, 'B'], [ 'C-A', REVERSE, 'C'] ],
 		'B': [ [ 'A-B', REVERSE, 'A'], [ 'B-C', FORWARD, 'C'] ],

@@ -1,6 +1,6 @@
 import test from 'ava';
 import { indexGraph, shortestPathsFromSource, FORWARD, REVERSE } from "../src/algorithm";
-import { LINEAR, ALTERNATING, CYCLICAL } from './helper/graphData';
+import { LINEAR, ALTERNATING_AXIS, TWO_ROUTES } from './helper/graphData';
 
 test('simple dijkstra', t => {
 	const graph = indexGraph(LINEAR);
@@ -13,14 +13,14 @@ test('simple dijkstra', t => {
 
 test('no possible path dijkstra', t => {
 	const graph = indexGraph(LINEAR);
-	
+
 	// mark A-B as a reverse directed edge, making it impossible to find a path
 	const paths = shortestPathsFromSource('A', graph.sinks, graph, new Map().set('A-B', REVERSE));
 	t.deepEqual (paths, []);
 });
 
 test('alternating dijkstra', t => {
-	const graph = indexGraph(ALTERNATING);
+	const graph = indexGraph(ALTERNATING_AXIS);
 	let paths = shortestPathsFromSource('B', graph.sinks, graph, new Map());
 	t.deepEqual (paths, [
 		[ { edge: 'B-C', dir: FORWARD }, { edge: 'A-C', dir: REVERSE } ],
@@ -34,7 +34,7 @@ test('alternating dijkstra', t => {
 });
 
 test('cyclical dijkstra with direction restrictions', t => {
-	const graph = indexGraph(CYCLICAL);
+	const graph = indexGraph(TWO_ROUTES);
 	
 	let paths = shortestPathsFromSource('A', graph.sinks, graph, new Map().set('C-A', FORWARD));
 	t.deepEqual (paths, [
