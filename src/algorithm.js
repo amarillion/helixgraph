@@ -254,35 +254,52 @@ pick the one with the fewest contested edges. If there are multiple, pick the on
 
 */
 
-export function optimalDirections(graphData) {
-
-	const graph = indexGraph(graphData);
-	const baseSolution = suboptimalDirections(graph, new Map());
-	
+function permutateEdgeDirections(graph, baseSolution, edgePermutation) {
 	let minSolution = baseSolution;
-	
+	let minEdges = null;
+		
 	for (let edge of baseSolution.contestedEdges) {
-		for (let dir of [FORWARD, REVERSE]) {
-			const modifiedEdgeDirections = new Map(baseSolution.edgeDirections).set(edge, dir);
-			const subsolution = suboptimalDirections(graph, modifiedEdgeDirections);
-			if (!subsolution) continue; // there are no possible paths with the given constraints, skip
-			if (minSolution === null) {
+		if (edgePermutation.has(edge)) continue; // don't try to permute the same edge again
+
+		for (let dir of [FORWARD, REVERSE]) {	
+			const modifiedEdgeDirections = new Map(edgePermutation).set(edge, dir);
+			
+			let subsolution = suboptimalDirections(graph, modifiedEdgeDirections);
+
+			// if we end up with more contested edges, we're probably not on the right track
+			if (subsolution.contestedEdges.length >= baseSolution.contestedEdges) continue;
+
+			// if we end up with fewer possible paths, we're not on the right track
+			if (subsolution.paths.length < baseSolution.paths.length) continue;
+
+			// pick a solution if:
+				// there are fewer contested edges
+					// if equal, the sum of the shortest paths is lower 
+			if (subsolution.contestedEdges.length < minSolution.contestedEdges.length ||
+				(subsolution.contestedEdges.length === minSolution.contestedEdges.length && 
+					subsolution.sumShortestPaths < minSolution.sumShortedPaths)
+			) {
 				minSolution = subsolution;
-			}
-			else {
-				// pick a solution if:
-					// there are the same number of possible paths. If one path becomes impossible, this is no longer a good solution
-						// if equal, there are fewer contested edges
-							// if equal, the sum of the shortest paths is lower 
-				if (subsolution.paths.length >= minSolution.paths.length &&
-					(subsolution.contestedEdges.length < minSolution.contestedEdges.length ||
-					(subsolution.contestedEdges.length === minSolution.contestedEdges.length && 
-						subsolution.sumShortestPaths < minSolution.subShortedPaths))
-				) {
-					minSolution = subsolution;
-				}
+				minEdges = modifiedEdgeDirections;
 			}
 		}
 	}
+
+	// if there are still contested edges, optimize further
+	if (minEdges && minSolution.contestedEdges.length > 0) {
+		minSolution = permutateEdgeDirections(graph, minSolution, minEdges);
+	}
+	
 	return minSolution;
+}
+
+export function optimalDirections(graphData) {
+
+	const graph = indexGraph(graphData);
+	let solution = suboptimalDirections(graph, new Map());
+	
+	if (solution.contestedEdges.length > 0) {
+		solution = permutateEdgeDirections(graph, solution, new Map())
+	}
+	return solution;
 }
