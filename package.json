@@ -1,14 +1,14 @@
 {
-  "name": "helixgraph",
-  "version": "1.0.0",
-  "description": "Graph utility library for gamedev",
-  "main": "index.js",
-  "scripts": {
-    "test": "ava"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "ava": "^2.2.0"
-  }
+	"name": "helixgraph",
+	"version": "1.0.0",
+	"description": "Graph utility library for gamedev",
+	"main": "index.js",
+	"scripts": {
+		"test": "ava --match='!*performance*'"
+	},
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"ava": "^2.2.0"
+	}
 }
