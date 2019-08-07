@@ -1,6 +1,79 @@
 export const FORWARD = 'F';
 export const REVERSE = 'R';
 
+/**
+ * Performs a breadth-first search on a graph.
+ * Starting form the source node, expanding until all connected nodes are visited.
+ * Nodes are treated as opaque data objects and are not modified. You can use any kind of 
+ * variable type to represent nodes: ints, strings, objects, ...
+ * 
+ * It checks nodes if they are target as a side-effect, to avoid one extra graph traversal...
+ * (TODO: maybe this should be factored out)
+ * 
+ * @param {*} source starting node, (can be any object type)
+ * @param {*} isTarget function(node) that returns true or false if the given node is a target
+ * @param {*} listNeighbours function(node) that return the neighbours of given node as an array of [dir, destNode] 
+ *             dir is a value that distinguishes edges on the same node. 
+ *             I.e. it could be an edge, but on a grid, a compass direction would also suffice.
+ * 
+ * 
+ * @returns {
+ *  dist: Map(node, steps)
+ * 	prev: Map(node, [dir, srcNode])
+ *  destinations: [ node, ... ]
+ * }
+ *
+ * Input graph may be undirected or directed (listNeighbours should act correspondingly)
+ * 
+ * Guaranteed to return shortest paths for unweighted networks.
+ * Complexity: O(V + E)
+ * Faster than dijkstra, because it accesses the open list with O(1) instead of O(N) (or with priorityQ: O(log N))
+ * But unlike dijkstra, this can't handle weighted edges.
+ * 
+ * For more discussion, see: https://stackoverflow.com/questions/25449781/what-is-difference-between-bfs-and-dijkstras-algorithms-when-looking-for-shorte
+ * 
+ */
+function breadthFirstSearch(source, isTarget, listNeighbours) {
+
+	let open = [];
+	let dist = new Map();
+	let prev = new Map();
+	let distance = 0;
+	let destinations = [];
+
+	open.push(source);
+	dist.set(source, distance);
+	prev.set(source, [null, null] );
+
+	while (open.length > 0)
+	{
+		let srcNode = open.pop();
+		distance = dist.get(srcNode);
+
+		if (isTarget(srcNode)) {
+			// add to destination list...
+			destinations.push(srcNode);
+		}
+
+		for (let [dir, destNode] of listNeighbours(srcNode)) {
+			let firstVisit = !dist.has(destNode);
+			let shorterPath = false;
+			if (dist.has(destNode)) shorterPath = dist.get(destNode) > (distance + 1);
+			if (firstVisit || shorterPath) {
+				open.push(destNode);
+				dist.set(destNode, distance + 1);
+				prev.set(destNode, [ dir, srcNode ]);
+			}
+		}
+	}
+
+	return {
+		destinations, 
+		prev,
+		dist
+	};
+}
+
 function spliceLowest (queue, comparator) {
 	let minElt = null;
 	for (const elt of queue) {
