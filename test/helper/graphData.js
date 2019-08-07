@@ -109,3 +109,27 @@ export const TWO_CYCLES = {
 	isSource: (n) => ['A', 'K', 'C'].indexOf(n) >= 0,
 	isSink: (n) => ['J', 'B', 'L'].indexOf(n) >= 0,
 };
+
+/*
+
+This network forms a 'local minimum' for the solving algorithm
+In the first round, the contested edge will be D-E.
+Restricting this edge to F, will lead to H-I and I-J becoming contested.
+Restricting this edge to R, will lead to D-H and E-J becoming contested.
+
+However, the network is solvable.
+
+      *A      *B
+       |       |
+  +C---D-------E----F+
+       |       |
+  *G---H---I---J----K+
+
+*/
+export const LOCAL_MINIMUM = {
+	...BASE,
+	nodes: [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K' ],
+	edges: [ 'A-D', 'B-E', 'C-D', 'D-E', 'E-F', 'D-H', 'E-J', 'G-H', 'H-I', 'I-J', 'J-K' ],
+	isSource: (n) => ['A', 'B', 'G'].indexOf(n) >= 0,
+	isSink: (n) => ['C', 'F', 'K'].indexOf(n) >= 0,
+}

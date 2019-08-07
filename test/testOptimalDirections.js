@@ -1,6 +1,6 @@
 import test from 'ava';
 import { optimalDirections } from '../src/algorithm';
-import { LINEAR, ALTERNATING_AXIS, TWO_CYCLES, CYCLICAL, CYCLICAL_4SS, LINEAR_AXIS } from './helper/graphData';
+import { LINEAR, ALTERNATING_AXIS, TWO_CYCLES, CYCLICAL, CYCLICAL_4SS, LINEAR_AXIS, LOCAL_MINIMUM } from './helper/graphData';
 
 test('solve simple source->sink', t => {
 	const solution = optimalDirections(LINEAR);
@@ -30,5 +30,10 @@ test('solve larger cyclical network with one optimal solution', t => {
 
 test('solve network with two cycles', t => {
 	const solution = optimalDirections(TWO_CYCLES);
+	t.is(solution.contestedEdges.length, 0);
+});
+
+test('solve network with number of contested edges going up', t => {
+	const solution = optimalDirections(LOCAL_MINIMUM);
 	t.is(solution.contestedEdges.length, 0);
 });

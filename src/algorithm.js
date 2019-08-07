@@ -266,19 +266,17 @@ function permutateEdgeDirections(graph, baseSolution, edgePermutation) {
 			
 			let subsolution = suboptimalDirections(graph, modifiedEdgeDirections);
 
-			// if we end up with more contested edges, we're probably not on the right track
-			if (subsolution.contestedEdges.length >= baseSolution.contestedEdges) continue;
-
 			// if we end up with fewer possible paths, we're not on the right track
 			if (subsolution.paths.length < baseSolution.paths.length) continue;
 
 			// pick a solution if:
 				// there are fewer contested edges
 					// if equal, the sum of the shortest paths is lower 
-			if (subsolution.contestedEdges.length < minSolution.contestedEdges.length ||
+			if (minEdges === null || 
+				(subsolution.contestedEdges.length < minSolution.contestedEdges.length ||
 				(subsolution.contestedEdges.length === minSolution.contestedEdges.length && 
 					subsolution.sumShortestPaths < minSolution.sumShortedPaths)
-			) {
+			)) {
 				minSolution = subsolution;
 				minEdges = modifiedEdgeDirections;
 			}
