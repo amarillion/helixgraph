@@ -113,11 +113,14 @@ export function shortestPathsFromSource(source, destinations, indexedUndirectedG
 		//    the distance to B through A will be 6 + 2 = 8. If B was previously marked with a distance greater than 8 then 
 		//    change it to 8. Otherwise, keep the current value.
 		const edges = indexedUndirectedGraph.edgesByNode[current]
-		if (edges) for (const [edge, dir, sibling] of edges) {
+		if (edges) for (const [edge, sibling] of edges) {
 			
+			const undirectedEdge = edge.parent;
+			const dir = edge.dir;
+
 			// Skip edges that have a restriction and we're trying to go the wrong way
-			if (partialSolutionEdgeDirections.has(edge) &&
-				dir !== partialSolutionEdgeDirections.get(edge)
+			if (partialSolutionEdgeDirections.has(undirectedEdge) &&
+				dir !== partialSolutionEdgeDirections.get(undirectedEdge)
 			) {
 				continue;
 			}
@@ -134,7 +137,7 @@ export function shortestPathsFromSource(source, destinations, indexedUndirectedG
 					// set or update distance
 					dist.set(sibling, alt);
 					// build back-tracking map
-					prev.set(sibling, { edge, dir, from: current, to: sibling });
+					prev.set(sibling, { edge, from: current, to: sibling });
 				}
 			}
 		}
@@ -169,7 +172,7 @@ export function shortestPathsFromSource(source, destinations, indexedUndirectedG
 				break; // no valid path
 			}
 
-			path.unshift({ edge: step.edge, dir: step.dir });
+			path.unshift({ edge: step.edge.parent, dir: step.edge.dir });
 			current = step.from;
 			
 			if (current === source) {
@@ -270,8 +273,8 @@ export function indexGraph(graphData) {
 
 		const nodeLeft = graphData.getLeft(edge);
 		const nodeRight = graphData.getRight(edge);
-		const edgeLeft = [ edge, FORWARD, nodeRight ];
-		const edgeRight = [ edge, REVERSE, nodeLeft ];
+		const edgeLeft = [ { parent: edge, dir: FORWARD }, nodeRight ];
+		const edgeRight = [ { parent: edge, dir: REVERSE }, nodeLeft ];
 		
 		if (nodeLeft in result.edgesByNode) {
 			result.edgesByNode[nodeLeft].push(edgeLeft);
@@ -332,9 +335,10 @@ function permutateEdgeDirections(graph, baseSolution, edgePermutation) {
 	let minEdges = null;
 		
 	for (let edge of baseSolution.contestedEdges) {
+
 		if (edgePermutation.has(edge)) continue; // don't try to permute the same edge again
 
-		for (let dir of [FORWARD, REVERSE]) {	
+		for (let dir of [FORWARD, REVERSE]) {
 			const modifiedEdgeDirections = new Map(edgePermutation).set(edge, dir);
 			
 			let subsolution = suboptimalDirections(graph, modifiedEdgeDirections);
