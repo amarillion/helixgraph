@@ -1,5 +1,5 @@
 import test from "ava";
-import { optimalDirections } from "../src/algorithm";
+import { optimalDirections } from "../src/assignDirections.js";
 import { LINEAR, ALTERNATING_AXIS, TWO_CYCLES, CYCLICAL, CYCLICAL_4SS, LINEAR_AXIS, LOCAL_MINIMUM } from "./helper/graphData";
 
 test("solve simple source->sink", t => {

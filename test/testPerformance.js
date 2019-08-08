@@ -1,6 +1,6 @@
 import test from "ava";
-import { randomNetwork } from "./helper/randomNetwork";
-import { optimalDirections } from "../src/algorithm";
+import { randomNetwork } from "./helper/randomNetwork.js";
+import { optimalDirections } from "../src/assignDirections.js";
 
 // test("test random network", t => {
 	

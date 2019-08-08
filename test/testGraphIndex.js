@@ -1,6 +1,6 @@
 import test from "ava";
 import { LINEAR, TWO_ROUTES } from "./helper/graphData.js";
-import { indexGraph, FORWARD, REVERSE } from "../src/algorithm.js";
+import { indexGraph, FORWARD, REVERSE } from "../src/assignDirections.js";
 
 test("linear graph index", t => {
 	const graph = indexGraph(LINEAR);	
