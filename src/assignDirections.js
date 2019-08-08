@@ -121,19 +121,17 @@ Pick the solution that has the most valid shortest paths (ideally one for each s
 pick the one with the fewest contested edges. If there are multiple, pick the one with the shortest sum of all paths.
 
 */
-
-function permutateEdgeDirections(graph, baseSolution, edgePermutation) {
+function permutateEdgeDirections(graph, baseSolution) {
 	let minSolution = baseSolution;
-	let minEdges = null;
-		
+	let first = true;
+
 	for (let edge of baseSolution.contestedEdges) {
 
-		if (edgePermutation.has(edge)) continue; // don't try to permute the same edge again
+		if (baseSolution.edgeConstraints.has(edge)) continue; // don't try to permute the same edge again
 
 		for (let dir of [FORWARD, REVERSE]) {
-			const modifiedEdgeDirections = new Map(edgePermutation).set(edge, dir);
-			
-			let subsolution = suboptimalDirections(graph, modifiedEdgeDirections);
+
+			let subsolution = improveSolution(graph, baseSolution, edge, dir);
 
 			// if we end up with fewer possible paths, we're not on the right track
 			if (subsolution.paths.length < baseSolution.paths.length) continue;
@@ -141,20 +139,20 @@ function permutateEdgeDirections(graph, baseSolution, edgePermutation) {
 			// pick a solution if:
 				// there are fewer contested edges
 					// if equal, the sum of the shortest paths is lower 
-			if (minEdges === null || 
+			if (first || 
 				(subsolution.contestedEdges.length < minSolution.contestedEdges.length ||
 				(subsolution.contestedEdges.length === minSolution.contestedEdges.length && 
-					subsolution.sumShortestPaths < minSolution.sumShortedPaths)
+					subsolution.sumShortestPaths < minSolution.sumShortestPaths)
 			)) {
+				first = false;
 				minSolution = subsolution;
-				minEdges = modifiedEdgeDirections;
 			}
 		}
 	}
 
 	// if there are still contested edges, optimize further
-	if (minEdges && minSolution.contestedEdges.length > 0) {
-		minSolution = permutateEdgeDirections(graph, minSolution, minEdges);
+	if (!first && minSolution.contestedEdges.length > 0) {
+		minSolution = permutateEdgeDirections(graph, minSolution);
 	}
 	
 	return minSolution;
@@ -163,7 +161,7 @@ function permutateEdgeDirections(graph, baseSolution, edgePermutation) {
 export function optimalDirections(graphData) {
 
 	const graph = indexGraph(graphData);
-	let solution = suboptimalDirections(graph, new Map());
+	let solution = firstSolution(graph);
 	
 	if (solution.contestedEdges.length > 0) {
 		solution = permutateEdgeDirections(graph, solution, new Map())
@@ -171,43 +169,76 @@ export function optimalDirections(graphData) {
 	return solution;
 }
 
-function suboptimalDirections(graph, partialSolutionEdgeDirections) {
+function scoreSolution(allPaths, edges) {
 
-	const newSolution = {
-		contestedEdges: [],
-		sumShortestPaths: 0,
-		paths: null, // filled in at end
-		edgeDirections: new Map()
-	};
-
-	// calculate the pairs of shortest paths from source to sink, taking into account the 
-	// directions provided in the partial solution
-	const neighborFunc = constrainedNeighborFunc(graph.getNeighbors, partialSolutionEdgeDirections);
-	const allPaths = allShortestPaths(graph.sources, graph.sinks, neighborFunc, graph.getWeight);
+	let sumShortestPaths = 0;
+	const edgeDirections = new Map();
+	const contestedEdges = [];
 
 	for (let path of allPaths) {
-		newSolution.sumShortestPaths += path.length;
+		sumShortestPaths += path.length;
 	}
 
 	// build an index of which edges are used by shortest path steps.
 	const edgeUsage = calcEdgeUsage(allPaths);
 
 	// assign directions in a new partial solution given uncontested edges in the paths.
-	for (let edge of graph.edges) {
+	for (let edge of edges) {
 		const dirs = edgeUsage.get(edge);
 		if (dirs === undefined) {
 			// this edge is not used at all
 			// we give it a direction anyway to avoid messing up the algorithm further on
-			newSolution.edgeDirections.set(edge, FORWARD)
+			edgeDirections.set(edge, FORWARD)
 		}
 		else if (dirs.size > 1) {
-			newSolution.contestedEdges.push(edge)
+			contestedEdges.push(edge)
 		}
 		else {
-			newSolution.edgeDirections.set(edge, dirs.keys().next().value);
+			edgeDirections.set(edge, dirs.keys().next().value);
 		}
 	}
 
-	newSolution.paths = allPaths;
+	return {
+		contestedEdges, 
+		edgeDirections,
+		sumShortestPaths
+	}
+}
+
+function firstSolution(graph) {
+	// calculate the pairs of shortest paths from source to sink, taking into account the 
+	// directions provided in the partial solution
+	const allPaths = allShortestPaths(graph.sources, graph.sinks, graph.getNeighbors, graph.getWeight);
+
+	const { contestedEdges, sumShortestPaths, edgeDirections } = scoreSolution(allPaths, graph.edges);
+	
+	const newSolution = {
+		contestedEdges,
+		sumShortestPaths,
+		edgeDirections,
+		paths: allPaths,
+		edgeConstraints: new Map()
+	};
+
+	return newSolution;
+}
+
+function improveSolution(graph, baseSolution, edge, dir) {
+	const edgePermutation = baseSolution.edgeConstraints;
+	const modifiedEdgeDirections = new Map(edgePermutation).set(edge, dir);
+
+	const neighborFunc = constrainedNeighborFunc(graph.getNeighbors, modifiedEdgeDirections);
+
+	//TODO: only recalculate the paths that we need here...
+	const allPaths = allShortestPaths(graph.sources, graph.sinks, neighborFunc, graph.getWeight);
+
+	const { contestedEdges, sumShortestPaths, edgeDirections } = scoreSolution(allPaths, graph.edges);
+	const newSolution = {
+		contestedEdges,
+		sumShortestPaths,
+		edgeDirections,
+		paths: allPaths,
+		edgeConstraints: modifiedEdgeDirections
+	};
 	return newSolution;
 }
