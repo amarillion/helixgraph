@@ -3,7 +3,7 @@
 // relative to size.
 
 function randomInt(max) {
-	return Math.floor(Math.random() * Math.floor(max))
+	return Math.floor(Math.random() * Math.floor(max));
 }
 
 export function randomNetwork(size, edgeRedundancy, numSources, numSinks) {
@@ -20,18 +20,18 @@ export function randomNetwork(size, edgeRedundancy, numSources, numSinks) {
 		// generate root node;
 		nodes.push(startNodeId++);
 		return result;
-	}
+	};
 
 	const newEdge = (left, right) => {
 		const result = `${left}-${right}`;
 		edges.add(result);
 		return result;
-	}
+	};
 
 	const pickRandomNode = () => {
-		const r = randomInt(nodes.length)
+		const r = randomInt(nodes.length);
 		return nodes[r];
-	}
+	};
 
 	// start with generating root
 	newNode();
@@ -64,7 +64,7 @@ export function randomNetwork(size, edgeRedundancy, numSources, numSinks) {
 	}
 
 	// idem for sinks
-	for (let i = 0; i < numSources; ++i) {
+	for (let i = 0; i < numSinks; ++i) {
 		const y = pickRandomNode();
 		const x = newNode();
 		newEdge(x, y);
@@ -74,9 +74,9 @@ export function randomNetwork(size, edgeRedundancy, numSources, numSinks) {
 	return {
 		nodes,
 		edges,
-		getWeight: (n) => 1,
-		getLeft: (e) => +(e.split('-')[0]),
-		getRight: (e) => +(e.split('-')[1]),
+		getWeight: () => 1,
+		getLeft: (e) => +(e.split("-")[0]),
+		getRight: (e) => +(e.split("-")[1]),
 		isSource: (n) => sources.has(n),
 		isSink: (n) => sinks.has(n),
 	};

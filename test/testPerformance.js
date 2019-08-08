@@ -1,8 +1,8 @@
-import test from 'ava';
-import { randomNetwork } from './helper/randomNetwork';
-import { optimalDirections } from '../src/algorithm';
+import test from "ava";
+import { randomNetwork } from "./helper/randomNetwork";
+import { optimalDirections } from "../src/algorithm";
 
-// test('test random network', t => {
+// test("test random network", t => {
 	
 // 	const graphData = randomNetwork(10, 2.5, 3, 3);
 // 	console.log({graphData});
@@ -16,7 +16,7 @@ import { optimalDirections } from '../src/algorithm';
 
 // });
 
-test('performance', t => {
+test("performance", t => {
 
 	for (let numNodes of [10, 20, 40, 80, 160, 320]) {
 
@@ -31,7 +31,6 @@ test('performance', t => {
 		console.log(numNodes, end - start, solution.contestedEdges.length);
 
 		t.pass();
-	};
-
+	}
 	
 });
