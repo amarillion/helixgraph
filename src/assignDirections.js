@@ -32,15 +32,27 @@ export function constrainedNeighborFunc(originalNeighborFunc, edgeConstraints) {
 	};
 }
 
+function getOrDefault(map, key, defaultFactory) {
+	if (map.has(key)) {
+		return map.get(key);
+	}
+	else {
+		const result = defaultFactory();
+		map.set(key, result);
+		return result;
+	}
+}
+
 /* build an index of which edges are used by shortest path steps. */
 function calcEdgeUsage(allPaths) {
 	const edgeUsage = new Map();
-	for (let path of allPaths) {
-		for (let edge of path) {
-			if (!edgeUsage.has(edge.parent)) {
-				edgeUsage.set(edge.parent, new Set());
+	for (const [ source, pathList ] of allPaths.entries()) {
+		for (const path of pathList) {
+			for (let edge of path) {
+				const edgeUsageEntry = getOrDefault(edgeUsage, edge.parent, () => new Map())
+				const edgeUsageValue = getOrDefault(edgeUsageEntry, edge.dir, () => new Set())
+				edgeUsageValue.add(source);
 			}
-			edgeUsage.get(edge.parent).add(edge.dir);
 		}
 	}
 	return edgeUsage;
@@ -134,7 +146,7 @@ function permutateEdgeDirections(graph, baseSolution) {
 			let subsolution = improveSolution(graph, baseSolution, edge, dir);
 
 			// if we end up with fewer possible paths, we're not on the right track
-			if (subsolution.paths.length < baseSolution.paths.length) continue;
+			if (subsolution.numPaths < baseSolution.numPaths) continue;
 
 			// pick a solution if:
 				// there are fewer contested edges
@@ -172,36 +184,39 @@ export function optimalDirections(graphData) {
 function scoreSolution(allPaths, edges) {
 
 	let sumShortestPaths = 0;
+	let numPaths = 0;
 	const edgeDirections = new Map();
 	const contestedEdges = [];
 
-	for (let path of allPaths) {
-		sumShortestPaths += path.length;
+	for (const pathList of allPaths.values()) {
+		for (const path of pathList)
+		{
+			sumShortestPaths += path.length;
+			numPaths ++;
+		}
 	}
 
 	// build an index of which edges are used by shortest path steps.
 	const edgeUsage = calcEdgeUsage(allPaths);
 
 	// assign directions in a new partial solution given uncontested edges in the paths.
-	for (let edge of edges) {
-		const dirs = edgeUsage.get(edge);
-		if (dirs === undefined) {
-			// this edge is not used at all
-			// we give it a direction anyway to avoid messing up the algorithm further on
-			edgeDirections.set(edge, FORWARD)
-		}
-		else if (dirs.size > 1) {
-			contestedEdges.push(edge)
-		}
-		else {
-			edgeDirections.set(edge, dirs.keys().next().value);
+	for (let edge of edges) {			
+		if (edgeUsage.has(edge)) {
+			const sourcesByDir = edgeUsage.get(edge);
+			if (sourcesByDir.size > 1) {
+				contestedEdges.push(edge)
+			}
+			else {
+				edgeDirections.set(edge, sourcesByDir.keys().next().value);
+			}
 		}
 	}
 
 	return {
 		contestedEdges, 
 		edgeDirections,
-		sumShortestPaths
+		sumShortestPaths,
+		numPaths
 	}
 }
 
@@ -210,12 +225,13 @@ function firstSolution(graph) {
 	// directions provided in the partial solution
 	const allPaths = allShortestPaths(graph.sources, graph.sinks, graph.getNeighbors, graph.getWeight);
 
-	const { contestedEdges, sumShortestPaths, edgeDirections } = scoreSolution(allPaths, graph.edges);
+	const { contestedEdges, sumShortestPaths, edgeDirections, numPaths } = scoreSolution(allPaths, graph.edges);
 	
 	const newSolution = {
 		contestedEdges,
 		sumShortestPaths,
 		edgeDirections,
+		numPaths,
 		paths: allPaths,
 		edgeConstraints: new Map()
 	};
@@ -224,18 +240,19 @@ function firstSolution(graph) {
 }
 
 function improveSolution(graph, baseSolution, edge, dir) {
-	
+
 	const newEdgeConstraints = new Map(baseSolution.edgeConstraints).set(edge, dir);
 	const neighborFunc = constrainedNeighborFunc(graph.getNeighbors, newEdgeConstraints);
 
 	//TODO: only recalculate the paths that we need here...
 	const allPaths = allShortestPaths(graph.sources, graph.sinks, neighborFunc, graph.getWeight);
 
-	const { contestedEdges, sumShortestPaths, edgeDirections } = scoreSolution(allPaths, graph.edges);
+	const { contestedEdges, sumShortestPaths, numPaths, edgeDirections } = scoreSolution(allPaths, graph.edges);
 	const newSolution = {
 		contestedEdges,
 		sumShortestPaths,
 		edgeDirections,
+		numPaths,
 		paths: allPaths,
 		edgeConstraints: newEdgeConstraints
 	};
