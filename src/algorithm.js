@@ -82,7 +82,7 @@ function spliceLowest (queue, comparator) {
 	return minElt;
 }
 
-export function shortestPathsFromSource(source, destinations, getNeighbors, getWeight, partialSolutionEdgeDirections) {
+export function dijkstra(source, destinations, getNeighbors, getWeight) {
 
 	// Mark all nodes unvisited. Create a set of all the unvisited nodes called the unvisited set.
 	// Assign to every node a tentative distance value: set it to zero for our initial node and to infinity for all other nodes. Set the initial node as current.[13]
@@ -101,7 +101,7 @@ export function shortestPathsFromSource(source, destinations, getNeighbors, getW
 	while (open.size > 0) {
 		// extract the element from Q with the lowest dist. Open is modified in-place.
 		// TODO: this is the part that is inefficient without a priority queue
-		const current = spliceLowest( open, (a, b) => dist.get(a) - dist.get(b) )
+		const current = spliceLowest( open, (a, b) => dist.get(a) - dist.get(b) );
 
 		// For the current node, consider all of its unvisited neighBors and 
 		//    calculate their tentative distances through the current node. 
@@ -109,19 +109,8 @@ export function shortestPathsFromSource(source, destinations, getNeighbors, getW
 		//    the smaller one. For example, if the current node A is marked with a distance of 6, and the edge connecting it with a neighBor B has length 2, then 
 		//    the distance to B through A will be 6 + 2 = 8. If B was previously marked with a distance greater than 8 then 
 		//    change it to 8. Otherwise, keep the current value.
-		const edges = getNeighbors(current)
-		if (edges) for (const [edge, sibling] of edges) {
+		for (const [edge, sibling] of getNeighbors(current)) {
 			
-			const undirectedEdge = edge.parent;
-			const dir = edge.dir;
-
-			// Skip edges that have a restriction and we're trying to go the wrong way
-			if (partialSolutionEdgeDirections.has(undirectedEdge) &&
-				dir !== partialSolutionEdgeDirections.get(undirectedEdge)
-			) {
-				continue;
-			}
-
 			if (!(visited.has(sibling))) {
 				const alt = dist.get(current) + getWeight(edge);
 				
@@ -190,10 +179,10 @@ all shortest paths from sources to sinks .
 Returns an array of arrays of steps.
 
 */
-export function allShortestPaths(sources, sinks, getNeighbors, getWeight, partialSolutionEdgeDirections) {
+export function allShortestPaths(sources, sinks, getNeighbors, getWeight) {
 	let allPaths = [];
 	for (let source of sources) {
-		const morePaths = shortestPathsFromSource(source, sinks, getNeighbors, getWeight, partialSolutionEdgeDirections)
+		const morePaths = dijkstra(source, sinks, getNeighbors, getWeight);
 		// note that it's possible that some source->sink paths are NOT possible.
 		// they will be omitted from the result
 		allPaths = allPaths.concat(morePaths);

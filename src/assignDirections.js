@@ -182,7 +182,8 @@ function suboptimalDirections(graph, partialSolutionEdgeDirections) {
 
 	// calculate the pairs of shortest paths from source to sink, taking into account the 
 	// directions provided in the partial solution
-	const allPaths = allShortestPaths(graph.sources, graph.sinks, graph.getNeighbors, graph.getWeight, partialSolutionEdgeDirections);
+	const neighborFunc = constrainedNeighborFunc(graph.getNeighbors, partialSolutionEdgeDirections);
+	const allPaths = allShortestPaths(graph.sources, graph.sinks, neighborFunc, graph.getWeight);
 
 	for (let path of allPaths) {
 		newSolution.sumShortestPaths += path.length;
