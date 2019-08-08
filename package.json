@@ -4,7 +4,8 @@
 	"description": "Graph utility library for gamedev",
 	"main": "index.js",
 	"scripts": {
-		"test": "ava --match='!*performance*'"
+		"test": "ava --match='!*performance*'",
+		"perf": "ava --match='Performance'"
 	},
 	"author": "",
 	"license": "ISC",
