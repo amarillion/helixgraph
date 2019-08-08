@@ -1,4 +1,4 @@
-import { allShortestPaths } from "./algorithm";
+import { allShortestPaths, shortestPathsFromSource } from "./algorithm";
 
 export const FORWARD = "F";
 export const REVERSE = "R";
@@ -215,6 +215,7 @@ function scoreSolution(allPaths, edges) {
 	return {
 		contestedEdges, 
 		edgeDirections,
+		edgeUsage,
 		sumShortestPaths,
 		numPaths
 	}
@@ -225,12 +226,13 @@ function firstSolution(graph) {
 	// directions provided in the partial solution
 	const allPaths = allShortestPaths(graph.sources, graph.sinks, graph.getNeighbors, graph.getWeight);
 
-	const { contestedEdges, sumShortestPaths, edgeDirections, numPaths } = scoreSolution(allPaths, graph.edges);
+	const { contestedEdges, sumShortestPaths, edgeDirections, edgeUsage, numPaths } = scoreSolution(allPaths, graph.edges);
 	
 	const newSolution = {
 		contestedEdges,
 		sumShortestPaths,
 		edgeDirections,
+		edgeUsage,
 		numPaths,
 		paths: allPaths,
 		edgeConstraints: new Map()
@@ -244,16 +246,27 @@ function improveSolution(graph, baseSolution, edge, dir) {
 	const newEdgeConstraints = new Map(baseSolution.edgeConstraints).set(edge, dir);
 	const neighborFunc = constrainedNeighborFunc(graph.getNeighbors, newEdgeConstraints);
 
-	//TODO: only recalculate the paths that we need here...
-	const allPaths = allShortestPaths(graph.sources, graph.sinks, neighborFunc, graph.getWeight);
+	const newPaths = new Map(baseSolution.paths);
+	const otherDir = dir === REVERSE ? FORWARD : REVERSE;
+	const affectedSources = baseSolution.edgeUsage.get(edge).get(otherDir);
 
-	const { contestedEdges, sumShortestPaths, numPaths, edgeDirections } = scoreSolution(allPaths, graph.edges);
+	for (const source of affectedSources) {
+		const paths = shortestPathsFromSource(source, graph.sinks, neighborFunc, graph.getWeight);
+		// note that it's possible that some source->sink paths are NOT possible.
+		// they will be omitted from the result
+		newPaths.set(source, paths);
+	}
+	//TODO: only recalculate the paths that we need here...
+	// const allPaths = allShortestPaths(graph.sources, graph.sinks, neighborFunc, graph.getWeight);
+
+	const { contestedEdges, sumShortestPaths, numPaths, edgeUsage, edgeDirections } = scoreSolution(newPaths, graph.edges);
 	const newSolution = {
 		contestedEdges,
 		sumShortestPaths,
 		edgeDirections,
+		edgeUsage,
 		numPaths,
-		paths: allPaths,
+		paths: newPaths,
 		edgeConstraints: newEdgeConstraints
 	};
 	return newSolution;

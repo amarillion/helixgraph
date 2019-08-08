@@ -209,7 +209,7 @@ Returns an array of arrays of steps.
 */
 export function allShortestPaths(sources, sinks, getNeighbors, getWeight) {
 	let allPaths = new Map();
-	for (let source of sources) {
+	for (const source of sources) {
 		const paths = shortestPathsFromSource(source, sinks, getNeighbors, getWeight);
 		// note that it's possible that some source->sink paths are NOT possible.
 		// they will be omitted from the result
