@@ -43,9 +43,8 @@ export function breadthFirstSearch(source, destinations, listNeighbors) {
 	dist.set(source, distance);
 	prev.set(source, [null, null] );
 
-	while (open.length > 0)
-	{
-		let current = open.pop();
+	while (open.length > 0) {
+		const current = open.shift();
 		distance = dist.get(current);
 
 		if (remain.has(current)) {
@@ -53,12 +52,9 @@ export function breadthFirstSearch(source, destinations, listNeighbors) {
 			if (remain.size === 0) break;
 		}
 
-		for (let [dir, destNode] of listNeighbors(current)) {
-			let firstVisit = !dist.has(destNode);
-			let shorterPath = false;
-			if (dist.has(destNode)) shorterPath = dist.get(destNode) > (distance + 1);
-			//TODO: can never have a shorter path in bfs
-			if (firstVisit || shorterPath) {
+		for (const [dir, destNode] of listNeighbors(current)) {
+			const visited = dist.has(destNode);
+			if (!visited) {
 				open.push(destNode);
 				dist.set(destNode, distance + 1);
 				prev.set(destNode, { edge: dir, from: current });
@@ -186,8 +182,8 @@ export function trackback(source, dest, prev) {
 
 export function shortestPathsFromSource(source, destinations, getNeighbors, getWeight) {
 
-	const { prev } = dijkstra(source, destinations, getNeighbors, getWeight);
-	// const { prev } = breadthFirstSearch(source, destinations, getNeighbors);
+	// const { prev } = dijkstra(source, destinations, getNeighbors, getWeight);
+	const { prev } = breadthFirstSearch(source, destinations, getNeighbors);
 
 	// Now backtrack from each destination to the source
 	const result = [];
