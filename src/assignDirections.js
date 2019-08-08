@@ -224,10 +224,9 @@ function firstSolution(graph) {
 }
 
 function improveSolution(graph, baseSolution, edge, dir) {
-	const edgePermutation = baseSolution.edgeConstraints;
-	const modifiedEdgeDirections = new Map(edgePermutation).set(edge, dir);
-
-	const neighborFunc = constrainedNeighborFunc(graph.getNeighbors, modifiedEdgeDirections);
+	
+	const newEdgeConstraints = new Map(baseSolution.edgeConstraints).set(edge, dir);
+	const neighborFunc = constrainedNeighborFunc(graph.getNeighbors, newEdgeConstraints);
 
 	//TODO: only recalculate the paths that we need here...
 	const allPaths = allShortestPaths(graph.sources, graph.sinks, neighborFunc, graph.getWeight);
@@ -238,7 +237,7 @@ function improveSolution(graph, baseSolution, edge, dir) {
 		sumShortestPaths,
 		edgeDirections,
 		paths: allPaths,
-		edgeConstraints: modifiedEdgeDirections
+		edgeConstraints: newEdgeConstraints
 	};
 	return newSolution;
 }
