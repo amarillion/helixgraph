@@ -36,11 +36,11 @@ export function constrainedNeighborFunc(originalNeighborFunc, edgeConstraints) {
 function calcEdgeUsage(allPaths) {
 	const edgeUsage = new Map();
 	for (let path of allPaths) {
-		for (let step of path) {
-			if (!edgeUsage.has(step.edge)) {
-				edgeUsage.set(step.edge, new Set());
+		for (let edge of path) {
+			if (!edgeUsage.has(edge.parent)) {
+				edgeUsage.set(edge.parent, new Set());
 			}
-			edgeUsage.get(step.edge).add(step.dir);
+			edgeUsage.get(edge.parent).add(edge.dir);
 		}
 	}
 	return edgeUsage;

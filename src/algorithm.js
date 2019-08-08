@@ -1,3 +1,5 @@
+import { AssertionError } from "assert";
+
 /**
  * Performs a breadth-first search on a graph.
  * Starting form the source node, expanding until all connected nodes are visited.
@@ -9,7 +11,7 @@
  * 
  * @param {*} source starting node, (can be any object type)
  * @param {*} isTarget function(node) that returns true or false if the given node is a target
- * @param {*} listneighBors function(node) that return the neighBors of given node as an array of [dir, destNode] 
+ * @param {*} listNeighbors function(node) that return the neighBors of given node as an array of [dir, destNode] 
  *             dir is a value that distinguishes edges on the same node. 
  *             I.e. it could be an edge, but on a grid, a compass direction would also suffice.
  * 
@@ -17,10 +19,9 @@
  * @returns {
  *  dist: Map(node, steps)
  * 	prev: Map(node, [dir, srcNode])
- *  destinations: [ node, ... ]
  * }
  *
- * Input graph may be undirected or directed (listneighBors should act correspondingly)
+ * Input graph may be undirected or directed (listNeighbors should act correspondingly)
  * 
  * Guaranteed to return shortest paths for unweighted networks.
  * Complexity: O(V + E)
@@ -30,13 +31,13 @@
  * For more discussion, see: https://stackoverflow.com/questions/25449781/what-is-difference-between-bfs-and-dijkstras-algorithms-when-looking-for-shorte
  * 
  */
-export function breadthFirstSearch(source, isTarget, listneighBors) {
+export function breadthFirstSearch(source, destinations, listNeighbors) {
 
 	let open = [];
 	let dist = new Map();
 	let prev = new Map();
 	let distance = 0;
-	let destinations = [];
+	let remain = new Set(destinations);
 
 	open.push(source);
 	dist.set(source, distance);
@@ -44,28 +45,29 @@ export function breadthFirstSearch(source, isTarget, listneighBors) {
 
 	while (open.length > 0)
 	{
-		let srcNode = open.pop();
-		distance = dist.get(srcNode);
+		let current = open.pop();
+		distance = dist.get(current);
 
-		if (isTarget(srcNode)) {
-			// add to destination list...
-			destinations.push(srcNode);
+		if (remain.has(current)) {
+			remain.delete(current);
+			if (remain.size === 0) break;
 		}
 
-		for (let [dir, destNode] of listneighBors(srcNode)) {
+		for (let [dir, destNode] of listNeighbors(current)) {
 			let firstVisit = !dist.has(destNode);
 			let shorterPath = false;
 			if (dist.has(destNode)) shorterPath = dist.get(destNode) > (distance + 1);
+			//TODO: can never have a shorter path in bfs
 			if (firstVisit || shorterPath) {
 				open.push(destNode);
 				dist.set(destNode, distance + 1);
-				prev.set(destNode, [ dir, srcNode ]);
+				prev.set(destNode, { edge: dir, from: current });
 			}
 		}
+		
 	}
 
 	return {
-		destinations, 
 		prev,
 		dist
 	};
@@ -86,7 +88,6 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
 
 	// Mark all nodes unvisited. Create a set of all the unvisited nodes called the unvisited set.
 	// Assign to every node a tentative distance value: set it to zero for our initial node and to infinity for all other nodes. Set the initial node as current.[13]
-
 	const dist = new Map();
 	const visited = new Set();
 	const prev = new Map();
@@ -144,30 +145,57 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
 		}
 	}
 
+	return {
+		prev,
+		dist
+	};
+}
+
+/**
+ * Creates a path from the results of dijsktra, bfs or astar, by tracking back using a prev map.
+ * @param {*} source starting node
+ * @param {*} dest target node
+ * @param {*} prev is a Map(destNode, { edge, srcNode }) as returned bij `dijkstra`, `astar` or `breadthFirstSearch`)
+ * 
+ * @returns: an array of [ edge ], or `null` if there is no path possible, i.e. dest is unreachable from source.
+ * 
+ * TODO: for some applications, better to return an array of [ 'node' ] or an array of both?
+ */
+export function trackback(source, dest, prev) {
+	const path = [];
+	let current = dest;
+
+	// set a maximum no of iterations to prevent infinite loop
+	for(let i = 0; i < 1000; ++i) {
+		const step = prev.get(current);
+		if (!step) {
+			return null; // no valid path
+		}
+
+		path.unshift( step.edge );
+		current = step.from;
+		
+		if (current === source) {
+			// path finished!
+			return path;
+		}
+	}
+
+	throw new AssertionError({ message: "Reached iteration limit when constructing path" });
+}
+
+export function shortestPathsFromSource(source, destinations, getNeighbors, getWeight) {
+
+	const { prev } = dijkstra(source, destinations, getNeighbors, getWeight);
+	// const { prev } = breadthFirstSearch(source, destinations, getNeighbors);
+
 	// Now backtrack from each destination to the source
 	const result = [];
 	for (let dest of destinations) {
-		const path = [];
-
-		let current = dest;
-
-		// set a maximum no of iterations to prevent infinite loop
-		for(let i = 0; i < 1000; ++i) {
-			const step = prev.get(current);
-			if (!step) {
-				break; // no valid path
-			}
-
-			path.unshift({ edge: step.edge.parent, dir: step.edge.dir });
-			current = step.from;
-			
-			if (current === source) {
-				// path finished!
-				result.push(path);
-				break;
-			}
+		const path = trackback(source, dest, prev);
+		if (path !== null) {
+			result.push(path);
 		}
-		
 	}
 
 	return result;
@@ -182,7 +210,7 @@ Returns an array of arrays of steps.
 export function allShortestPaths(sources, sinks, getNeighbors, getWeight) {
 	let allPaths = [];
 	for (let source of sources) {
-		const morePaths = dijkstra(source, sinks, getNeighbors, getWeight);
+		const morePaths = shortestPathsFromSource(source, sinks, getNeighbors, getWeight);
 		// note that it's possible that some source->sink paths are NOT possible.
 		// they will be omitted from the result
 		allPaths = allPaths.concat(morePaths);
