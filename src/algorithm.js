@@ -85,7 +85,7 @@ function spliceLowest (queue, comparator) {
 	return minElt;
 }
 
-export function shortestPathsFromSource(source, destinations, indexedUndirectedGraph, partialSolutionEdgeDirections) {
+export function shortestPathsFromSource(source, destinations, getNeighbors, getWeight, partialSolutionEdgeDirections) {
 
 	// Mark all nodes unvisited. Create a set of all the unvisited nodes called the unvisited set.
 	// Assign to every node a tentative distance value: set it to zero for our initial node and to infinity for all other nodes. Set the initial node as current.[13]
@@ -112,7 +112,7 @@ export function shortestPathsFromSource(source, destinations, indexedUndirectedG
 		//    the smaller one. For example, if the current node A is marked with a distance of 6, and the edge connecting it with a neighbour B has length 2, then 
 		//    the distance to B through A will be 6 + 2 = 8. If B was previously marked with a distance greater than 8 then 
 		//    change it to 8. Otherwise, keep the current value.
-		const edges = indexedUndirectedGraph.edgesByNode[current]
+		const edges = getNeighbors(current)
 		if (edges) for (const [edge, sibling] of edges) {
 			
 			const undirectedEdge = edge.parent;
@@ -126,7 +126,7 @@ export function shortestPathsFromSource(source, destinations, indexedUndirectedG
 			}
 
 			if (!(visited.has(sibling))) {
-				const alt = dist.get(current) + indexedUndirectedGraph.getWeight(edge);
+				const alt = dist.get(current) + getWeight(edge);
 				
 				// any node that is !visited and has a distance assigned should be in open set.
 				open.add (sibling); // may be already in there, that is OK.
@@ -193,10 +193,10 @@ all shortest paths from sources to sinks .
 Returns an array of arrays of steps.
 
 */
-function allShortestPaths(sources, sinks, indexedUndirectedGraph, partialSolutionEdgeDirections) {
+function allShortestPaths(sources, sinks, getNeighbors, getWeight, partialSolutionEdgeDirections) {
 	let allPaths = [];
 	for (let source of sources) {
-		const morePaths = shortestPathsFromSource(source, sinks, indexedUndirectedGraph, partialSolutionEdgeDirections)
+		const morePaths = shortestPathsFromSource(source, sinks, getNeighbors, getWeight, partialSolutionEdgeDirections)
 		// note that it's possible that some source->sink paths are NOT possible.
 		// they will be omitted from the result
 		allPaths = allPaths.concat(morePaths);
@@ -229,7 +229,7 @@ function suboptimalDirections(graph, partialSolutionEdgeDirections) {
 
 	// calculate the pairs of shortest paths from source to sink, taking into account the 
 	// directions provided in the partial solution
-	const allPaths = allShortestPaths(graph.sources, graph.sinks, graph, partialSolutionEdgeDirections);
+	const allPaths = allShortestPaths(graph.sources, graph.sinks, graph.getNeighbors, graph.getWeight, partialSolutionEdgeDirections);
 
 	for (let path of allPaths) {
 		newSolution.sumShortestPaths += path.length;
@@ -289,6 +289,10 @@ export function indexGraph(graphData) {
 		else {
 			result.edgesByNode[nodeRight] = [ edgeRight ];
 		}
+	}
+
+	result.getNeighbors = function(node) {
+		return result.edgesByNode[node];
 	}
 
 	for (let n of graphData.nodes) {
