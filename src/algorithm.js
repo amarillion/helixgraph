@@ -1,7 +1,6 @@
 import { AssertionError } from "assert";
 
 export function bfsVisit(source, listNeighbors, callback) {
-
 	let open = [];
 	let visited = new Set();
 
@@ -20,7 +19,6 @@ export function bfsVisit(source, listNeighbors, callback) {
 			}
 		}
 	}
-
 }
 
 /**
@@ -33,8 +31,8 @@ export function bfsVisit(source, listNeighbors, callback) {
  * (TODO: maybe this should be factored out)
  * 
  * @param {*} source starting node, (can be any object type)
- * @param {*} isTarget function(node) that returns true or false if the given node is a target
- * @param {*} listNeighbors function(node) that return the neighBors of given node as an array of [dir, destNode] 
+ * @param {array} distinations function(node) that returns true or false if the given node is a target
+ * @param {function} listNeighbors function(node) that return the neighBors of given node as an array of [dir, destNode] 
  *             dir is a value that distinguishes edges on the same node. 
  *             I.e. it could be an edge, but on a grid, a compass direction would also suffice.
  * 
@@ -179,10 +177,17 @@ export function trackbackEdges(source, dest, prev) {
 }
 
 /**
+ * 
+ * @callback trackbackFun
+ * @param {*} fromNode
+ * @param {*} edge
+ * @param {*} toNode
+ * 
  * Creates a path from the results of dijsktra, bfs or astar, by tracking back using a prev map.
  * @param {*} source starting node
  * @param {*} dest target node
- * @param {*} prev is a Map(destNode, { edge, srcNode }) as returned bij `dijkstra`, `astar` or `breadthFirstSearch`)
+ * @param {Map} prev is a Map(destNode, { edge, srcNode }) as returned bij `dijkstra`, `astar` or `breadthFirstSearch`)
+ * @param {trackbackFun} callback called for each step of the path from source to dest, but in reverse order
  * 
  * @returns: an array of [ edge ], or `null` if there is no path possible, i.e. dest is unreachable from source.
  * 
