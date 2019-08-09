@@ -1,5 +1,28 @@
 import { AssertionError } from "assert";
 
+export function bfsVisit(source, listNeighbors, callback) {
+
+	let open = [];
+	let visited = new Set();
+
+	open.push(source);
+	visited.add(source);
+
+	while (open.length > 0) {
+		const current = open.shift();
+
+		callback(current);
+
+		for (const [, destNode] of listNeighbors(current)) {
+			if (!visited.has(destNode)) {
+				open.push(destNode);
+				visited.add(destNode);
+			}
+		}
+	}
+
+}
+
 /**
  * Performs a breadth-first search on a graph.
  * Starting form the source node, expanding until all connected nodes are visited.
@@ -147,6 +170,14 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
 	};
 }
 
+export function trackbackEdges(source, dest, prev) {
+	const path = [];
+	const isValid = trackback (source, dest, prev, (from, edge /*, to */) => {
+		path.unshift( edge );
+	});
+	return isValid ? path : null;
+}
+
 /**
  * Creates a path from the results of dijsktra, bfs or astar, by tracking back using a prev map.
  * @param {*} source starting node
@@ -157,23 +188,22 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
  * 
  * TODO: for some applications, better to return an array of [ 'node' ] or an array of both?
  */
-export function trackback(source, dest, prev) {
-	const path = [];
+export function trackback(source, dest, prev, callback) {
 	let current = dest;
 
 	// set a maximum no of iterations to prevent infinite loop
 	for(let i = 0; i < 1000; ++i) {
 		const step = prev.get(current);
 		if (!step) {
-			return null; // no valid path
+			return false; // no valid path
 		}
 
-		path.unshift( step.edge );
+		callback(step.from, step.edge, current);
 		current = step.from;
 		
 		if (current === source) {
 			// path finished!
-			return path;
+			return true; // valid path
 		}
 	}
 
@@ -188,7 +218,7 @@ export function shortestPathsFromSource(source, destinations, getNeighbors, getW
 	// Now backtrack from each destination to the source
 	const result = [];
 	for (let dest of destinations) {
-		const path = trackback(source, dest, prev);
+		const path = trackbackEdges(source, dest, prev);
 		if (path !== null) {
 			result.push(path);
 		}
