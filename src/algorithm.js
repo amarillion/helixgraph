@@ -1,4 +1,5 @@
 import { AssertionError } from "assert";
+import PriorityQueue from "./PriorityQueue";
 
 export function bfsVisit(source, listNeighbors, callback) {
 	let open = [];
@@ -168,9 +169,52 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
 	};
 }
 
+
+export function astar(source, dest, getNeighbors, getWeight, heuristicFunc) {
+
+	const dist = new Map();
+	const prev = new Map();
+	
+	const priority = new Map();
+	const open = new PriorityQueue((a, b) => priority.get(a) < priority.get(b));
+
+	open.push(source);
+	dist.set(source, 0);
+
+	while (open.size() > 0) {
+		const current = open.pop();
+
+		if (current === dest) {
+			break;
+			// reached destiniation!
+		}
+		
+		for (const [edge, sibling] of getNeighbors(current)) {
+			
+			const cost = dist.get(current) + getWeight(edge);
+			const oldCost = dist.has(sibling) ? dist.get(sibling) : Infinity;
+			if (cost < oldCost) {
+
+				dist.set(sibling, cost);
+				priority.set(sibling, cost + heuristicFunc(sibling, dest));
+				open.push(sibling);
+				
+				// build back-tracking map
+				prev.set(sibling, { edge, from: current, to: sibling });
+			}
+		}
+	}
+
+	return {
+		prev,
+		dist
+	};
+
+}
+
 export function trackbackEdges(source, dest, prev) {
 	const path = [];
-	const isValid = trackback (source, dest, prev, (from, edge /*, to */) => {
+	const isValid = trackback (source, dest, prev, (from, edge, to ) => {
 		path.unshift( edge );
 	});
 	return isValid ? path : null;
