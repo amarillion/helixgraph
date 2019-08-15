@@ -5,7 +5,8 @@
 	"main": "index.js",
 	"scripts": {
 		"test": "ava --match='!*performance*'",
-		"perf": "ava --match='Performance'"
+		"perf": "ava --match='Performance'",
+		"lint": "eslint **/*.js"
 	},
 	"author": "",
 	"license": "ISC",

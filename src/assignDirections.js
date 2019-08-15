@@ -49,8 +49,8 @@ function calcEdgeUsage(allPaths) {
 	for (const [ source, pathList ] of allPaths.entries()) {
 		for (const path of pathList) {
 			for (let edge of path) {
-				const edgeUsageEntry = getOrDefault(edgeUsage, edge.parent, () => new Map())
-				const edgeUsageValue = getOrDefault(edgeUsageEntry, edge.dir, () => new Set())
+				const edgeUsageEntry = getOrDefault(edgeUsage, edge.parent, () => new Map());
+				const edgeUsageValue = getOrDefault(edgeUsageEntry, edge.dir, () => new Set());
 				edgeUsageValue.add(source);
 			}
 		}
@@ -66,7 +66,8 @@ export function indexGraph(graphData) {
 		edgesByNode: {},
 		sources: [],
 		sinks: []
-	}
+	};
+
 	// add getAdjacent function
 
 	for (const edge of graphData.edges) {
@@ -93,7 +94,7 @@ export function indexGraph(graphData) {
 
 	result.getNeighbors = function(node) {
 		return result.edgesByNode[node];
-	}
+	};
 
 	for (let n of graphData.nodes) {
 		if (graphData.isSource(n)) result.sources.push(n);
@@ -149,13 +150,14 @@ function permutateEdgeDirections(graph, baseSolution) {
 			if (subsolution.numPaths < baseSolution.numPaths) continue;
 
 			// pick a solution if:
-				// there are fewer contested edges
-					// if equal, the sum of the shortest paths is lower 
+			// there are fewer contested edges
+			// if equal, the sum of the shortest paths is lower 
 			if (first || 
 				(subsolution.contestedEdges.length < minSolution.contestedEdges.length ||
-				(subsolution.contestedEdges.length === minSolution.contestedEdges.length && 
+					(subsolution.contestedEdges.length === minSolution.contestedEdges.length && 
 					subsolution.sumShortestPaths < minSolution.sumShortestPaths)
-			)) {
+				)
+			) {
 				first = false;
 				minSolution = subsolution;
 			}
@@ -176,7 +178,7 @@ export function optimalDirections(graphData) {
 	let solution = firstSolution(graph);
 	
 	if (solution.contestedEdges.length > 0) {
-		solution = permutateEdgeDirections(graph, solution, new Map())
+		solution = permutateEdgeDirections(graph, solution, new Map());
 	}
 	return solution;
 }
@@ -204,7 +206,7 @@ function scoreSolution(allPaths, edges) {
 		if (edgeUsage.has(edge)) {
 			const sourcesByDir = edgeUsage.get(edge);
 			if (sourcesByDir.size > 1) {
-				contestedEdges.push(edge)
+				contestedEdges.push(edge);
 			}
 			else {
 				edgeDirections.set(edge, sourcesByDir.keys().next().value);
@@ -218,7 +220,7 @@ function scoreSolution(allPaths, edges) {
 		edgeUsage,
 		sumShortestPaths,
 		numPaths
-	}
+	};
 }
 
 function firstSolution(graph) {

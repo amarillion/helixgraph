@@ -214,7 +214,7 @@ export function astar(source, dest, getNeighbors, getWeight, heuristicFunc) {
 
 export function trackbackEdges(source, dest, prev) {
 	const path = [];
-	const isValid = trackback (source, dest, prev, (from, edge, to ) => {
+	const isValid = trackback (source, dest, prev, (from, edge /*, to */ ) => {
 		path.unshift( edge );
 	});
 	return isValid ? path : null;
@@ -259,7 +259,7 @@ export function trackback(source, dest, prev, callback) {
 	throw new AssertionError({ message: "Reached iteration limit when constructing path" });
 }
 
-export function shortestPathsFromSource(source, destinations, getNeighbors, getWeight) {
+export function shortestPathsFromSource(source, destinations, getNeighbors /*, getWeight */) {
 
 	// const { prev } = dijkstra(source, destinations, getNeighbors, getWeight);
 	const { prev } = breadthFirstSearch(source, destinations, getNeighbors);

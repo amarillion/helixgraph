@@ -11,7 +11,7 @@ test("astar on a grid", t => {
 
 	const manhattan = (x1, y1, x2, y2) => Math.abs(x2 - x1) + Math.abs(y2 - y1);
 
-	const { dist, prev } = astar(source, dest, 
+	const { /* dist, */ prev } = astar(source, dest, 
 		(node) => graph.getNeighbors(node), 
 		(edge) => graph.getWeight(edge), 
 		(node, goal) => 1.01 * manhattan(graph.getx(node), graph.gety(node), graph.getx(goal), graph.gety(goal))
@@ -53,7 +53,7 @@ test("use bfs distance map for astar heuristic", t => {
 	const { prev } = astar(dest, source, 
 		(node) => graph.getNeighbors(node), 
 		() => 1, 
-		(node, goal) => bsdDist.get(node)
+		(node /*, goal */) => bsdDist.get(node)
 	);
 
 	console.log("\n\n" + graph.toString());
@@ -73,7 +73,7 @@ test("use bfs distance map for astar heuristic", t => {
 	console.log("\n\n" + graph.toString());
 
 	const path = [];
-	const isValid = trackback (dest, source, prev, (from, edge, to ) => {
+	const isValid = trackback (dest, source, prev, (from, edge /* , to */ ) => {
 		const INVERSE = {
 			0: 2,
 			1: 3,
