@@ -51,7 +51,7 @@ export function simplify(source, graph) {
 	const result = {
 		getWeight: (e) => e.weight,
 		getLeft: (e) => e.left,
-		getRight: (e) => e.right,	
+		getRight: (e) => e.right,
 		isSource: graph.isSource,
 		isSink: graph.isSink,
 		nodes: [],

@@ -63,7 +63,7 @@ export function breadthFirstSearch(source, destinations, listNeighbors) {
 
 	open.push(source);
 	dist.set(source, distance);
-	prev.set(source, [null, null] );
+	prev.set(source, { edge: null, from: null } );
 
 	while (open.length > 0) {
 		const current = open.shift();
