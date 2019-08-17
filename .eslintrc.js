@@ -35,6 +35,8 @@ module.exports = {
 		"no-underscore-dangle": [
 			"error", 
 			{ "allowAfterThis": true }
-		]
+		],
+		// allow while(true)
+		"no-constant-condition": ["error", { "checkLoops": false }]
 	}
 }

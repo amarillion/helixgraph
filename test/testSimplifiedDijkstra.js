@@ -1,8 +1,8 @@
 import test from "ava";
-import { T_JUNCTION, LINEAR_THREE, DEAD_END, CYCLICAL } from "./helper/graphData";
+import { T_JUNCTION, LINEAR_THREE, CYCLICAL } from "./helper/graphData";
 import { indexGraph, FORWARD, REVERSE } from "../src/assignDirections";
 import { simplify, flattenPath } from "../src/simplify";
-import { dijkstra, trackback, trackbackNodes, trackbackEdges } from "../src/algorithm";
+import { dijkstra, trackbackNodes, trackbackEdges } from "../src/algorithm";
 
 test("Simplified dijkstra: linear", t => {
 	const graph = indexGraph(LINEAR_THREE);
