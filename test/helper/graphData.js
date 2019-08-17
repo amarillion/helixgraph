@@ -12,6 +12,30 @@ export const LINEAR = {
 	isSink: (n) => ['B'].indexOf(n) >= 0,
 };
 
+export const LINEAR_THREE = {
+	...BASE,
+	nodes: [ 'A', 'B', 'C' ],
+	edges: [ 'A-B', 'B-C' ],
+	isSource: (n) => ['A'].indexOf(n) >= 0,
+	isSink: (n) => ['C'].indexOf(n) >= 0,
+};
+
+export const T_JUNCTION = {
+	...BASE,
+	nodes: [ 'A', 'B', 'C', 'D', 'E', 'F', 'G' ],
+	edges: [ 'A-B', 'B-C', 'C-D', 'D-E', 'C-F', 'F-G' ],
+	isSource: (n) => ['A', 'G'].indexOf(n) >= 0,
+	isSink: (n) => ['E'].indexOf(n) >= 0,
+};
+
+export const DEAD_END = {
+	...BASE,
+	nodes: [ 'A', 'B', 'C', 'D', 'E', 'F', 'G' ],
+	edges: [ 'A-B', 'B-C', 'C-D', 'D-E', 'C-F', 'F-G' ],
+	isSource: (n) => ['A'].indexOf(n) >= 0,
+	isSink: (n) => ['E'].indexOf(n) >= 0,
+};
+
 export const TWO_ROUTES = {
 	...BASE,
 	nodes: [ 'A', 'B', 'C' ],

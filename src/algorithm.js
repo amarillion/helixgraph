@@ -220,6 +220,15 @@ export function trackbackEdges(source, dest, prev) {
 	return isValid ? path : null;
 }
 
+export function trackbackNodes(source, dest, prev) {
+	const path = [];
+	const isValid = trackback (source, dest, prev, (from, edge, to ) => {
+		path.unshift( to );
+	});
+	path.unshift(source);
+	return isValid ? path : null;
+}
+
 /**
  * 
  * @callback trackbackFun

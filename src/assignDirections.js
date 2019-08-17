@@ -96,6 +96,10 @@ export function indexGraph(graphData) {
 		return result.edgesByNode[node];
 	};
 
+	result.getWeight = function(edge) {
+		return graphData.getWeight(edge.parent);
+	};
+
 	for (let n of graphData.nodes) {
 		if (graphData.isSource(n)) result.sources.push(n);
 		if (graphData.isSink(n)) result.sinks.push(n);
