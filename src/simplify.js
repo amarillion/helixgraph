@@ -46,6 +46,13 @@ function followEdge(source, edge, dest, graph, visited) {
 		
 }
 
+/**
+ * 
+ * @param {*} source a starting node, typically one of the possible source nodes.
+ * @param {*} graph an indexed graph
+ * 
+ * @result a non-indexed graph
+ */
 export function simplify(source, graph) {
 	
 	const result = {
@@ -86,8 +93,7 @@ export function simplify(source, graph) {
 		}
 	}
 	result.nodes = [ ...keyNodes.keys() ];
-
-	return indexGraph(result);
+	return result;
 }
 
 

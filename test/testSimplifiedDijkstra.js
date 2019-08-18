@@ -6,7 +6,7 @@ import { dijkstra, trackbackNodes, trackbackEdges } from "../src/algorithm";
 
 test("Simplified dijkstra: linear", t => {
 	const graph = indexGraph(LINEAR_THREE);
-	const graph2 = simplify("A", graph);
+	const graph2 = indexGraph(simplify("A", graph));
 	
 	const { prev } = dijkstra("A", ["C"], graph2.getNeighbors, graph2.getWeight);
 	const path1 = trackbackNodes("A", "C", prev);
@@ -16,7 +16,7 @@ test("Simplified dijkstra: linear", t => {
 
 test("Simplified dijkstra: t-junction", t => {
 	const graph = indexGraph(T_JUNCTION);
-	const graph2 = simplify("A", graph);
+	const graph2 = indexGraph(simplify("A", graph));
 	
 	const { prev } = dijkstra("G", "E", graph2.getNeighbors, graph2.getWeight);
 
@@ -37,7 +37,7 @@ test("Simplified dijkstra: t-junction", t => {
 
 test("Simplified dijkstra: cycle", t => {
 	const graph = indexGraph(CYCLICAL);
-	const graph2 = simplify("A", graph);
+	const graph2 = indexGraph(simplify("A", graph));
 	
 	const { prev } = dijkstra("A", "F", graph2.getNeighbors, graph2.getWeight);
 
