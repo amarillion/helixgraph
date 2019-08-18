@@ -187,7 +187,7 @@ export function optimalDirections(graphData) {
 	return solution;
 }
 
-function scoreSolution(allPaths, edges) {
+function scoreSolution(allPaths) {
 
 	let sumShortestPaths = 0;
 	let numPaths = 0;
@@ -206,21 +206,18 @@ function scoreSolution(allPaths, edges) {
 	const edgeUsage = calcEdgeUsage(allPaths);
 
 	// assign directions in a new partial solution given uncontested edges in the paths.
-	for (let edge of edges) {			
-		if (edgeUsage.has(edge)) {
-			const sourcesByDir = edgeUsage.get(edge);
-			if (sourcesByDir.size > 1) {
-				contestedEdges.push(edge);
-			}
-			else {
-				edgeDirections.set(edge, sourcesByDir.keys().next().value);
-			}
+	for (let [ edge, sourcesByDir ] of edgeUsage.entries()) {
+		if (sourcesByDir.size > 1) {
+			contestedEdges.push(edge);
+		}
+		else {
+			edgeDirections.set(edge, sourcesByDir.keys().next().value);
 		}
 	}
 
 	return {
 		contestedEdges, 
-		edgeDirections,
+		edgeDirections, // directions for those edges that could be unambiguously defined.
 		edgeUsage,
 		sumShortestPaths,
 		numPaths
@@ -232,7 +229,7 @@ function firstSolution(graph) {
 	// directions provided in the partial solution
 	const allPaths = allShortestPaths(graph.sources, graph.sinks, graph.getNeighbors, graph.getWeight);
 
-	const { contestedEdges, sumShortestPaths, edgeDirections, edgeUsage, numPaths } = scoreSolution(allPaths, graph.edges);
+	const { contestedEdges, sumShortestPaths, edgeDirections, edgeUsage, numPaths } = scoreSolution(allPaths);
 	
 	const newSolution = {
 		contestedEdges,
@@ -265,7 +262,7 @@ function improveSolution(graph, baseSolution, edge, dir) {
 	//TODO: only recalculate the paths that we need here...
 	// const allPaths = allShortestPaths(graph.sources, graph.sinks, neighborFunc, graph.getWeight);
 
-	const { contestedEdges, sumShortestPaths, numPaths, edgeUsage, edgeDirections } = scoreSolution(newPaths, graph.edges);
+	const { contestedEdges, sumShortestPaths, numPaths, edgeUsage, edgeDirections } = scoreSolution(newPaths);
 	const newSolution = {
 		contestedEdges,
 		sumShortestPaths,
