@@ -1,46 +1,75 @@
-import { indexGraph, FORWARD, REVERSE } from "./assignDirections";
+import { mmArrayPush } from "./multimap.js";
 
-function followEdge(source, edge, dest, graph, visited) {
-	const edgeChain = [edge];
-	const nodeChain = [source];
-	let current =  dest;
+function followEdge(source, edge, next, isSource, isSink, getNeighbors, visited) {
+	const forwardChain = {
+		edgeChain: [edge],
+		nodeChain: [source],
+	};
+	const reverseChain = {
+		edgeChain: [],
+		nodeChain: [],
+	};
+
+	let prev = source;
+	let current =  next;
 
 	while (true) {
 		if (visited.has(current)) {
-			// console.log("  - discarded because current node is already visited");
-			return null;
+			// discarded because this path has already been visited
+			return [ null, null ];
 		}
-		
-		const degree = graph.getNeighbors(current).length; 
-		const isKeyNode = graph.isSource(current) || 
-				graph.isSink(current) || 
+
+		let reverseStep = null;
+		const nonReverseSteps = [];
+		for (const step of getNeighbors(current)) {
+			if (step[1] === prev) {
+				reverseStep = step;
+				// NB we discard any double reverse Steps
+			}
+			else {
+				nonReverseSteps.push(step);
+			}
+		}
+
+		const degree = nonReverseSteps.length + 1;
+		const isKeyNode = isSource(current) || 
+				isSink(current) || 
 				degree > 2;
 
 		if (isKeyNode) {
+
 			// chain ends
-			return { nodeChain, 
-				edgeChain, 
+			// final reverse step
+			reverseChain.edgeChain.unshift(reverseStep[0]);
+			reverseChain.nodeChain.unshift(current);
+			
+			return [{ nodeChain: forwardChain.nodeChain, 
+				edgeChain: forwardChain.edgeChain, 
 				left: source,
 				right: current,
-				weight: edgeChain.length 
-			};
+				weight: forwardChain.edgeChain.length 
+			}, {
+				nodeChain: reverseChain.nodeChain,
+				edgeChain: reverseChain.edgeChain,
+				left: current,
+				right: source,
+				weight: reverseChain.edgeChain.length 
+			}];
 		}
 		else if (degree === 1) {
-			// console.log("  - discarded because it is a dead end");
 			// dead end
-			return null;
+			return [ null, null ];
 		}
 		else {
+			// degree must be 2. nonReverseStep length must be 1.
 			visited.add(current);
-			
-			// continue chain
-			const nextStep = graph.getNeighbors(current).find( 
-				(step) => !visited.has(step[1])
-			);
-			const next = nextStep[1];
-			edgeChain.push(nextStep[0]);
-			nodeChain.push(current);
-			current = next;
+			const forwardStep = nonReverseSteps[0];
+			forwardChain.edgeChain.push(forwardStep[0]);
+			forwardChain.nodeChain.push(current);
+			reverseChain.edgeChain.unshift(reverseStep[0]);
+			reverseChain.nodeChain.unshift(current);
+			prev = current;
+			current = forwardStep[1];
 		}
 	}
 		
@@ -53,16 +82,21 @@ function followEdge(source, edge, dest, graph, visited) {
  * 
  * @result a non-indexed graph
  */
-export function simplify(source, graph) {
+export function simplify(source, isSource, isSink, getNeighbors) {
 	
 	const result = {
 		getWeight: (e) => e.weight,
 		getLeft: (e) => e.left,
 		getRight: (e) => e.right,
-		isSource: graph.isSource,
-		isSink: graph.isSink,
+		isSource: isSource,
+		isSink: isSink,
+		sources: [],
+		sinks: [],
 		nodes: [],
-		edges: [],
+		edgesByNode: new Map()
+	};
+	result.getNeighbors = function(node) {
+		return result.edgesByNode.get(node);
 	};
 
 	const visited = new Set();
@@ -73,21 +107,31 @@ export function simplify(source, graph) {
 	while (open.length > 0) {
 		const current = open.shift();
 		if (visited.has(current)) continue;
-		visited.add(current);
 		
-		const neighbors = graph.getNeighbors(current);
+		if (isSource(current)) {
+			result.sources.push(current);
+		}
+		if (isSink(current)) {
+			result.sinks.push(current);
+		}
+		
+		visited.add(current);
+
 		// console.log ("Opening node", { current });
-		for (const [edge, dest] of neighbors) {
+		for (const [edge, dest] of getNeighbors(current)) {
 			// console.log ("  Checking neighbor", { edge, dest });
-			const newEdge = followEdge(current, edge, dest, graph, visited);
-			
-			if (newEdge) {
+			const chains = followEdge(current, edge, dest, isSource, isSink, getNeighbors, visited);
+			const [ forwardEdge, reverseEdge ] = chains;
+
+			if (forwardEdge && reverseEdge) {
 				// console.log ("  Adding new edge and node", { node: newEdge.right, edge: newEdge });
-				result.edges.push(newEdge);
-				
-				if (!visited.has(newEdge.right)) {
-					keyNodes.add(newEdge.right);
-					open.push(newEdge.right);
+
+				mmArrayPush (result.edgesByNode, forwardEdge.left, [ forwardEdge, forwardEdge.right ]);
+				mmArrayPush (result.edgesByNode, reverseEdge.left, [ reverseEdge, reverseEdge.right ]);
+
+				if (!visited.has(forwardEdge.right)) {
+					keyNodes.add(forwardEdge.right);
+					open.push(forwardEdge.right);
 				}
 			}
 		}
@@ -105,12 +149,7 @@ export function simplify(source, graph) {
  * 
  */
 export function flattenPath(path) {
-	
-	function reverseEdgeChain(edgeChain) {
-		return edgeChain.map(e => ({ parent: e.parent, dir: e.dir === FORWARD ? REVERSE: FORWARD }) ).reverse();
-	}
-
 	return path.reduce(
-		(acc, e) => e.dir === FORWARD ? acc.concat(e.parent.edgeChain) : acc.concat(reverseEdgeChain(e.parent.edgeChain)), 
+		(acc, e) => acc.concat(e.edgeChain), 
 		[] );
 }

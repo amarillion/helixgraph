@@ -1,4 +1,5 @@
 import { allShortestPaths, shortestPathsFromSource } from "./algorithm";
+import { mmArrayPush } from "./multimap.js";
 
 export const FORWARD = "F";
 export const REVERSE = "R";
@@ -72,24 +73,11 @@ export function indexGraph(graphData) {
 		const nodeRight = graphData.getRight(edge);
 		const edgeLeft = { parent: edge, dir: FORWARD };
 		const edgeRight = { parent: edge, dir: REVERSE };
-		const stepLeft = [ edgeLeft, nodeRight ];
-		const stepRight = [ edgeRight, nodeLeft ];
 		result.reverse.set(edgeLeft, edgeRight);
 		result.reverse.set(edgeRight, edgeLeft);
 
-		if (result.edgesByNode.has(nodeLeft)) {
-			result.edgesByNode.get(nodeLeft).push(stepLeft);
-		}
-		else {
-			result.edgesByNode.set(nodeLeft, [ stepLeft ]);
-		}
-
-		if (result.edgesByNode.has(nodeRight)) {
-			result.edgesByNode.get(nodeRight).push(stepRight);
-		}
-		else {
-			result.edgesByNode.set(nodeRight, [ stepRight ]);
-		}
+		mmArrayPush(result.edgesByNode, nodeLeft, [ edgeLeft, nodeRight ]);
+		mmArrayPush(result.edgesByNode, nodeRight, [ edgeRight, nodeLeft ]);
 	}
 
 	result.getNeighbors = function(node) {
