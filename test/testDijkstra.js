@@ -1,5 +1,5 @@
 import test from "ava";
-import { shortestPathsFromSource } from "../src/algorithm.js";
+import { shortestPathsFromSource, edgeBetween } from "../src/algorithm.js";
 import { indexGraph, FORWARD, REVERSE, constrainedNeighborFunc } from "../src/assignDirections.js";
 import { LINEAR, ALTERNATING_AXIS, TWO_ROUTES } from "./helper/graphData";
 
@@ -14,9 +14,9 @@ test("simple dijkstra", t => {
 
 test("no possible path dijkstra", t => {
 	const graph = indexGraph(LINEAR);
-
 	// mark A-B as a reverse directed edge, making it impossible to find a path
-	const neighborFunc = constrainedNeighborFunc(graph.getNeighbors, new Map().set("A-B", REVERSE));
+	const edgeAB = edgeBetween(graph.getNeighbors, "A", "B");
+	const neighborFunc = constrainedNeighborFunc(graph.getNeighbors, new Set().add(edgeAB));
 	const paths = shortestPathsFromSource("A", graph.sinks, neighborFunc, graph.getWeight);
 	t.deepEqual (paths, []);
 });
@@ -38,13 +38,15 @@ test("alternating dijkstra", t => {
 test("cyclical dijkstra with direction restrictions", t => {
 	const graph = indexGraph(TWO_ROUTES);
 	
-	let neighborFunc = constrainedNeighborFunc(graph.getNeighbors, new Map().set("C-A", FORWARD));
+	const edgeAC = edgeBetween(graph.getNeighbors, "A", "C");
+	let neighborFunc = constrainedNeighborFunc(graph.getNeighbors, new Set().add(edgeAC));
 	let paths = shortestPathsFromSource("A", graph.sinks, neighborFunc, graph.getWeight);
 	t.deepEqual (paths, [
 		[ { parent: "A-B", dir: FORWARD }, { parent: "B-C", dir: FORWARD } ],
 	]);
 	
-	neighborFunc = constrainedNeighborFunc(graph.getNeighbors, new Map().set("C-A", REVERSE));
+	const edgeCA = edgeBetween(graph.getNeighbors, "C", "A");
+	neighborFunc = constrainedNeighborFunc(graph.getNeighbors, new Set().add(edgeCA));
 	paths = shortestPathsFromSource("A", graph.sinks, neighborFunc, graph.getWeight);
 	t.deepEqual (paths, [
 		[ { parent: "C-A", dir: REVERSE } ],

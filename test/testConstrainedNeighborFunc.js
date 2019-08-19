@@ -1,6 +1,7 @@
 import test from "ava";
 import { LINEAR_AXIS } from "./helper/graphData";
 import { indexGraph, REVERSE, FORWARD, constrainedNeighborFunc } from "../src/assignDirections";
+import { edgeBetween } from "../src/algorithm";
 
 
 test ("constrained neighbor func", t => {
@@ -19,7 +20,7 @@ test ("constrained neighbor func", t => {
 		[ { parent: "D-F", dir: FORWARD }, "F" ], 
 	]);
 
-	const edgeConstraints = new Map().set("C-D", REVERSE);
+	const edgeConstraints = new Set().add(edgeBetween(graph.getNeighbors, "C", "D"));
 	const neighborFunc = constrainedNeighborFunc(graph.getNeighbors, edgeConstraints);
 
 	// C now has one less neighbor edge

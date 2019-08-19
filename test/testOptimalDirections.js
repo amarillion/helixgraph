@@ -1,5 +1,5 @@
 import test from "ava";
-import { optimalDirections } from "../src/assignDirections.js";
+import { optimalDirections, REVERSE, FORWARD } from "../src/assignDirections.js";
 import { LINEAR, ALTERNATING_AXIS, TWO_CYCLES, CYCLICAL, CYCLICAL_4SS, LINEAR_AXIS, LOCAL_MINIMUM } from "./helper/graphData";
 
 test("solve simple source->sink", t => {
@@ -15,7 +15,7 @@ test("solve straightforward axis with source/sinks on opposite ends", t => {
 test("solve axis with alternating source/sink, with contested edge", t => {
 	const solution = optimalDirections(ALTERNATING_AXIS);
 	t.is(solution.contestedEdges.length, 1);
-	t.deepEqual(solution.contestedEdges, ["C-D"] );
+	t.deepEqual(solution.contestedEdges, [ [ { parent: "C-D", dir: REVERSE }, { parent: "C-D", dir: FORWARD }] ] );
 });
 
 test("solve simple cyclical network with two possible solutions", t => {

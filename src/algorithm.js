@@ -301,3 +301,11 @@ export function allShortestPaths(sources, sinks, getNeighbors, getWeight) {
 	}
 	return allPaths;
 }
+
+/** 
+ * Utility function.
+ * given a neighbour func, find the edge that goes from one node to another.
+ */
+export function edgeBetween(neighborFunc, from, to) {
+	return neighborFunc(from).find(step => step[1] === to)[0];
+}

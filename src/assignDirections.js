@@ -10,52 +10,47 @@ export const REVERSE = "R";
  * Edges that have a constraint will be returned for only one node
  * 
  * @param {*} originalGetNeighbors function(node) that returns an array of [edge, sibling] arrays.
- * @param {*} edgeConstraints Map<edge, FORWARD|REVERSE> constraint that the given undirected edge is only used in the given direction, 
- *            i.e. the undirected edge becomes an directed edge.
+ * @param {*} edgeConstraints Set<edge> constraint that the given directed edge is NOT used, 
+ *            i.e. only it's reverse edge is used
  */
 export function constrainedNeighborFunc(originalNeighborFunc, edgeConstraints) {
 	return (node) => {
 		const result = [];
 		const neighbors = originalNeighborFunc(node);
 		for (const [edge, sibling] of neighbors) {
-			
-			const undirectedParent = edge.parent;
-			if (edgeConstraints.has(undirectedParent) &&
-				edge.dir !== edgeConstraints.get(undirectedParent)
-			) {
+			if (edgeConstraints.has(edge)) {
 				continue;
 			}
-
 			result.push([edge, sibling]);
 		}
 		return result;
 	};
 }
 
-function getOrDefault(map, key, defaultFactory) {
-	if (map.has(key)) {
-		return map.get(key);
-	}
-	else {
-		const result = defaultFactory();
-		map.set(key, result);
-		return result;
-	}
-}
-
 /* build an index of which edges are used by shortest path steps. */
-function calcEdgeUsage(allPaths) {
+function calcEdgeUsage(allPaths, reverseEdgeFunc) {
 	const edgeUsage = new Map();
+	const contestedEdges = [];
 	for (const [ source, pathList ] of allPaths.entries()) {
 		for (const path of pathList) {
 			for (let edge of path) {
-				const edgeUsageEntry = getOrDefault(edgeUsage, edge.parent, () => new Map());
-				const edgeUsageValue = getOrDefault(edgeUsageEntry, edge.dir, () => new Set());
-				edgeUsageValue.add(source);
+				let edgeUsageEntry;
+				if (edgeUsage.has(edge)) {
+					edgeUsageEntry = edgeUsage.get(edge);
+				}
+				else {
+					edgeUsageEntry = new Set();
+					edgeUsage.set(edge, edgeUsageEntry);
+					const reverse = reverseEdgeFunc(edge);
+					if (edgeUsage.has(reverse)) {
+						contestedEdges.push([edge, reverse]);
+					}
+				}
+				edgeUsageEntry.add(source);
 			}
 		}
 	}
-	return edgeUsage;
+	return { edgeUsage, contestedEdges };
 }
 
 /* add indices to the graph to make further processing more efficient */
@@ -63,7 +58,8 @@ export function indexGraph(graphData) {
 
 	const result = {
 		...graphData,
-		edgesByNode: {},
+		edgesByNode: new Map(),
+		reverse: new Map(),
 		sources: [],
 		sinks: []
 	};
@@ -74,30 +70,38 @@ export function indexGraph(graphData) {
 
 		const nodeLeft = graphData.getLeft(edge);
 		const nodeRight = graphData.getRight(edge);
-		const edgeLeft = [ { parent: edge, dir: FORWARD }, nodeRight ];
-		const edgeRight = [ { parent: edge, dir: REVERSE }, nodeLeft ];
-		
-		if (nodeLeft in result.edgesByNode) {
-			result.edgesByNode[nodeLeft].push(edgeLeft);
+		const edgeLeft = { parent: edge, dir: FORWARD };
+		const edgeRight = { parent: edge, dir: REVERSE };
+		const stepLeft = [ edgeLeft, nodeRight ];
+		const stepRight = [ edgeRight, nodeLeft ];
+		result.reverse.set(edgeLeft, edgeRight);
+		result.reverse.set(edgeRight, edgeLeft);
+
+		if (result.edgesByNode.has(nodeLeft)) {
+			result.edgesByNode.get(nodeLeft).push(stepLeft);
 		}
 		else {
-			result.edgesByNode[nodeLeft] = [ edgeLeft ];
+			result.edgesByNode.set(nodeLeft, [ stepLeft ]);
 		}
 
-		if (nodeRight in result.edgesByNode) {
-			result.edgesByNode[nodeRight].push(edgeRight);
+		if (result.edgesByNode.has(nodeRight)) {
+			result.edgesByNode.get(nodeRight).push(stepRight);
 		}
 		else {
-			result.edgesByNode[nodeRight] = [ edgeRight ];
+			result.edgesByNode.set(nodeRight, [ stepRight ]);
 		}
 	}
 
 	result.getNeighbors = function(node) {
-		return result.edgesByNode[node];
+		return result.edgesByNode.get(node);
 	};
 
 	result.getWeight = function(edge) {
 		return graphData.getWeight(edge.parent);
+	};
+
+	result.reverseEdge = function(edge) {
+		return result.reverse.get(edge);
 	};
 
 	for (let n of graphData.nodes) {
@@ -142,13 +146,14 @@ function permutateEdgeDirections(graph, baseSolution) {
 	let minSolution = baseSolution;
 	let first = true;
 
-	for (let edge of baseSolution.contestedEdges) {
+	for (let edgePair of baseSolution.contestedEdges) {
 
-		if (baseSolution.edgeConstraints.has(edge)) continue; // don't try to permute the same edge again
+		if (baseSolution.edgeConstraints.has(edgePair[0]) ||
+			baseSolution.edgeConstraints.has(edgePair[1])) continue; // don't try to permute the same edge again
 
-		for (let dir of [FORWARD, REVERSE]) {
+		for (let edge of edgePair) {
 
-			let subsolution = improveSolution(graph, baseSolution, edge, dir);
+			let subsolution = improveSolution(graph, baseSolution, edge, graph.reverseEdge);
 
 			// if we end up with fewer possible paths, we're not on the right track
 			if (subsolution.numPaths < baseSolution.numPaths) continue;
@@ -170,7 +175,7 @@ function permutateEdgeDirections(graph, baseSolution) {
 
 	// if there are still contested edges, optimize further
 	if (!first && minSolution.contestedEdges.length > 0) {
-		minSolution = permutateEdgeDirections(graph, minSolution);
+		minSolution = permutateEdgeDirections(graph, minSolution, graph.reverseEdge);
 	}
 	
 	return minSolution;
@@ -180,19 +185,16 @@ export function optimalDirections(graphData) {
 
 	const graph = indexGraph(graphData);
 	let solution = firstSolution(graph);
-	
 	if (solution.contestedEdges.length > 0) {
-		solution = permutateEdgeDirections(graph, solution, new Map());
+		solution = permutateEdgeDirections(graph, solution);
 	}
 	return solution;
 }
 
-function scoreSolution(allPaths) {
+function scoreSolution(allPaths, reverseEdgeFunc) {
 
 	let sumShortestPaths = 0;
 	let numPaths = 0;
-	const edgeDirections = new Map();
-	const contestedEdges = [];
 
 	for (const pathList of allPaths.values()) {
 		for (const path of pathList)
@@ -203,21 +205,10 @@ function scoreSolution(allPaths) {
 	}
 
 	// build an index of which edges are used by shortest path steps.
-	const edgeUsage = calcEdgeUsage(allPaths);
-
-	// assign directions in a new partial solution given uncontested edges in the paths.
-	for (let [ edge, sourcesByDir ] of edgeUsage.entries()) {
-		if (sourcesByDir.size > 1) {
-			contestedEdges.push(edge);
-		}
-		else {
-			edgeDirections.set(edge, sourcesByDir.keys().next().value);
-		}
-	}
+	const { edgeUsage, contestedEdges } = calcEdgeUsage(allPaths, reverseEdgeFunc);
 
 	return {
 		contestedEdges, 
-		edgeDirections, // directions for those edges that could be unambiguously defined.
 		edgeUsage,
 		sumShortestPaths,
 		numPaths
@@ -229,29 +220,27 @@ function firstSolution(graph) {
 	// directions provided in the partial solution
 	const allPaths = allShortestPaths(graph.sources, graph.sinks, graph.getNeighbors, graph.getWeight);
 
-	const { contestedEdges, sumShortestPaths, edgeDirections, edgeUsage, numPaths } = scoreSolution(allPaths);
+	const { contestedEdges, sumShortestPaths, edgeUsage, numPaths } = scoreSolution(allPaths, graph.reverseEdge);
 	
 	const newSolution = {
 		contestedEdges,
 		sumShortestPaths,
-		edgeDirections,
 		edgeUsage,
 		numPaths,
 		paths: allPaths,
-		edgeConstraints: new Map()
+		edgeConstraints: new Set()
 	};
 
 	return newSolution;
 }
 
-function improveSolution(graph, baseSolution, edge, dir) {
+function improveSolution(graph, baseSolution, edge) {
 
-	const newEdgeConstraints = new Map(baseSolution.edgeConstraints).set(edge, dir);
+	const newEdgeConstraints = new Set(baseSolution.edgeConstraints).add(edge);
 	const neighborFunc = constrainedNeighborFunc(graph.getNeighbors, newEdgeConstraints);
 
 	const newPaths = new Map(baseSolution.paths);
-	const otherDir = dir === REVERSE ? FORWARD : REVERSE;
-	const affectedSources = baseSolution.edgeUsage.get(edge).get(otherDir);
+	const affectedSources = baseSolution.edgeUsage.get(edge);
 
 	for (const source of affectedSources) {
 		const paths = shortestPathsFromSource(source, graph.sinks, neighborFunc, graph.getWeight);
@@ -259,14 +248,11 @@ function improveSolution(graph, baseSolution, edge, dir) {
 		// they will be omitted from the result
 		newPaths.set(source, paths);
 	}
-	//TODO: only recalculate the paths that we need here...
-	// const allPaths = allShortestPaths(graph.sources, graph.sinks, neighborFunc, graph.getWeight);
 
-	const { contestedEdges, sumShortestPaths, numPaths, edgeUsage, edgeDirections } = scoreSolution(newPaths);
+	const { contestedEdges, sumShortestPaths, numPaths, edgeUsage } = scoreSolution(newPaths, graph.reverseEdge);
 	const newSolution = {
 		contestedEdges,
 		sumShortestPaths,
-		edgeDirections,
 		edgeUsage,
 		numPaths,
 		paths: newPaths,
