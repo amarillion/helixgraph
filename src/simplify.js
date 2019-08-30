@@ -96,7 +96,7 @@ export function simplify(source, isSource, isSink, getNeighbors) {
 		edgesByNode: new Map()
 	};
 	result.getNeighbors = function(node) {
-		return result.edgesByNode.get(node);
+		return result.edgesByNode.get(node) || [];
 	};
 
 	const visited = new Set();

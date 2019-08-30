@@ -1,6 +1,25 @@
 import { AssertionError } from "assert";
 import PriorityQueue from "./PriorityQueue";
 
+/**
+ * See: https://stackoverflow.com/questions/845626/how-do-i-find-the-most-naturally-direct-route-using-a-star-a/845630#845630
+ * @param {*} sx start x
+ * @param {*} sy start y
+ * @param {*} cx current x
+ * @param {*} cy current y
+ * @param {*} gx goal x
+ * @param {*} gy goal y
+ */
+export function manhattanCrossProductHeuristic(sx, sy, cx, cy, gx, gy) {
+	const dx1 = cx - gx;
+	const dy1 = cy - gy;
+	const dx2 = sx - gx;
+	const dy2 = sy - gy;
+	const heuristic = Math.abs(dx1) + Math.abs(dy1);
+	const cross = Math.abs(dx1*dy2 - dx2*dy1);
+	return heuristic + cross * 0.001;
+}
+
 export function bfsVisit(source, listNeighbors, callback) {
 	let open = [];
 	let visited = new Set();
