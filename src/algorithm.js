@@ -211,8 +211,7 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
 }
 
 
-export function astar(source, dest, getNeighbors, getWeight, heuristicFunc) {
-
+export function astar(source, dest, getNeighbors, getWeight, heuristicFunc, { maxIterations = 0 } = {}) {
 	const dist = new Map();
 	const prev = new Map();
 	
@@ -222,7 +221,12 @@ export function astar(source, dest, getNeighbors, getWeight, heuristicFunc) {
 	open.push(source);
 	dist.set(source, 0);
 
+	let i = maxIterations;
 	while (open.size() > 0) {
+		
+		i--; // 0 -> -1 means Infinite.
+		if (i === 0) break;
+
 		const current = open.pop();
 
 		if (current === dest) {
