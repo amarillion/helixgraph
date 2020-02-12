@@ -2,6 +2,11 @@ export function randomInt(max) {
 	return Math.floor(Math.random() * Math.floor(max));
 }
 
+export function pickOne(list) {
+	const idx = randomInt(list.length);
+	return list[idx];
+}
+
 /**
 Knuth-Fisher-Yates shuffle algorithm.
 */

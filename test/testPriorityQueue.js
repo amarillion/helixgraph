@@ -1,5 +1,5 @@
 import test from "ava";
-import { shuffle } from "./helper/util";
+import { shuffle } from "../src/util.js";
 import PriorityQueue from "../src/PriorityQueue.js";
 
 test("Priority queue", t => {

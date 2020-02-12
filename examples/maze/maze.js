@@ -1,5 +1,5 @@
-import { assert } from "./assert.js";
-import { randomNumber, pickOne } from "./util.js";
+import { randomInt, pickOne } from "../../src/util.js";
+import { assert } from "../../src/assert.js";
 
 /*
 Generate a maze
@@ -25,12 +25,12 @@ export class Cell {
 		this.links = {};
 	}
 
-	link(other, dir, bidi=true, linkType = 1) {
+	link(other, dir, bidi=true) {
 		if (dir in this.links) {
 			console.log("WARNING: creating link that already exists");
 		}
 		this.links[dir] = other;
-		if (bidi) { other.link(this, reverse[dir], false, linkType); }
+		if (bidi) { other.link(this, reverse[dir], false); }
 	}
 
 	linked(dir) {
@@ -49,6 +49,7 @@ export class Cell {
 		}
 		return result;
 	}
+
 }
 
 export class Grid {
@@ -181,7 +182,7 @@ export function binaryTree(grid) {
 
 export function recursiveBackTracker(grid) {
 	const stack = [];
-	const start = grid.get(randomNumber(grid.w), randomNumber(grid.h));
+	const start = grid.get(randomInt(grid.w), randomInt(grid.h));
 	stack.push(start);
 
 	while (stack.length > 0) {

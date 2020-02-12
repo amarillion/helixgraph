@@ -6,7 +6,6 @@ class AssertionError extends Error {
 
 }
 
-// TODO - not global?
 export function assert(test, msg)
 {
 	if (!test) {

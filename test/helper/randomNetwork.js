@@ -1,4 +1,4 @@
-import { randomInt } from "./util.js";
+import { randomInt } from "../../src/util.js";
 
 // size is number of nodes
 // edgeRedundancy is a factor, larger than 1, that determines the number of edges
