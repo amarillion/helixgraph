@@ -1,5 +1,6 @@
 import { randomInt, pickOne } from "../../src/util.js";
 import { assert } from "../../src/assert.js";
+import { bfsVisit } from "../../src/algorithm.js";
 
 /*
 Generate a maze
@@ -43,11 +44,7 @@ export class Cell {
 	}
 
 	listNeighbors() {
-		const result = [];
-		for (const [k, v] of Object.entries(this.links)) {
-			result.push({ dir: k, cell : v });
-		}
-		return result;
+		return Object.entries(this.links);
 	}
 
 }
@@ -205,7 +202,7 @@ export function recursiveBackTracker(grid) {
 }
 
 // use bfs to find all freely linked nodes
-export function expandNodes(node) {
+export function expandNodes(node, listNeighbors) {
 	const visited = new Set();
 	const stack = [];
 	stack.push(node);
@@ -216,20 +213,19 @@ export function expandNodes(node) {
 		const current = stack.pop();
 		
 		// find unvisited neighbors
-		const unvisited = current.
-			listNeighbors().
-			filter(item => !visited.has(item.cell));
+		const unvisited = listNeighbors(current).
+			filter(([, node]) => !visited.has(node));
 
-		for (const item of unvisited) {
-			visited.add(item.cell);
-			stack.push(item.cell);
+		for (const [, node] of unvisited) {
+			visited.add(node);
+			stack.push(node);
 		}
 	}
 
 	return [ ...visited.values() ];
 }
 
-export function reachable(src, dest) {
+export function reachable(src, dest, listNeighbors) {
 
 	const visited = new Set();
 	const stack = [];
@@ -241,16 +237,15 @@ export function reachable(src, dest) {
 		const current = stack.pop();
 		
 		// find unvisited neighbors
-		const unvisited = current.
-			listNeighbors().
-			filter(item => !visited.has(item.cell));
+		const unvisited = listNeighbors(current).
+			filter(([, node]) => !visited.has(node));
 
-		for (const item of unvisited) {
-			if (item.cell === dest) {
+		for (const [, node] of unvisited) {
+			if (node === dest) {
 				return true; // found!
 			}
-			visited.add(item.cell);
-			stack.push(item.cell);
+			visited.add(node);
+			stack.push(node);
 		}
 	}
 

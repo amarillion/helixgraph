@@ -21,7 +21,7 @@ test("expand nodes", t => {
 	recursiveBackTracker(grid);
 	
 	const start = grid.get(0, 0);
-	const expanse = expandNodes(start);
+	const expanse = expandNodes(start, n => n.listNeighbors());
 
 	t.is(expanse.length, 100);
 	t.is(grid.allNodes().length, 100);
@@ -35,6 +35,6 @@ test("reachable", t => {
 	const start = grid.get(0, 0);
 	const end = grid.get(9, 9);
 
-	t.true(reachable(start, end));
-	t.true(reachable(end, start));
+	t.true(reachable(start, end, n => n.listNeighbors()));
+	t.true(reachable(end, start, n => n.listNeighbors()));
 });
