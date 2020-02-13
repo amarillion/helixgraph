@@ -1,5 +1,5 @@
-import { AssertionError } from "assert";
-import PriorityQueue from "./PriorityQueue";
+import { assert } from "./assert.js";
+import PriorityQueue from "./PriorityQueue.js";
 
 /**
  * Astar Heuristic with tie-breaker that prefers paths that follow the direct line
@@ -43,6 +43,17 @@ export function manhattanStraightHeuristic(sx, sy, cx, cy, gx, gy) {
 }
 
 export function bfsVisit(source, listNeighbors, callback) {
+	assert(typeof(listNeighbors) === "function");
+	assert(typeof(callback) === "function");
+
+	for (const node of bfsGenerator(source, listNeighbors)) {
+		callback(node);
+	}
+}
+
+export function *bfsGenerator(source, listNeighbors) {
+	assert(typeof(listNeighbors) === "function");
+	
 	let open = [];
 	let visited = new Set();
 
@@ -52,7 +63,7 @@ export function bfsVisit(source, listNeighbors, callback) {
 	while (open.length > 0) {
 		const current = open.shift();
 
-		callback(current);
+		yield current;
 
 		for (const [, destNode] of listNeighbors(current)) {
 			if (!visited.has(destNode)) {
@@ -95,6 +106,7 @@ export function bfsVisit(source, listNeighbors, callback) {
  * 
  */
 export function breadthFirstSearch(source, destinations, listNeighbors) {
+	assert(typeof(listNeighbors) === "function");
 
 	let open = [];
 	let dist = new Map();
@@ -144,6 +156,8 @@ function spliceLowest (queue, comparator) {
 }
 
 export function dijkstra(source, destinations, getNeighbors, getWeight) {
+	assert(typeof(getNeighbors) === "function");
+	assert(typeof(getWeight) === "function");
 
 	// Mark all nodes unvisited. Create a set of all the unvisited nodes called the unvisited set.
 	// Assign to every node a tentative distance value: set it to zero for our initial node and to infinity for all other nodes. Set the initial node as current.[13]
@@ -212,6 +226,10 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
 
 
 export function astar(source, dest, getNeighbors, getWeight, heuristicFunc, { maxIterations = 0 } = {}) {
+	assert(typeof(getNeighbors) === "function");
+	assert(typeof(getWeight) === "function");
+	assert(typeof(heuristicFunc) === "function");
+
 	const dist = new Map();
 	const prev = new Map();
 	
@@ -310,7 +328,7 @@ export function trackback(source, dest, prev, callback) {
 		}
 	}
 
-	throw new AssertionError({ message: "Reached iteration limit when constructing path" });
+	assert (false, "Reached iteration limit when constructing path");
 }
 
 export function shortestPathsFromSource(source, destinations, getNeighbors /*, getWeight */) {
