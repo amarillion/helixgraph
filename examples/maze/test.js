@@ -1,5 +1,5 @@
 import test from "ava";
-import { Grid, binaryTree, recursiveBackTracker, addDoors, expandNodes, reachable, addDoors1 } from "./maze.js";
+import { Grid, binaryTree, recursiveBackTracker, expandNodes, reachable } from "./maze.js";
 
 // test("binary tree maze", t => {
 // 	const grid = new Grid(10, 10);

@@ -1,6 +1,6 @@
 import { randomInt, pickOne } from "../../src/util.js";
 import { assert } from "../../src/assert.js";
-import { bfsVisit } from "../../src/algorithm.js";
+import { bfsGenerator } from "../../src/algorithm.js";
 
 /*
 Generate a maze
@@ -203,51 +203,16 @@ export function recursiveBackTracker(grid) {
 
 // use bfs to find all freely linked nodes
 export function expandNodes(node, listNeighbors) {
-	const visited = new Set();
-	const stack = [];
-	stack.push(node);
-	visited.add(node);
-
-	while(stack.length > 0) {
-
-		const current = stack.pop();
-		
-		// find unvisited neighbors
-		const unvisited = listNeighbors(current).
-			filter(([, node]) => !visited.has(node));
-
-		for (const [, node] of unvisited) {
-			visited.add(node);
-			stack.push(node);
-		}
-	}
-
-	return [ ...visited.values() ];
+	assert(typeof(listNeighbors) === "function", `Parameter listNeighbors must be a function but is ${typeof(listNeighbors)}`);
+	return [ ...bfsGenerator(node, listNeighbors) ];
 }
 
 export function reachable(src, dest, listNeighbors) {
-
-	const visited = new Set();
-	const stack = [];
-	stack.push(src);
-	visited.add(src);
-
-	while(stack.length > 0) {
-
-		const current = stack.pop();
-		
-		// find unvisited neighbors
-		const unvisited = listNeighbors(current).
-			filter(([, node]) => !visited.has(node));
-
-		for (const [, node] of unvisited) {
-			if (node === dest) {
-				return true; // found!
-			}
-			visited.add(node);
-			stack.push(node);
+	assert(typeof(listNeighbors) === "function", `Parameter listNeighbors must be a function but is ${typeof(listNeighbors)}`);
+	for (const node of bfsGenerator(src, listNeighbors)) {
+		if (node === dest) {
+			return true; // found!
 		}
 	}
-
 	return false; // not found
 }
