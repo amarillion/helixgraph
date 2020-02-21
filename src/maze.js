@@ -1,9 +1,9 @@
-import { assert } from "./assert.js";
 import { pickOne } from "./util.js";
+import { assertFunctionType } from "./checkArgs.js";
 
 export function recursiveBackTracker(start, listAdjacent, linkNodes) {
-	assert(typeof(listAdjacent) === "function");
-	assert(typeof(linkNodes) === "function");
+	assertFunctionType(listAdjacent);
+	assertFunctionType(linkNodes);
 	
 	const stack = [];
 	stack.push(start);

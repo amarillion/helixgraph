@@ -1,3 +1,6 @@
+import { pickOne } from "../../src/util.js";
+import { assert } from "../../src/assert.js";
+
 export const MAP = [
 //   01234567890123456789
 	"............##......",
@@ -31,12 +34,19 @@ class Cell {
 
 	link(other, dir, reverse) {
 		if (dir in this.links) {
-			console.log("WARNING: creating link that already exists");
+			console.log("WARNING: creating link that already exists: ", { dir, reverse });
 		}
 		this.links[dir] = other;
 		if (reverse) { other.link(this, reverse); }
 	}
 
+	linked(dir) {
+		return dir in this.links;
+	}
+
+	getLinks() {
+		return Object.entries(this.links);
+	}
 }
 
 export class GridGraph {
@@ -62,13 +72,25 @@ export class GridGraph {
 	constructor(width, height, cellFactory = (x, y) => new Cell(x, y)) {
 		this.width = width;
 		this.height = height;
-		this.data = new Array(this.width * this.height);
+		this.cellFactory = cellFactory;
+		this.prepareGrid();
+	}
 
-		for (let y = 0; y < height; ++y) {
-			for (let x = 0; x < width; ++x) {
-				this.data[this._index(x,y)] = cellFactory(x, y);
+	prepareGrid() {
+		this.data = new Array(this.width * this.height);
+		for(let x = 0; x < this.width; ++x) {
+			for (let y = 0; y < this.height; ++y) {
+				this.data[this._index(x, y)] = this.cellFactory(x, y);
 			}
 		}
+	}
+
+	randomCell() {
+		for (let it = 0; it < 20; ++it) {
+			const result = pickOne(this.data);
+			if (result) return result;
+		}
+		assert(false, "Reached maximum number of iterations");
 	}
 
 	getWeight () {
