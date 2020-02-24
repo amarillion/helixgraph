@@ -1,6 +1,6 @@
 import test from "ava";
 import { shortestPathsFromSource, edgeBetween } from "../src/algorithm.js";
-import { indexGraph, FORWARD, REVERSE, constrainedNeighborFunc } from "../src/assignDirections.js";
+import { indexGraph, FORWARD, REVERSE, constrainedNeighborFunc } from "./helper/indexGraph.js";
 import { LINEAR, ALTERNATING_AXIS, TWO_ROUTES } from "./helper/graphData";
 
 test("simple dijkstra", t => {

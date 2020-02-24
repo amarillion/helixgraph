@@ -1,7 +1,7 @@
 import test from "ava";
 import { breadthFirstSearch, trackbackEdges, trackback } from "../src/algorithm.js";
-import { indexGraph, FORWARD } from "../src/assignDirections.js";
-import { LINEAR, CYCLICAL_4SS } from "./helper/graphData";
+import { indexGraph, FORWARD } from "./helper/indexGraph.js";
+import { LINEAR, CYCLICAL_4SS } from "./helper/graphData.js";
 
 test("trackback edges simple", t => {
 	const graph = indexGraph(LINEAR);

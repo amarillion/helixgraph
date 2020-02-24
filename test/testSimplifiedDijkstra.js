@@ -1,6 +1,6 @@
 import test from "ava";
-import { T_JUNCTION, LINEAR_THREE, CYCLICAL } from "./helper/graphData";
-import { indexGraph, FORWARD, REVERSE } from "../src/assignDirections";
+import { T_JUNCTION, LINEAR_THREE, CYCLICAL } from "./helper/graphData.js";
+import { indexGraph, FORWARD, REVERSE } from "./helper/indexGraph.js";
 import { simplify, flattenPath } from "../src/simplify";
 import { dijkstra, trackbackNodes, trackbackEdges } from "../src/algorithm";
 

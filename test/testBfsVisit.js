@@ -1,6 +1,6 @@
 import test from "ava";
 import { LINEAR, CYCLICAL } from "./helper/graphData";
-import { indexGraph } from "../src/assignDirections.js";
+import { indexGraph } from "./helper/indexGraph.js";
 import { bfsVisit, bfsGenerator } from "../src/algorithm.js";
 
 test("bfs on simple graph", t => {

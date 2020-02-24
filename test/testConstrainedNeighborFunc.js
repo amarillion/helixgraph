@@ -1,6 +1,6 @@
 import test from "ava";
 import { LINEAR_AXIS } from "./helper/graphData";
-import { indexGraph, REVERSE, FORWARD, constrainedNeighborFunc } from "../src/assignDirections";
+import { indexGraph, REVERSE, FORWARD, constrainedNeighborFunc } from "./helper/indexGraph.js";
 import { edgeBetween } from "../src/algorithm";
 
 
