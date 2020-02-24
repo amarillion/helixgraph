@@ -12,9 +12,6 @@ window.onload = () => {
 		n => grid.getAdjacent(n), 
 		linkCells );
 	
-	console.log("\n\n", renderToString(grid), "\n\n");
-	
 	const elt = document.getElementById("mainDiv");
-	console.log(elt);
 	elt.innerHTML = `<pre>${renderToString(grid)}</pre>`;
 };

@@ -1,4 +1,4 @@
-import { pickOne } from "./util.js";
+import { pickOne } from "./random.js";
 import { assertFunctionType } from "./checkArgs.js";
 
 export function recursiveBackTracker(start, listAdjacent, linkNodes) {

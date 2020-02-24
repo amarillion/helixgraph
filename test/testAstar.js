@@ -20,7 +20,7 @@ test("astar on a grid", t => {
 
 	const { /* dist, */ prev } = astar(source, dest, 
 		(node) => graph.getAdjacent(node), 
-		(edge) => graph.getWeight(edge), 
+		() => graph.getWeight(), 
 		(node, goal) => 1.01 * manhattan(node.x, node.y, goal.x, goal.y)
 	);
 	// const { dist, prev } = breadthFirstSearch(source, [ dest ], (node) => graph.getAdjacent(node));

@@ -1,7 +1,7 @@
-import { pickOne } from "../../src/util.js";
+import { pickOne } from "../../src/random.js";
 import { assert } from "../../src/assert.js";
 import { bfsGenerator } from "../../src/algorithm.js";
-import { EAST, SOUTH, NORTH } from "../../test/helper/gridGraph.js";
+import { EAST, SOUTH, NORTH } from "../../src/BaseGrid.js";
 
 export function renderToString(grid) {
 
