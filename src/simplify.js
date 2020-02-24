@@ -78,9 +78,13 @@ function followEdge(source, edge, next, isSource, isSink, getNeighbors, visited)
 /**
  * 
  * @param {*} source a starting node, typically one of the possible source nodes.
- * @param {*} graph an indexed graph
+ * @param {*} isSource a function to determine if a given node is a source
+ * @param {*} isSink a function to determine if a given node is a sink
+ * @param {*} getNeighbors function that for given node, returns array [ edge, node ] pairs
  * 
- * @result a non-indexed graph
+ * @result a structure containing: 
+ * 	getWeight, getLeft, getRight, isSoure, isSink and getNeighbors functions,
+ *  as well as the data for those functions.
  */
 export function simplify(source, isSource, isSink, getNeighbors) {
 	
@@ -146,7 +150,6 @@ export function simplify(source, isSource, isSink, getNeighbors) {
  * Given a path of edges as returned by trackbackEdges from a simplified graph
  * Concatenate the edgeChains of each simplified edge
  * Reverse the edgeChains when necessary.
- * 
  */
 export function flattenPath(path) {
 	return path.reduce(

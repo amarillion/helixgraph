@@ -3,7 +3,6 @@ import { randomInt } from "../../src/random.js";
 // size is number of nodes
 // edgeRedundancy is a factor, larger than 1, that determines the number of edges
 // relative to size.
-
 export function randomNetwork(size, edgeRedundancy, numSources, numSinks) {
 	
 	const nodes = [];
