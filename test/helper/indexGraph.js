@@ -68,21 +68,17 @@ export function indexGraph(graphData) {
 
 
 /**
- * Turn the getNeighbors function of an undirected network into the getNeighbors function of a directed network,
- * given the constraints on the directions of certain edges.
- * Edges that have no constraint will be returned for both nodes of the edge.
- * Edges that have a constraint will be returned for only one node
+ * Filter a neighborFunc using a predicate
  * 
  * @param {*} originalGetNeighbors function(node) that returns an array of [edge, sibling] arrays.
- * @param {*} edgeConstraints Set<edge> constraint that the given directed edge is NOT used, 
- *            i.e. only it's reverse edge is used
+ * @param {*} predicate function(edge), returns true if edge is discarded
  */
-export function constrainedNeighborFunc(originalNeighborFunc, edgeConstraints) {
+export function filteredNeighborFunc(originalNeighborFunc, predicate) {
 	return (node) => {
 		const result = [];
 		const neighbors = originalNeighborFunc(node);
 		for (const [edge, sibling] of neighbors) {
-			if (edgeConstraints.has(edge)) {
+			if (predicate(edge)) {
 				continue;
 			}
 			result.push([edge, sibling]);
