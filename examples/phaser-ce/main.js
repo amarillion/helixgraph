@@ -1,12 +1,6 @@
-/**
- * Import Phaser dependencies using `expose-loader`.
- * This makes then available globally and it's something required by Phaser.
- * The order matters since Phaser needs them available before it is imported.
- */
-import "expose-loader?PIXI!phaser-ce/build/custom/pixi.js";
-import "expose-loader?p2!phaser-ce/build/custom/p2.js";
-import Phaser from "expose-loader?Phaser!phaser-ce/build/custom/phaser-split.js";
-import { astar, manhattanCrossProductHeuristic, trackback } from "../../../src/algorithm";
+/* eslint rule: */
+/* global Phaser */
+import { astar, manhattanCrossProductHeuristic, trackback } from "../../src/algorithm.js";
 
 class Game extends Phaser.Game {
 	
@@ -14,7 +8,6 @@ class Game extends Phaser.Game {
 		let cfg = {
 			width: "100%",
 			height: "100%",
-			// multiTexture: true,	// disabled - this causes problems with the firefox/linux/mesa combo.
 			parent: "mainDiv",
 			enableDebug: false
 		};
@@ -28,7 +21,6 @@ class GameState {
 	preload() {		
 		this.load.image("sprites1", "assets/sprites.png");
 		this.load.tilemap("tilemap1", "assets/level.json", null, Phaser.Tilemap.TILED_JSON);
-		// this.load.tilemap("tilemap1", "assets/level.json");
 		this.load.spritesheet("sprites2", "assets/sprites.png", 8, 8, 8);
 	}
 
