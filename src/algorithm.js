@@ -83,12 +83,11 @@ export function *bfsGenerator(source, listNeighbors) {
  * It checks nodes if they are target as a side-effect, to avoid one extra graph traversal...
  * (TODO: maybe this should be factored out)
  * 
- * @param {*} source starting node, (can be any object type)
- * @param {array} distinations function(node) that returns true or false if the given node is a target
- * @param {function} listNeighbors function(node) that return the neighBors of given node as an array of [dir, destNode] 
+ * @param {*} source starting node
+ * @param {array} distinations Iterable of nodes. Search will continue until all destinations that can be reached, were visited.
+ * @param {function} listNeighbors function(node) that return the neighbors of given node as an array of [dir, destNode] 
  *             dir is a value that distinguishes edges on the same node. 
  *             I.e. it could be an edge, but on a grid, a compass direction would also suffice.
- * 
  * 
  * @returns {
  *  dist: Map(node, steps)
@@ -99,11 +98,10 @@ export function *bfsGenerator(source, listNeighbors) {
  * 
  * Guaranteed to return shortest paths for unweighted networks.
  * Complexity: O(V + E)
- * Faster than dijkstra, because it accesses the open list with O(1) instead of O(N) (or with priorityQ: O(log N))
+ * Faster than dijkstra, because it accesses the open list with O(1) instead of O(N) (or dijkstra with priorityQ: O(log N))
  * But unlike dijkstra, this can't handle weighted edges.
  * 
  * For more discussion, see: https://stackoverflow.com/questions/25449781/what-is-difference-between-bfs-and-dijkstras-algorithms-when-looking-for-shorte
- * 
  */
 export function breadthFirstSearch(source, destinations, listNeighbors) {
 	assert(typeof(listNeighbors) === "function");
@@ -155,6 +153,13 @@ function spliceLowest (queue, comparator) {
 	return minElt;
 }
 
+/**
+ * Given a weighted graph, find all paths from one source to one or more destinations
+ * @param {*} source 
+ * @param {*} destinations 
+ * @param {*} getNeighbors 
+ * @param {*} getWeight 
+ */
 export function dijkstra(source, destinations, getNeighbors, getWeight) {
 	assert(typeof(getNeighbors) === "function");
 	assert(typeof(getWeight) === "function");
@@ -174,15 +179,11 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
 
 	while (open.size > 0) {
 		// extract the element from Q with the lowest dist. Open is modified in-place.
-		// TODO: this is the part that is inefficient without a priority queue
+		// TODO: optionally use PriorityQueue
+		// O(N^2) like this, O(log N) with priority queue. But in my tests, priority queues only start pulling ahead in large graphs
 		const current = spliceLowest( open, (a, b) => dist.get(a) - dist.get(b) );
 
-		// For the current node, consider all of its unvisited neighBors and 
-		//    calculate their tentative distances through the current node. 
-		//    Compare the newly calculated tentative distance to the current assigned value and assign 
-		//    the smaller one. For example, if the current node A is marked with a distance of 6, and the edge connecting it with a neighBor B has length 2, then 
-		//    the distance to B through A will be 6 + 2 = 8. If B was previously marked with a distance greater than 8 then 
-		//    change it to 8. Otherwise, keep the current value.
+		// check neighbors, calculate distance, or  - if it already had one - check if new path is shorter
 		for (const [edge, sibling] of getNeighbors(current)) {
 			
 			if (!(visited.has(sibling))) {
@@ -202,15 +203,8 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
 			}
 		}
 
-		// When we are done considering all of the unvisited neighBors of the current node, 
-		//    mark the current node as visited and remove it from the unvisited set. 
-		//    A visited node will never be checked again.
+		// A visited node will never be checked again.
 		visited.add(current);
-
-		// If the destination node has been marked visited (when planning a route between two specific nodes) or 
-		//    if the smallest tentative distance among the nodes in the unvisited set is infinity (when planning a complete traversal; 
-		//    occurs when there is no connection between the initial node and remaining unvisited nodes), then stop. 
-		//    The algorithm has finished.
 
 		if (remain.has(current)) {
 			remain.delete(current);
@@ -275,6 +269,13 @@ export function astar(source, dest, getNeighbors, getWeight, heuristicFunc, { ma
 
 }
 
+/**
+ * Utility that takes the 'prev' data from any of astar, dijkstra, or breadthFirstSearch, and turns it in a sequence of edges forming a path.
+ * 
+ * @param {*} source start node
+ * @param {*} dest destination node
+ * @param {*} prev Map (node, [dir, srcNode]) - result from astar, dijkstra, or breadthFirstSearch
+ */
 export function trackbackEdges(source, dest, prev) {
 	const path = [];
 	const isValid = trackback (source, dest, prev, (from, edge /*, to */ ) => {
