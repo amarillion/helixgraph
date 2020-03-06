@@ -31,6 +31,7 @@ class GameState {
 		this.validPath = false;
 		this.animationSpeed = 5; // number of ticks between pathfinding animation
 		this.octagonalToggle = true;
+		this.prevMouseDown = false;
 	}
 
 	preload() {		
@@ -119,6 +120,7 @@ class GameState {
 	create () {
 		this.game.stage.backgroundColor = "#787878";
 		this.game.stage.smoothed = false; // disable antialiasing
+		this.game.input.mouse.capture = true;
 
 		console.log("GameState.create");
 
@@ -167,6 +169,18 @@ class GameState {
 		this.counter = 0;
 	}
 
+	onClick(pointer) {
+		console.log("Click", pointer.x, pointer.y);
+	}
+
+	handleMouse() {
+		const currentMouseDown = this.game.input.activePointer.isDown;
+		if (currentMouseDown && !this.prevMouseDown) {
+			this.onClick(this.game.input.activePointer);
+		}
+		this.prevMouseDown = currentMouseDown;
+	}
+
 	update() {
 		if (!this.validPath) {
 			this.counter--;
@@ -177,6 +191,8 @@ class GameState {
 				this.drawPath(data, this.player, this.goal);
 			}
 		}
+
+		this.handleMouse();
 	}
 }
 
