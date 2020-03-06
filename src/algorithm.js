@@ -219,6 +219,7 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
 }
 
 
+
 export function astar(source, dest, getNeighbors, getWeight, heuristicFunc, { maxIterations = 0 } = {}) {
 	assert(typeof(getNeighbors) === "function");
 	assert(typeof(getWeight) === "function");
