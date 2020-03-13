@@ -1,15 +1,15 @@
 {
 	"name": "helixgraph",
-	"version": "1.0.0",
-	"description": "Graph utility library for gamedev",
+	"version": "0.1.0",
+	"description": "A collection of graph algorithms for game development",
 	"main": "index.js",
 	"scripts": {
 		"test": "ava --match='!*performance*'",
 		"perf": "ava --match='Performance'",
 		"lint": "eslint **/*.js"
 	},
-	"author": "",
-	"license": "ISC",
+	"author": "Martijn van Iersel <mvaniersel@gmail.com>",
+	"license": "MIT",
 	"devDependencies": {
 		"ava": "^2.2.0",
 		"eslint": "^6.1.0"
