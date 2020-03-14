@@ -23,6 +23,21 @@ export function manhattanCrossProductHeuristic(sx, sy, cx, cy, gx, gy) {
 	return heuristic + cross * 0.001;
 }
 
+// heuristic for eight-way movement on a rectangular grid.
+export function octagonalHeuristic(sx, sy, cx, cy, gx, gy) {
+	const dx1 = cx - gx;
+	const dy1 = cy - gy;
+	const dx2 = sx - gx;
+	const dy2 = sy - gy;
+	const adx1 = Math.abs(dx1);
+	const ady1 = Math.abs(dy1);
+	const min = Math.min(adx1, ady1);
+	const max = Math.max(adx1, ady1);
+	const heuristic = (min * 0.414) + max; // sqrt(2) - 1
+	const cross = Math.abs(dx1*dy2 - dx2*dy1);
+	return heuristic + cross * 0.001;
+}
+
 /**
  * Astar Heuristic with opposite behaviour of the manhattanCrossProductHeuristic:
  * the tie breaker prefers paths with long stretches of horizontal/vertical, with the fewest turns possible.
@@ -218,8 +233,6 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
 	};
 }
 
-
-
 export function astar(source, dest, getNeighbors, getWeight, heuristicFunc, { maxIterations = 0 } = {}) {
 	assert(typeof(getNeighbors) === "function");
 	assert(typeof(getWeight) === "function");
@@ -254,7 +267,7 @@ export function astar(source, dest, getNeighbors, getWeight, heuristicFunc, { ma
 			if (cost < oldCost) {
 
 				dist.set(sibling, cost);
-				priority.set(sibling, cost + heuristicFunc(sibling, dest));
+				priority.set(sibling, cost + heuristicFunc(sibling));
 				open.push(sibling);
 				
 				// build back-tracking map

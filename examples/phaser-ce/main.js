@@ -1,6 +1,6 @@
 /* rule for eslint: */
 /* global Phaser */
-import { astar, manhattanCrossProductHeuristic, trackback, manhattanStraightHeuristic } from "../../src/algorithm.js";
+import { astar, manhattanCrossProductHeuristic, trackback, manhattanStraightHeuristic, octagonalHeuristic } from "../../src/algorithm.js";
 
 class Game extends Phaser.Game {
 	
@@ -29,9 +29,18 @@ class GameState {
 		this.player = null;
 		this.goal = null;
 		this.validPath = false;
-		this.animationSpeed = 5; // number of ticks between pathfinding animation
+		this.animationSpeed = 3; // number of ticks between pathfinding animation
 		this.octagonalToggle = true;
 		this.prevMouseDown = false;
+		this.heuristicFactory = (source, dest) => (current) => {
+			if (this.octagonalToggle) {
+				return octagonalHeuristic(source.x, source.y, current.x, current.y, dest.x, dest.y);
+			}
+			else {
+				return manhattanStraightHeuristic(source.x, source.y, current.x, current.y, dest.x, dest.y);
+				// return manhattanCrossProductHeuristic(source.x, source.y, current.x, current.y, dest.x, dest.y);
+			}
+		};
 	}
 
 	preload() {		
@@ -41,6 +50,7 @@ class GameState {
 	}
 
 	findPath(source, dest, maxIterations) {
+		this.heuristic = this.heuristicFactory(source, dest);
 		const dirs = {
 			N: { key : "N", dx:  0, dy:  1, w: 1 },
 			E: { key : "E", dx:  1, dy:  0, w: 1 },
@@ -74,13 +84,9 @@ class GameState {
 			}
 			return result;
 		};
-		const heuristic = (src, current) => {
-			return manhattanStraightHeuristic(src.x, src.y, current.x, current.y, dest.x, dest.y);
-			// return manhattanCrossProductHeuristic(src.x, src.y, current.x, current.y, dest.x, dest.y);
-		};
 		const weightFunc = (edge) => dirsUsed[edge].w;
 		const opts = { maxIterations };
-		return astar(source, dest, neighborFunc, weightFunc, heuristic, opts);
+		return astar(source, dest, neighborFunc, weightFunc, this.heuristic, opts);
 	}
 
 	drawPath(data, source, dest) {
@@ -136,31 +142,17 @@ class GameState {
 
 		this.l1.resizeWorld();
 
-		const map = this.map;
-		// extract player, target and and enemy locations
-		for (let x = 0; x < map.width; ++x) {
-			for (let y = 0; y < map.height; ++y) {
-				const tile = map.getTile(x, y);
-				const index = tile && tile.index;
-				switch (index) {
-				case TILE_WALL: // wall
-					break;
-				case TILE_PLAYER: // player
-					this.player = tile;
-					break;
-				case TILE_GOAL: // goal
-					this.goal = tile;
-					break;
-				default:
-					break;
-				}
-			}
-		}
+		this.player = this.map.searchTileIndex(TILE_PLAYER);
+		this.goal = this.map.searchTileIndex(TILE_GOAL);
 
-		const text = "LMB: add/clear barrier. RMB: examine node";
-		const style = { font: "16px Arial", fill: "#ff0044", align: "center" };
-	
-		/* const t = */ this.add.text(this.world.centerX - 300, 0, text, style);
+		const text1 = "LMB: add/clear barrier. RMB: examine node";
+		const style = { font: "16px Arial", fill: "#ff8888", align: "center" };
+		this.add.text(this.world.centerX - 400, 0, text1, style);
+		this.debugText = this.add.text(this.world.centerX, 0, "", style);
+
+		console.log(this.game.input.mousePointer.leftButton);
+		this.game.input.mousePointer.leftButton.onDown.add(() => this.onLeftClick());
+		this.game.input.mousePointer.rightButton.onDown.add(() => this.onRightClick());
 	}
 
 	reset() {
@@ -169,16 +161,48 @@ class GameState {
 		this.counter = 0;
 	}
 
-	onClick(pointer) {
-		console.log("Click", pointer.x, pointer.y);
+	inRange(mx, my) {
+		return (mx >= 0 && mx < this.map.width && my >= 0 && my < this.map.height);
 	}
 
-	handleMouse() {
-		const currentMouseDown = this.game.input.activePointer.isDown;
-		if (currentMouseDown && !this.prevMouseDown) {
-			this.onClick(this.game.input.activePointer);
+	pointerInMap() {
+		const pointer = this.game.input.mousePointer;
+		const mx = Math.floor(pointer.x / this.map.tileWidth / MAP_SCALE);
+		const my = Math.floor(pointer.y / this.map.tileHeight / MAP_SCALE);
+		return { mx, my };
+	}
+
+	onLeftClick() {
+		const { mx, my } = this.pointerInMap();
+		if (this.inRange(mx, my)) {
+			const tile = this.map.getTile(mx, my);
+
+			// toggle walls
+			const idx = tile && tile.index;
+			const newIdx = idx === TILE_WALL ? TILE_OPEN : TILE_WALL;
+			this.map.putTile(newIdx, mx, my);
+			this.resetAnimation();
 		}
-		this.prevMouseDown = currentMouseDown;
+	}
+
+	onRightClick() {
+		const { mx, my } = this.pointerInMap();
+		if (this.inRange(mx, my)) {
+			const tile = this.map.getTile(mx, my);
+			
+			const cost = this.data.dist.get(tile);
+			const h = this.heuristic(tile);
+
+			// log some information about this tile
+			this.debugText.text = `[${mx}, ${my}] ` + 
+				`cost: ${cost && cost.toFixed(2)}; h: ${h && h.toFixed(2)}`;
+		}
+	}
+
+	resetAnimation() {
+		this.maxIterations = 0;
+		this.counter = 0;
+		this.validPath = false;
 	}
 
 	update() {
@@ -187,12 +211,12 @@ class GameState {
 			if (this.counter <= 0) {
 				this.counter = this.animationSpeed;
 				this.maxIterations++;
-				const data = this.findPath(this.player, this.goal, this.maxIterations);
-				this.drawPath(data, this.player, this.goal);
+				this.data = this.findPath(this.player, this.goal, this.maxIterations);
+				this.drawPath(this.data, this.player, this.goal);
 			}
 		}
 
-		this.handleMouse();
+		// this.handleMouse();
 	}
 }
 
@@ -200,4 +224,8 @@ window.onload = () => {
 	const game = new Game();
 	game.state.add("GameState", GameState);
 	game.state.start("GameState");
+
+	/** disable RMB context menu globally */
+	document.body.addEventListener("contextmenu", e => e.preventDefault());
+
 };

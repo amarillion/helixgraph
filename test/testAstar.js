@@ -21,7 +21,7 @@ test("astar on a grid", t => {
 	const { /* dist, */ prev } = astar(source, dest, 
 		(node) => graph.getAdjacent(node), 
 		() => graph.getWeight(), 
-		(node, goal) => 1.01 * manhattan(node.x, node.y, goal.x, goal.y)
+		(node) => 1.01 * manhattan(node.x, node.y, dest.x, dest.y)
 	);
 	// const { dist, prev } = breadthFirstSearch(source, [ dest ], (node) => graph.getAdjacent(node));
 
@@ -54,7 +54,7 @@ test("use bfs distance map for astar heuristic", t => {
 	const { prev } = astar(dest, source, 
 		(node) => graph.getAdjacent(node), 
 		() => 1, 
-		(node /*, goal */) => bsdDist.get(node)
+		(node) => bsdDist.get(node)
 	);
 
 	console.log("\n\n" + graph.toString());
