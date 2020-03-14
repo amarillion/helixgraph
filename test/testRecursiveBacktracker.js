@@ -1,7 +1,7 @@
 import test from "ava";
 import { GridGraph, reverse } from "./helper/gridGraph.js";
 import { recursiveBackTracker } from "../src/maze.js";
-import { renderToString } from "../examples/maze/maze.js";
+import { renderToString } from "../examples/maze/renderToString.js";
 
 test("Recursive backtracker with rendering", t => {
 
