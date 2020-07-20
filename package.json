@@ -11,7 +11,10 @@
 	"author": "Martijn van Iersel <mvaniersel@gmail.com>",
 	"license": "MIT",
 	"devDependencies": {
-		"ava": "^2.2.0",
-		"eslint": "^6.1.0"
+		"ava": "^3.10.1",
+		"eslint": "^7.5.0"
+	},
+	"dependencies": {
+		"esm": "^3.2.25"
 	}
 }
