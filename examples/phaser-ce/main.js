@@ -84,10 +84,13 @@ class GameState {
 			}
 		}
 		const weightFunc = (edge) => dirsUsed[edge].w;
-		const opts = { maxIterations };
-		// return astar(source, dest, neighborFunc, weightFunc, this.heuristic, opts);
-		return breadthFirstSearch(source, dest, neighborFunc, /* weightFunc, this.heuristic, */ opts);
-		// return dijkstra(source, dest, neighborFunc, weightFunc, /*  this.heuristic, */ opts);
+		const opts = { 
+			maxIterations,
+			getWeight: weightFunc,
+			getHeuristic: this.heuristic 
+		};
+		const findPath = astar; // dijkstra, breadthFirstSearch
+		return findPath(source, dest, neighborFunc, opts);
 	}
 
 	drawPath(data, source, dest) {

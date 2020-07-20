@@ -131,12 +131,15 @@ function toSet(value) {
  * @param {*} source 
  * @param {*} dest - the search destination node, or an array of destinations that must all be found
  * @param {*} getNeighbors 
- * @param {*} getWeight 
+ * @param {*} 
  * 
  * @returns Map(to, { edge, from, to, cost })
  */
-export function dijkstra(source, dest, getNeighbors, getWeight, 
-	{ maxIterations = 0 } = {}
+export function dijkstra(source, dest, getNeighbors, 
+	{ 
+		maxIterations = 0, 
+		getWeight = () => 1,	
+	} = {}
 ) {
 	assert(typeof(getNeighbors) === "function");
 	assert(typeof(getWeight) === "function");
@@ -202,14 +205,20 @@ export function dijkstra(source, dest, getNeighbors, getWeight,
  * @param {*} source 
  * @param {*} destinations 
  * @param {*} getNeighbors 
- * @param {*} getWeight 
+ * @param {Object} options containing getHeuristic(node), maxIterations, getWeight(edge) 
  * 
  * @returns Map(to, { edge, from, to, cost })
  */
-export function astar(source, dest, getNeighbors, getWeight, heuristicFunc, { maxIterations = 0 } = {}) {
+export function astar(source, dest, getNeighbors,
+	{ 
+		maxIterations = 0,
+		getWeight = () => 1,
+		getHeuristic = () => 0
+	} = {}
+) {
 	assert(typeof(getNeighbors) === "function");
 	assert(typeof(getWeight) === "function");
-	assert(typeof(heuristicFunc) === "function");
+	assert(typeof(getHeuristic) === "function");
 
 	const dist = new Map();
 	const prev = new Map();
@@ -242,7 +251,7 @@ export function astar(source, dest, getNeighbors, getWeight, heuristicFunc, { ma
 			if (cost < oldCost) {
 
 				dist.set(sibling, cost);
-				priority.set(sibling, cost + heuristicFunc(sibling));
+				priority.set(sibling, cost + getHeuristic(sibling));
 				open.push(sibling);
 				
 				// build back-tracking map
