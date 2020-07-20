@@ -1,6 +1,7 @@
 /* rule for eslint: */
 /* global Phaser */
-import { astar, manhattanCrossProductHeuristic, trackback, manhattanStraightHeuristic, octagonalHeuristic } from "../../src/algorithm.js";
+import { astar, trackback } from "../../src/algorithm.js";
+import { manhattanCrossProductHeuristic, manhattanStraightHeuristic, octagonalHeuristic } from "../../src/astarHeuristics.js";
 
 class Game extends Phaser.Game {
 	
