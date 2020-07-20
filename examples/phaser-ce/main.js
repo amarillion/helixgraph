@@ -1,6 +1,8 @@
 /* rule for eslint: */
 /* global Phaser */
-import { astar, manhattanCrossProductHeuristic, trackback, manhattanStraightHeuristic, octagonalHeuristic } from "../../src/algorithm.js";
+import { astar, trackback, breadthFirstSearch, dijkstra } from "../../src/pathFinding.js";
+import { manhattanCrossProductHeuristic, manhattanStraightHeuristic, octagonalHeuristic } from "../../src/astarHeuristics.js";
+import { assert } from "../../src/assert.js";
 
 class Game extends Phaser.Game {
 	
@@ -18,8 +20,7 @@ class Game extends Phaser.Game {
 
 const MAP_SCALE = 5.0;
 
-// eslint-disable-next-line no-unused-vars
-const TILE_WALL = 1, TILE_PLAYER = 2, TILE_OPEN = 7, TILE_GOAL = 3, TILE_ENEMY = 4;
+const TILE_WALL = 1, TILE_PLAYER = 2, TILE_OPEN = 7, TILE_GOAL = 3;
 
 class GameState {
 	
@@ -32,13 +33,49 @@ class GameState {
 		this.animationSpeed = 3; // number of ticks between pathfinding animation
 		this.octagonalToggle = true;
 		this.prevMouseDown = false;
-		this.heuristicFactory = (source, dest) => (current) => {
+
+		const heuristicSelect = document.getElementById("heuristic-select");
+		const gridSelect = document.getElementById("grid-select");
+		const algorithmSelect = document.getElementById("algorithm-select");
+
+		heuristicSelect.addEventListener("change", () => {
+			this.crossProdToggle = heuristicSelect.value === "crossprod";
+			console.log(heuristicSelect.value);
+			this.resetAnimation();
+		});
+		this.crossProdToggle = heuristicSelect.value === "crossprod";
+
+		gridSelect.addEventListener("change", () => {
+			this.octagonalToggle = gridSelect.value === "octagonal";
+			this.resetAnimation();
+		});
+		this.octogonalToggle = gridSelect.value === "octagonal";
+
+		algorithmSelect.addEventListener("change", () => {
+			const valueToFunc = {
+				"astar": astar,
+				"bfs": breadthFirstSearch,
+				"dijkstra": dijkstra
+			};
+			this.algorithm = valueToFunc[algorithmSelect.value];
+			assert(this.algorithm);
+			this.resetAnimation();
+		});
+		this.algorithm = astar;
+	}
+
+	heuristicFactory(source, dest) {
+		return (current) => {
 			if (this.octagonalToggle) {
 				return octagonalHeuristic(source.x, source.y, current.x, current.y, dest.x, dest.y);
 			}
 			else {
-				return manhattanStraightHeuristic(source.x, source.y, current.x, current.y, dest.x, dest.y);
-				// return manhattanCrossProductHeuristic(source.x, source.y, current.x, current.y, dest.x, dest.y);
+				if (this.crossProdToggle) {
+					return manhattanCrossProductHeuristic(source.x, source.y, current.x, current.y, dest.x, dest.y);
+				}
+				else {
+					return manhattanStraightHeuristic(source.x, source.y, current.x, current.y, dest.x, dest.y);
+				}
 			}
 		};
 	}
@@ -70,23 +107,26 @@ class GameState {
 			return (x >= 0 && x < this.map.width &&
 				y >= 0 && y < this.map.height);	
 		};
-		const neighborFunc = (tile) => {
+		const map = this.map;
+		function *neighborFunc(tile) {
 			const { x, y } = tile;
-			const result = [];
 			for (const key in dirsUsed) {
 				const { dx, dy } = dirsUsed[key];
 				const nx = x + dx;
 				const ny = y + dy;
 				if (!inRange(nx, ny)) continue;
-				const tile = this.map.getTile(nx, ny);
+				const tile = map.getTile(nx, ny);
 				if (!tile.collides)
-					result.push([key, tile]);
+					yield ([key, tile]);
 			}
-			return result;
-		};
+		}
 		const weightFunc = (edge) => dirsUsed[edge].w;
-		const opts = { maxIterations };
-		return astar(source, dest, neighborFunc, weightFunc, this.heuristic, opts);
+		const opts = { 
+			maxIterations,
+			getWeight: weightFunc,
+			getHeuristic: this.heuristic 
+		};
+		return this.algorithm(source, dest, neighborFunc, opts);
 	}
 
 	drawPath(data, source, dest) {
@@ -99,23 +139,23 @@ class GameState {
 		
 		
 		// draw examined nodes
-		for (const [k, v] of data.dist.entries()) {
+		for (const { to, cost } of data.values()) {
 			// closer distance === brighter yellow
-			const color = 0xFFFF00 - (0x050500 * Math.floor(v));
+			const color = 0xFFFF00 - (0x050500 * Math.floor(cost));
 			graphics.beginFill(color, 0.5);
-			graphics.drawRect(k.x * 8 + 1, k.y * 8 + 1, 6, 6);
+			graphics.drawRect(to.x * 8 + 1, to.y * 8 + 1, 6, 6);
 			graphics.endFill();
 		}
 
 		graphics.lineStyle(1.0, 0x808080, 0.5);
-		for (const { from, to } of data.prev.values()) {
+		for (const { from, to } of data.values()) {
 			graphics.moveTo(from.x * 8 + 4, from.y * 8 + 4);
 			graphics.lineTo(to.x * 8 + 4, to.y * 8 + 4);
 		}
 		
 		// draw the main path
 		graphics.lineStyle(2.0, 0x00FFFF, 0.5);
-		this.validPath = trackback (source, dest, data.prev, (from, edge, to ) => {
+		this.validPath = trackback (source, dest, data, (from, edge, to ) => {
 			graphics.moveTo(from.x * 8 + 4, from.y * 8 + 4);
 			graphics.lineTo(to.x * 8 + 4, to.y * 8 + 4);
 		});
@@ -145,14 +185,11 @@ class GameState {
 		this.player = this.map.searchTileIndex(TILE_PLAYER);
 		this.goal = this.map.searchTileIndex(TILE_GOAL);
 
-		const text1 = "LMB: add/clear barrier. RMB: examine node";
-		const style = { font: "16px Arial", fill: "#ff8888", align: "center" };
-		this.add.text(this.world.centerX - 400, 0, text1, style);
+		const style = { font: "16px Arial", fill: "white", align: "center" };
 		this.debugText = this.add.text(this.world.centerX, 0, "", style);
 
-		console.log(this.game.input.mousePointer.leftButton);
 		this.game.input.mousePointer.leftButton.onDown.add(() => this.onLeftClick());
-		this.game.input.mousePointer.rightButton.onDown.add(() => this.onRightClick());
+		this.game.input.addMoveCallback(this.onMouseMove, this);
 	}
 
 	reset() {
@@ -185,12 +222,12 @@ class GameState {
 		}
 	}
 
-	onRightClick() {
+	onMouseMove() {
 		const { mx, my } = this.pointerInMap();
 		if (this.inRange(mx, my)) {
 			const tile = this.map.getTile(mx, my);
-			
-			const cost = this.data.dist.get(tile);
+			const nodeData = this.data.get(tile);
+			const cost = nodeData ? nodeData.cost : undefined;
 			const h = this.heuristic(tile);
 
 			// log some information about this tile
@@ -215,8 +252,6 @@ class GameState {
 				this.drawPath(this.data, this.player, this.goal);
 			}
 		}
-
-		// this.handleMouse();
 	}
 }
 
