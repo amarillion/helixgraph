@@ -14,11 +14,38 @@
 		#mainDiv {
 			height: 100%;
 		}
+
+		#header {
+			height: 3rem
+		}
 	</style>
 	<script src="//cdn.jsdelivr.net/npm/phaser-ce@2.14.0"></script>
 	<script type="module" src="./main.js"></script>
 </head>
 <body>
+	<div id="header">
+		<label for="algorithm-select">Choose path finding algorithm:</label>
+		<select name="algorithm" id="algorithm-select">
+			<option value="astar">A*</option>
+			<option value="bfs">Breadth First Search</option>
+			<option value="dijkstra">Dijkstra</option>
+		</select>
+
+		<label for="heuristic-select">Choose A* heuristic:</label>
+		<select name="heuristic" id="heuristic-select">
+			<option value="crossprod">Cross-product</option>
+			<option value="straight">Straight</option>
+		</select>
+
+		<label for="grid-select">Choose grid type:</label>
+		<select name="grid" id="grid-select">
+			<option value="rectangular">Rectangular</option>
+			<option value="octagonal">Octagonal</option>
+		</select>
+
+		<br>
+		Left-click with the mouse to add/remove a wall tile.
+	</div>
 	<div id="mainDiv">
 	</div>
 </body>
