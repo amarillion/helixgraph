@@ -70,25 +70,24 @@ class GameState {
 			return (x >= 0 && x < this.map.width &&
 				y >= 0 && y < this.map.height);	
 		};
-		const neighborFunc = (tile) => {
+		const map = this.map;
+		function *neighborFunc(tile) {
 			const { x, y } = tile;
-			const result = [];
 			for (const key in dirsUsed) {
 				const { dx, dy } = dirsUsed[key];
 				const nx = x + dx;
 				const ny = y + dy;
 				if (!inRange(nx, ny)) continue;
-				const tile = this.map.getTile(nx, ny);
+				const tile = map.getTile(nx, ny);
 				if (!tile.collides)
-					result.push([key, tile]);
+					yield ([key, tile]);
 			}
-			return result;
-		};
+		}
 		const weightFunc = (edge) => dirsUsed[edge].w;
 		const opts = { maxIterations };
-		return astar(source, dest, neighborFunc, weightFunc, this.heuristic, opts);
-		// return breadthFirstSearch(source, [ dest ], neighborFunc, /* weightFunc, this.heuristic, */ opts);
-		// return dijkstra(source, [ dest ], neighborFunc, weightFunc, /*  this.heuristic, */ opts);
+		// return astar(source, dest, neighborFunc, weightFunc, this.heuristic, opts);
+		return breadthFirstSearch(source, dest, neighborFunc, /* weightFunc, this.heuristic, */ opts);
+		// return dijkstra(source, dest, neighborFunc, weightFunc, /*  this.heuristic, */ opts);
 	}
 
 	drawPath(data, source, dest) {
