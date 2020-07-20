@@ -24,6 +24,7 @@
 		"url" : "https://github.com/amarillion/helixgraph"
 	},
 	"license": "MIT",
+	"publishConfig": { "access": "public" },
 	"devDependencies": {
 		"ava": "^3.10.1",
 		"eslint": "^7.5.0",
