@@ -1,8 +1,7 @@
 /* rule for eslint: */
 /* global Phaser */
-import { astar, trackback } from "../../src/algorithm.js";
+import { astar, trackback, breadthFirstSearch, dijkstra } from "../../src/algorithm.js";
 import { manhattanCrossProductHeuristic, manhattanStraightHeuristic, octagonalHeuristic } from "../../src/astarHeuristics.js";
-
 class Game extends Phaser.Game {
 	
 	constructor() {
@@ -88,6 +87,8 @@ class GameState {
 		const weightFunc = (edge) => dirsUsed[edge].w;
 		const opts = { maxIterations };
 		return astar(source, dest, neighborFunc, weightFunc, this.heuristic, opts);
+		// return breadthFirstSearch(source, [ dest ], neighborFunc, /* weightFunc, this.heuristic, */ opts);
+		// return dijkstra(source, [ dest ], neighborFunc, weightFunc, /*  this.heuristic, */ opts);
 	}
 
 	drawPath(data, source, dest) {
@@ -100,23 +101,23 @@ class GameState {
 		
 		
 		// draw examined nodes
-		for (const [k, v] of data.dist.entries()) {
+		for (const { to, cost } of data.values()) {
 			// closer distance === brighter yellow
-			const color = 0xFFFF00 - (0x050500 * Math.floor(v));
+			const color = 0xFFFF00 - (0x050500 * Math.floor(cost));
 			graphics.beginFill(color, 0.5);
-			graphics.drawRect(k.x * 8 + 1, k.y * 8 + 1, 6, 6);
+			graphics.drawRect(to.x * 8 + 1, to.y * 8 + 1, 6, 6);
 			graphics.endFill();
 		}
 
 		graphics.lineStyle(1.0, 0x808080, 0.5);
-		for (const { from, to } of data.prev.values()) {
+		for (const { from, to } of data.values()) {
 			graphics.moveTo(from.x * 8 + 4, from.y * 8 + 4);
 			graphics.lineTo(to.x * 8 + 4, to.y * 8 + 4);
 		}
 		
 		// draw the main path
 		graphics.lineStyle(2.0, 0x00FFFF, 0.5);
-		this.validPath = trackback (source, dest, data.prev, (from, edge, to ) => {
+		this.validPath = trackback (source, dest, data, (from, edge, to ) => {
 			graphics.moveTo(from.x * 8 + 4, from.y * 8 + 4);
 			graphics.lineTo(to.x * 8 + 4, to.y * 8 + 4);
 		});

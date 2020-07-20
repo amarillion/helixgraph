@@ -48,10 +48,7 @@ export function *bfsGenerator(source, listNeighbors) {
  *             dir is a value that distinguishes edges on the same node. 
  *             I.e. it could be an edge, but on a grid, a compass direction would also suffice.
  * 
- * @returns {
- *  dist: Map(node, steps)
- * 	prev: Map(node, [dir, srcNode])
- * }
+ * @returns Map(to, { edge, from, to, cost })
  *
  * Input graph may be undirected or directed (listNeighbors should act correspondingly)
  * 
@@ -62,43 +59,51 @@ export function *bfsGenerator(source, listNeighbors) {
  * 
  * For more discussion, see: https://stackoverflow.com/questions/25449781/what-is-difference-between-bfs-and-dijkstras-algorithms-when-looking-for-shorte
  */
-export function breadthFirstSearch(source, destinations, listNeighbors) {
+export function breadthFirstSearch(source, destinations, listNeighbors, 
+	{ maxIterations = 0 } = {}
+) {
 	assert(typeof(listNeighbors) === "function");
 
 	let open = [];
-	let dist = new Map();
-	let prev = new Map();
-	let distance = 0;
+	const dist = new Map();
+	const prev = new Map();
 	let remain = new Set(destinations);
 
 	open.push(source);
-	dist.set(source, distance);
-	prev.set(source, { edge: null, from: null } );
+	dist.set(source, 0);
+	// prev.set(source, { edge: null, from: null, to: source, cost } );
 
+	let i = maxIterations;
 	while (open.length > 0) {
+		
+		i--; // 0 -> -1 means Infinite.
+		if (i === 0) break;
+
 		const current = open.shift();
-		distance = dist.get(current);
+		const distance = dist.get(current);
 
 		if (remain.has(current)) {
 			remain.delete(current);
 			if (remain.size === 0) break;
 		}
 
-		for (const [dir, destNode] of listNeighbors(current)) {
-			const visited = dist.has(destNode);
+		for (const [edge, destNode] of listNeighbors(current)) {
+			const visited = prev.has(destNode);
 			if (!visited) {
 				open.push(destNode);
 				dist.set(destNode, distance + 1);
-				prev.set(destNode, { edge: dir, from: current });
+				prev.set(destNode, { 
+					edge, 
+					from: current,
+					to: destNode,
+					cost: distance + 1,
+				});
 			}
 		}
 		
 	}
 
-	return {
-		prev,
-		dist
-	};
+	return prev;
 }
 
 function spliceLowest (queue, comparator) {
@@ -118,8 +123,12 @@ function spliceLowest (queue, comparator) {
  * @param {*} destinations 
  * @param {*} getNeighbors 
  * @param {*} getWeight 
+ * 
+ * @returns Map(to, { edge, from, to, cost })
  */
-export function dijkstra(source, destinations, getNeighbors, getWeight) {
+export function dijkstra(source, destinations, getNeighbors, getWeight, 
+	{ maxIterations = 0 } = {}
+) {
 	assert(typeof(getNeighbors) === "function");
 	assert(typeof(getWeight) === "function");
 
@@ -136,7 +145,12 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
 	open.add(source);
 	dist.set(source, 0);
 
+	let i = maxIterations;
 	while (open.size > 0) {
+		
+		i--; // 0 -> -1 means Infinite.
+		if (i === 0) break;
+
 		// extract the element from Q with the lowest dist. Open is modified in-place.
 		// TODO: optionally use PriorityQueue
 		// O(N^2) like this, O(log N) with priority queue. But in my tests, priority queues only start pulling ahead in large graphs
@@ -157,7 +171,7 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
 					// set or update distance
 					dist.set(sibling, alt);
 					// build back-tracking map
-					prev.set(sibling, { edge, from: current, to: sibling });
+					prev.set(sibling, { edge, from: current, to: sibling, cost: alt });
 				}
 			}
 		}
@@ -171,12 +185,18 @@ export function dijkstra(source, destinations, getNeighbors, getWeight) {
 		}
 	}
 
-	return {
-		prev,
-		dist
-	};
+	return prev;
 }
 
+/**
+ * Given a weighted graph, find all paths from one source to one or more destinations
+ * @param {*} source 
+ * @param {*} destinations 
+ * @param {*} getNeighbors 
+ * @param {*} getWeight 
+ * 
+ * @returns Map(to, { edge, from, to, cost })
+ */
 export function astar(source, dest, getNeighbors, getWeight, heuristicFunc, { maxIterations = 0 } = {}) {
 	assert(typeof(getNeighbors) === "function");
 	assert(typeof(getWeight) === "function");
@@ -215,15 +235,12 @@ export function astar(source, dest, getNeighbors, getWeight, heuristicFunc, { ma
 				open.push(sibling);
 				
 				// build back-tracking map
-				prev.set(sibling, { edge, from: current, to: sibling });
+				prev.set(sibling, { edge, from: current, to: sibling, cost });
 			}
 		}
 	}
 
-	return {
-		prev,
-		dist
-	};
+	return prev;
 
 }
 
@@ -261,7 +278,7 @@ export function trackbackNodes(source, dest, prev) {
  * Creates a path from the results of dijsktra, bfs or astar, by tracking back using a prev map.
  * @param {*} source starting node
  * @param {*} dest target node
- * @param {Map} prev is a Map(destNode, { edge, srcNode }) as returned bij `dijkstra`, `astar` or `breadthFirstSearch`)
+ * @param {Map} prev is a Map(destNode, { edge, from }) as returned bij `dijkstra`, `astar` or `breadthFirstSearch`)
  * @param {trackbackFun} callback called for each step of the path from source to dest, but in reverse order
  * 
  * @returns: an array of [ edge ], or `null` if there is no path possible, i.e. dest is unreachable from source.
@@ -292,8 +309,8 @@ export function trackback(source, dest, prev, callback) {
 
 export function shortestPathsFromSource(source, destinations, getNeighbors /*, getWeight */) {
 
-	// const { prev } = dijkstra(source, destinations, getNeighbors, getWeight);
-	const { prev } = breadthFirstSearch(source, destinations, getNeighbors);
+	// const prev = dijkstra(source, destinations, getNeighbors, getWeight);
+	const prev = breadthFirstSearch(source, destinations, getNeighbors);
 
 	// Now backtrack from each destination to the source
 	const result = [];

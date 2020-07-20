@@ -5,7 +5,7 @@ import { LINEAR, CYCLICAL_4SS } from "./helper/graphData.js";
 
 test("trackback edges simple", t => {
 	const graph = indexGraph(LINEAR);
-	const { prev } = breadthFirstSearch("A", graph.sinks, graph.getNeighbors);
+	const prev = breadthFirstSearch("A", graph.sinks, graph.getNeighbors);
 	
 	const path = trackbackEdges("A", "B", prev);
 
@@ -18,7 +18,7 @@ test("trackback edges simple", t => {
 test("trackback nodes complex", t => {
 	const graph = indexGraph(CYCLICAL_4SS);
 	const source = "J";
-	const { prev } = breadthFirstSearch(source, graph.sinks, graph.getNeighbors);
+	const prev = breadthFirstSearch(source, graph.sinks, graph.getNeighbors);
 	
 	const path = [];
 	const isValid = trackback(source, "I", prev, (fromNode, edge, toNode) => {
