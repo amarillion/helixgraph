@@ -2,7 +2,7 @@ import test from "ava";
 import { T_JUNCTION, LINEAR_THREE, CYCLICAL } from "./helper/graphData.js";
 import { indexGraph, FORWARD, REVERSE } from "./helper/indexGraph.js";
 import { simplify, flattenPath } from "../src/simplify";
-import { dijkstra, trackbackNodes, trackbackEdges } from "../src/algorithm";
+import { dijkstra, trackbackNodes, trackbackEdges } from "../src/pathFinding.js";
 
 test("Simplified dijkstra: linear", t => {
 	const graph = indexGraph(LINEAR_THREE);

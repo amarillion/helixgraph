@@ -1,6 +1,6 @@
 import test from "ava";
-import { GridGraph, MAP, reverse, NORTH, EAST, SOUTH, WEST } from "./helper/gridGraph";
-import { astar, breadthFirstSearch, trackback, trackbackEdges } from "../src/algorithm";
+import { GridGraph, MAP, reverse, NORTH, EAST, SOUTH, WEST } from "./helper/gridGraph.js";
+import { astar, breadthFirstSearch, trackback, trackbackEdges } from "../src/pathFinding.js";
 
 const chars = {
 	[NORTH]: "^",

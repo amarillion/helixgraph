@@ -2,7 +2,7 @@ import test from "ava";
 import { T_JUNCTION, LINEAR_THREE, DEAD_END, CYCLICAL } from "./helper/graphData";
 import { indexGraph, FORWARD, REVERSE } from "./helper/indexGraph.js";
 import { simplify } from "../src/simplify";
-import { edgeBetween, edgesBetween } from "../src/algorithm";
+import { edgeBetween, edgesBetween } from "../src/pathFinding.js";
 
 test("Simplify network: linear", t => {
 	const graph = indexGraph(LINEAR_THREE);

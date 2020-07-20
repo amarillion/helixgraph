@@ -1,5 +1,5 @@
 import test from "ava";
-import { breadthFirstSearch, trackbackEdges, trackback } from "../src/algorithm.js";
+import { breadthFirstSearch, trackbackEdges, trackback } from "../src/pathFinding.js";
 import { indexGraph, FORWARD } from "./helper/indexGraph.js";
 import { LINEAR, CYCLICAL_4SS } from "./helper/graphData.js";
 

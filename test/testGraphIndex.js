@@ -1,7 +1,7 @@
 import test from "ava";
 import { LINEAR, TWO_ROUTES } from "./helper/graphData.js";
 import { indexGraph, FORWARD, REVERSE } from "./helper/indexGraph.js";
-import { edgeBetween } from "../src/algorithm.js";
+import { edgeBetween } from "../src/pathFinding.js";
 
 test("linear graph index", t => {
 	const graph = indexGraph(LINEAR);
