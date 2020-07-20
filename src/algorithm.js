@@ -43,7 +43,7 @@ export function *bfsGenerator(source, listNeighbors) {
  * (TODO: maybe this should be factored out)
  * 
  * @param {*} source starting node
- * @param {array} distinations Iterable of nodes. Search will continue until all destinations that can be reached, were visited.
+ * @param distinations Single node or Array of nodes. Search will continue until all destinations are reached.
  * @param {function} listNeighbors function(node) that return the neighbors of given node as an array of [dir, destNode] 
  *             dir is a value that distinguishes edges on the same node. 
  *             I.e. it could be an edge, but on a grid, a compass direction would also suffice.
@@ -59,7 +59,7 @@ export function *bfsGenerator(source, listNeighbors) {
  * 
  * For more discussion, see: https://stackoverflow.com/questions/25449781/what-is-difference-between-bfs-and-dijkstras-algorithms-when-looking-for-shorte
  */
-export function breadthFirstSearch(source, destinations, listNeighbors, 
+export function breadthFirstSearch(source, dest, listNeighbors, 
 	{ maxIterations = 0 } = {}
 ) {
 	assert(typeof(listNeighbors) === "function");
@@ -67,7 +67,7 @@ export function breadthFirstSearch(source, destinations, listNeighbors,
 	let open = [];
 	const dist = new Map();
 	const prev = new Map();
-	let remain = new Set(destinations);
+	const remain = toSet(dest);
 
 	open.push(source);
 	dist.set(source, 0);
@@ -117,16 +117,25 @@ function spliceLowest (queue, comparator) {
 	return minElt;
 }
 
+function toSet(value) {
+	if (Array.isArray(value)) {
+		return new Set(value);
+	}
+	else {
+		return new Set([ value ]);
+	}
+}
+
 /**
  * Given a weighted graph, find all paths from one source to one or more destinations
  * @param {*} source 
- * @param {*} destinations 
+ * @param {*} dest - the search destination node, or an array of destinations that must all be found
  * @param {*} getNeighbors 
  * @param {*} getWeight 
  * 
  * @returns Map(to, { edge, from, to, cost })
  */
-export function dijkstra(source, destinations, getNeighbors, getWeight, 
+export function dijkstra(source, dest, getNeighbors, getWeight, 
 	{ maxIterations = 0 } = {}
 ) {
 	assert(typeof(getNeighbors) === "function");
@@ -137,7 +146,7 @@ export function dijkstra(source, destinations, getNeighbors, getWeight,
 	const dist = new Map();
 	const visited = new Set();
 	const prev = new Map();
-	let remain = new Set(destinations);
+	let remain = toSet(dest);
 	
 	// TODO: more efficient to use a priority queue here
 	const open = new Set();
@@ -211,6 +220,8 @@ export function astar(source, dest, getNeighbors, getWeight, heuristicFunc, { ma
 	open.push(source);
 	dist.set(source, 0);
 
+	const remain = toSet(dest);
+
 	let i = maxIterations;
 	while (open.size() > 0) {
 		
@@ -219,9 +230,9 @@ export function astar(source, dest, getNeighbors, getWeight, heuristicFunc, { ma
 
 		const current = open.pop();
 
-		if (current === dest) {
-			break;
-			// reached destiniation!
+		if (remain.has(current)) {
+			remain.delete(current);
+			if (remain.size === 0) break; // reached all destiniations!
 		}
 		
 		for (const [edge, sibling] of getNeighbors(current)) {
