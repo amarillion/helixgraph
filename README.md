@@ -9,6 +9,10 @@ This library includes
 
 The algorithms are suitable for tilemaps, regular grids, as well as (non-regular) graphs.
 
+## Installation
+
+  `npm install @amarillion/helixgraph`
+
 # Example code
 
 You can find live examples here: https://amarillion.github.io/helixgraph/

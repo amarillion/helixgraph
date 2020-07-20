@@ -1,5 +1,5 @@
 {
-	"name": "helixgraph",
+	"name": "@amarillion/helixgraph",
 	"version": "0.1.0",
 	"description": "A collection of graph algorithms for game development",
 	"main": "index.js",
@@ -8,13 +8,25 @@
 		"perf": "ava --match='Performance'",
 		"lint": "eslint **/*.js"
 	},
-	"author": "Martijn van Iersel <mvaniersel@gmail.com>",
+	"author": {
+		"name": "Martijn van Iersel",
+		"email": "mvaniersel@gmail.com",
+		"url": "https://blog.helixsoft.nl/"
+	},
+	"files": [
+		"src/**",
+		"test/**",
+		"examples/**",
+		"ava.config.js"
+	],
+	"repository": {
+		"type" : "git",
+		"url" : "https://github.com/amarillion/helixgraph"
+	},
 	"license": "MIT",
 	"devDependencies": {
 		"ava": "^3.10.1",
-		"eslint": "^7.5.0"
-	},
-	"dependencies": {
+		"eslint": "^7.5.0",
 		"esm": "^3.2.25"
 	}
 }
