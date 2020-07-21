@@ -18,7 +18,7 @@ node {
 			echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}."
 			docker.image('node:latest').inside() {
 				withEnv(['HOME=.']) {
-					sh "npm install"
+					sh "npm ci"
 				}
 			}
 		}
