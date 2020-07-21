@@ -1,0 +1,8 @@
+version 0.2.0
+
+- Fix location of index.js
+- Remove test and example code from module
+
+version 0.1.0
+
+- First public release, containing three path finding algorithms and one maze algorithm

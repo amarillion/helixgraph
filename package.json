@@ -1,6 +1,6 @@
 {
 	"name": "@amarillion/helixgraph",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "A collection of graph algorithms for game development",
 	"main": "index.js",
 	"scripts": {
@@ -15,9 +15,7 @@
 	},
 	"files": [
 		"src/**",
-		"test/**",
-		"examples/**",
-		"ava.config.js"
+		"index.js"
 	],
 	"repository": {
 		"type" : "git",
