@@ -1,3 +1,8 @@
+version 0.3.0
+
+- Added optional 2nd parameter to getWeight(edge, node)
+- Wrote documentation
+
 version 0.2.0
 
 - Fix location of index.js
