@@ -2,6 +2,7 @@
 	"name": "@amarillion/helixgraph",
 	"version": "0.2.0",
 	"description": "A collection of graph algorithms for game development",
+	"keywords": ["pathfinding", "astar", "A*", "graphs", "algorithms", "games", "gamedev"],
 	"main": "index.js",
 	"scripts": {
 		"test": "ava --match='!*performance*'",
