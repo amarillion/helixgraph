@@ -172,7 +172,7 @@ export function dijkstra(source, dest, getNeighbors,
 		for (const [edge, sibling] of getNeighbors(current)) {
 			
 			if (!(visited.has(sibling))) {
-				const alt = dist.get(current) + getWeight(edge);
+				const alt = dist.get(current) + getWeight(edge, current);
 				
 				// any node that is !visited and has a distance assigned should be in open set.
 				open.add (sibling); // may be already in there, that is OK.
@@ -246,7 +246,7 @@ export function astar(source, dest, getNeighbors,
 		
 		for (const [edge, sibling] of getNeighbors(current)) {
 			
-			const cost = dist.get(current) + getWeight(edge);
+			const cost = dist.get(current) + getWeight(edge, current);
 			const oldCost = dist.has(sibling) ? dist.get(sibling) : Infinity;
 			if (cost < oldCost) {
 
