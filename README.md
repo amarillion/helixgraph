@@ -15,8 +15,8 @@ The algorithms are suitable for tilemaps, regular grids, as well as (non-regular
 
 ## Live demo
 
-You can find two live examples here: https://amarillion.github.io/helixgraph/
-The source code for these examples is included in the repo on github.
+Play with the [live examples](https://amarillion.github.io/helixgraph/)  
+Source code for all examples is [on github](https://github.com/amarillion/helixgraph/tree/master/examples).
 
 ## Documentation
 
@@ -31,3 +31,8 @@ The source code for these examples is included in the repo on github.
 * [Chapter 3: Maze generation algorithms](./docs/mazes.md)
   
   Mazes are a type of graph, helixgraph includes a set of algorithms for procedural generation of mazes (which can then be solved again them using the algorithm of chapter 2).
+
+## Source
+
+Source code: https://github.com/amarillion/helixgraph/  
+License: [MIT](./LICENSE)
