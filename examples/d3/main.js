@@ -2,7 +2,6 @@
 /* global d3 */
 
 import { astar, breadthFirstSearch, dijkstra, trackbackNodes } from "../../src/pathFinding.js";
-import { manhattanCrossProductHeuristic, manhattanStraightHeuristic, octagonalHeuristic } from "../../src/astarHeuristics.js";
 import { assert } from "../../src/assert.js";
 import BaseGrid from "../../src/BaseGrid.js";
 
@@ -19,57 +18,127 @@ class Main {
 		this.start = null;
 		this.goal = null;
 		this.validPath = false;
-		this.octagonalToggle = true;
+		this.octagonalToggle = false;
 		this.mouseMode = null;
 
-		const heuristicSelect = document.getElementById("heuristic-select");
-		const gridSelect = document.getElementById("grid-select");
-		const algorithmSelect = document.getElementById("algorithm-select");
+		this.distanceSelect = document.getElementById("distance-select");
+		this.distanceSelect.options = [
+			{id: "manhattan", name:"Manhattan"},
+			{id: "euclidian", name:"Euclidian"}, 
+			{id: "octagonal", name:"Octagonal"}
+		];
 
-		heuristicSelect.addEventListener("change", () => {
-			this.crossProdToggle = heuristicSelect.value === "crossprod";
-			console.log(heuristicSelect.value);
-			this.resetPath();
-		});
-		this.crossProdToggle = heuristicSelect.value === "crossprod";
+		this.tiebreakerSelect = document.getElementById("tiebreaker-select");
+		this.tiebreakerSelect.options = [
+			{id:"crossprod", name:"Cross Product"},
+			{id:"straight", name:"Near bounding box"},
+			{id:"none", name:"None"}, 
+		];
 
-		gridSelect.addEventListener("change", () => {
-			this.octagonalToggle = gridSelect.value === "octagonal";
-			this.resetPath();
-		});
-		this.octogonalToggle = gridSelect.value === "octagonal";
+		this.gridSelect = document.getElementById("grid-select");
+		this.gridSelect.options = [
+			{id:"rectangular", name:"Rectangular 4-way"}, { id:"octagonal", name: "Rectangular 8-way"}
+		];
 
-		algorithmSelect.addEventListener("change", () => {
+		this.algorithmSelect = document.getElementById("algorithm-select");
+		this.algorithmSelect.options = [
+			{id:"astar", name: "A*"}, {id:"bfs", name: "Breadth First Search"}, {id:"dijkstra", name: "Dijkstra"}
+		];
+
+		this.distanceSelect.callback = () => {
+			this.heuristic = this.heuristicFactory(this.start, this.goal);
+		};
+		
+		this.tiebreakerSelect.callback = () => {
+			this.heuristic = this.heuristicFactory(this.start, this.goal);
+		};
+
+		this.gridSelect.callback = (newVal) => {
+			this.octagonalToggle = newVal === "octagonal";
+			this.heuristic = this.heuristicFactory(this.start, this.goal);
+		};
+		
+		this.algorithmSelect.callback = (newVal) => {
 			const valueToFunc = {
 				"astar": astar,
 				"bfs": breadthFirstSearch,
 				"dijkstra": dijkstra
 			};
-			this.algorithm = valueToFunc[algorithmSelect.value];
+			this.algorithm = valueToFunc[newVal];
 			assert(this.algorithm);
+			this.heuristic = this.heuristicFactory(this.start, this.goal);
 			this.resetPath();
-		});
+		};
+
 		this.algorithm = astar;
+		this.heuristic = () => 0;
 	}
 
 	heuristicFactory(source, dest) {
-		return (current) => {
-			if (this.octagonalToggle) {
-				return octagonalHeuristic(source.x, source.y, current.x, current.y, dest.x, dest.y);
+		
+		const distanceFunctions = {
+			manhattan: (dx1, dy1) => Math.abs(dx1) + Math.abs(dy1),
+			euclidian: (dx1, dy1) => Math.sqrt(dx1 * dx1 + dy1 * dy1),
+			octagonal: (dx1, dy1) => {
+				const adx1 = Math.abs(dx1);
+				const ady1 = Math.abs(dy1);
+				const min = Math.min(adx1, ady1);
+				const max = Math.max(adx1, ady1);
+				return (min * 0.414) + max;
 			}
-			else {
-				if (this.crossProdToggle) {
-					return manhattanCrossProductHeuristic(source.x, source.y, current.x, current.y, dest.x, dest.y);
-				}
-				else {
-					return manhattanStraightHeuristic(source.x, source.y, current.x, current.y, dest.x, dest.y);
-				}
-			}
+		};
+		const tiebreakerFunctions = {
+			none: () => 0,
+			crossprod: (dx1, dy1, dx2, dy2) => Math.abs(dx1*dy2 - dx2*dy1),
+			straight: (dx1, dy1, dx2, dy2) => {
+				const fx = dx2 === 0 ? 0.5 : dx1 / dx2 + 0.01; // 0.01 is to break tie between horizontal / vertical
+				const fy = dy2 === 0 ? 0.5 : dy1 / dy2;
+				// Map x 0..1 into curve -(x(x-1))
+				return Math.abs ((fx * (fx - 1)) * (fy * (fy - 1)));
+			}	
+		};
+
+		const distance = distanceFunctions[this.distanceSelect.value];
+		const tiebreaker = tiebreakerFunctions[this.tiebreakerSelect.value];
+
+		if (!(tiebreaker && distance)) return () => 0;
+
+		return current => {
+			const dx1 = current.x - dest.x;
+			const dy1 = current.y - dest.y;
+			const dx2 = source.x - dest.x;
+			const dy2 = source.y - dest.y;
+			return distance(dx1, dy1, dx2, dy2) + 0.001 * tiebreaker(dx1, dy1, dx2, dy2);
 		};
 	}
 
+	set heuristic(value) {
+		this._heuristic = value;
+		this.resetPath();
+	}
+
+	get heuristic() {
+		return this._heuristic;
+	}
+
+	vizHeuristic() {
+		const maxDist = this.heuristic(this.start);
+		const colorScale = d3.scaleLinear()
+			.domain([0, maxDist, maxDist * 2])
+			.range(["orange", "white", "purple"]);
+
+		const rects = d3.select("svg")
+			.selectAll("rect")
+			.data(this.grid.eachNode());
+
+		rects.join(
+			() => {},
+			update => update 
+				.attr("fill", d => d.blocked ? BLOCKED_COLOR : colorScale(this.heuristic(d)))
+		);
+	}
+
 	findPath(source, dest, maxIterations) {
-		this.heuristic = this.heuristicFactory(source, dest);
 		const dirs = {
 			N: { key : "N", dx:  0, dy:  1, w: 1 },
 			E: { key : "E", dx:  1, dy:  0, w: 1 },
@@ -128,14 +197,10 @@ class Main {
 				.x(d => d.cx())
 				.y(d => d.cy());
 
-			//The SVG Container
-			console.log(d3.selectAll("#route"));
+			// clear old path
 			d3.selectAll("#route").remove();
 
-			// clear old path
-			// svgPath.remove();
-
-			//The line SVG Path we draw
+			// draw new path
 			d3.select("svg").append("path")
 				.attr("id", "route")
 				.attr("d", lineFunction(pathData))
@@ -165,13 +230,15 @@ class Main {
 	}
 
 	updateViz() {
+		if (!this.grid) return;
+
 		const rects = d3.select("svg")
 			.selectAll("rect")
 			.data(this.grid.eachNode());
 
 		const mapFillColor = (d) => {
 			if (d.blocked) return BLOCKED_COLOR;
-			else return BASE_COLOR;
+			return BASE_COLOR;
 		};
 
 		rects.join(
@@ -179,7 +246,7 @@ class Main {
 				.append("rect")
 				.each(
 					// store reference to SVG element.
-					// if we use old fashioned function notation, this is bound to svg element.
+					// if we use old fashioned function notation, 'this' is bound to svg element.
 					function(d) { d.elt = this; } 
 				)
 				.attr("x", d => d.px())
@@ -187,10 +254,11 @@ class Main {
 				.attr("fill", mapFillColor)
 				.attr("width", 30)
 				.attr("height", 30)
-				// TODO: can use click, mouseDown, mouseEnter, mouseLeave...
+				// events tutorial:
 				// https://www.stator-afm.com/tutorial/d3-js-mouse-events/
 				.on("mousedown", (evt, d) => {
 					this.mouseMode = !d.blocked;
+					d.blocked = !d.blocked;
 				})
 				.on("mousemove", (evt, d) => { 
 					if (evt.buttons === 1) {
@@ -218,9 +286,9 @@ class Main {
 				else return "crimson";
 			});
 
+		// this.vizHeuristic();
 	}
 
-	// called everytime state is entered
 	init () {
 		const w = document.body.clientWidth;
 		const h = document.body.clientHeight;
@@ -236,9 +304,11 @@ class Main {
 			}) 
 		);
 
-		const mid = Math.floor(this.grid.height / 2);
-		this.start = this.grid.get(5, mid);
-		this.goal = this.grid.get(this.grid.width - 5, mid);
+		// const mid = Math.floor(this.grid.height / 2);
+		this.start = this.grid.get(5, this.grid.height - 5);
+		this.goal = this.grid.get(this.grid.width - 5, 5);
+		
+		this.heuristic = this.heuristicFactory(this.start, this.goal);
 
 		this.initViz();
 
@@ -268,6 +338,66 @@ class Main {
 		}
 	}
 }
+
+class Select extends HTMLElement {
+	
+	constructor() {	
+		super();
+		this.attachShadow({ mode: "open" });
+	
+		this._options = [];
+		this._label = this.getAttribute("label") || "";
+		this.binding = null;
+		this.render();
+		this._callback = () => {};
+	}
+
+	set label(val) {
+		this._label = val;
+		this.render();
+	}
+
+	set options(idNamePairs) {
+		this._options = idNamePairs;
+		this.render();
+	}
+
+	set callback(val) {
+		this._callback = val;
+		// immediately trigger with current value
+		this._callback(this.shadowRoot.querySelector("select").value);
+	}
+
+	get value() {
+		return this.shadowRoot.querySelector("select").value;
+	}
+
+	onChange(event) {
+		this._callback(event.target.value);
+	}
+
+	render() {
+		this.shadowRoot.innerHTML = `
+		<style>
+		:host {
+			width: 100%;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			column-gap: 0.5rem;
+		}
+		label {
+			text-align: right;
+		}
+		</style>
+		<label>${this._label}</label>
+		<select>
+			${this._options.map(opt => `<option value="${opt.id}">${opt.name}</option>`).join()}
+		</select>`;
+		this.shadowRoot.querySelector("select").addEventListener("change", (e) => this.onChange(e));
+	}
+}
+
+customElements.define("hxg-select", Select);
 
 window.onload = () => {
 	/** disable RMB context menu globally */
