@@ -1,8 +1,16 @@
 {
 	"name": "@amarillion/helixgraph",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"description": "A collection of graph algorithms for game development",
-	"keywords": ["pathfinding", "astar", "A*", "graphs", "algorithms", "games", "gamedev"],
+	"keywords": [
+		"pathfinding",
+		"astar",
+		"A*",
+		"graphs",
+		"algorithms",
+		"games",
+		"gamedev"
+	],
 	"main": "index.js",
 	"scripts": {
 		"test": "ava --match='!*performance*'",
@@ -19,11 +27,13 @@
 		"index.js"
 	],
 	"repository": {
-		"type" : "git",
-		"url" : "https://github.com/amarillion/helixgraph"
+		"type": "git",
+		"url": "https://github.com/amarillion/helixgraph"
 	},
 	"license": "MIT",
-	"publishConfig": { "access": "public" },
+	"publishConfig": {
+		"access": "public"
+	},
 	"devDependencies": {
 		"ava": "^3.10.1",
 		"eslint": "^7.5.0",
