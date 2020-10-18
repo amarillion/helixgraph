@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport"
+		  content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+		<script src = "https://d3js.org/d3.v6.min.js"></script>
+		<title>Path finding example (d3.js)</title>
+	<style>
+		body {
+			height: 100vh;
+			margin: 0px;
+		}
+
+		#header {
+			position: absolute;
+			background: #00000088;
+			padding: 0.5rem;
+			left: 1rem;
+			right: 1rem;
+			top: 1rem;
+			min-height: 4rem;
+		}
+	</style>
+
+	<style>
+		polygon {
+			stroke: lightgray;
+			transform-box: fill-box; /* ensures that transform-origin is relative to rects, not parent */
+			transform-origin: center center;
+		}
+		rect {
+			stroke: lightgray;
+			transform-box: fill-box; /* ensures that transform-origin is relative to rects, not parent */
+			transform-origin: center center;
+		}
+	</style>
+	<script type="module" src="./main.js"></script>
+</head>
+<body>
+	<div id="header">
+		<label for="algorithm-select">Choose path finding algorithm:</label>
+		<select name="algorithm" id="algorithm-select">
+			<option value="astar">A*</option>
+			<option value="bfs">Breadth First Search</option>
+			<option value="dijkstra">Dijkstra</option>
+		</select>
+
+		<label for="heuristic-select">Choose A* heuristic:</label>
+		<select name="heuristic" id="heuristic-select">
+			<option value="crossprod">Cross-product</option>
+			<option value="straight">Straight</option>
+		</select>
+
+		<label for="grid-select">Choose grid type:</label>
+		<select name="grid" id="grid-select">
+			<option value="rectangular">Rectangular</option>
+			<option value="octagonal">Octagonal</option>
+		</select>
+
+		<br>
+		Left-click with the mouse to add/remove a wall tile.
+	</div>
+</body>
+</html>
