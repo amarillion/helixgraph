@@ -7,19 +7,15 @@
 		<script src = "https://d3js.org/d3.v6.min.js"></script>
 		<title>Path finding example (d3.js)</title>
 	<style>
-		body {
-			height: 100vh;
-			margin: 0px;
-		}
+		/* prevent any scrolling on mobile: https://stackoverflow.com/a/51395057 */
+		html, body { margin: 0; height: 100%; overflow: hidden }
 
-		#header {
+		hxg-collapsible {
 			position: absolute;
 			background: #00000088;
 			color: white;
-			padding: 0.5rem;
-			left: 1rem;
-			top: 1rem;
-			min-height: 4rem;
+			margin: 1rem;
+			top: 0rem;
 		}
 	</style>
 
@@ -29,17 +25,11 @@
 			transform-box: fill-box; /* ensures that transform-origin is relative to rects, not parent */
 			transform-origin: center center;
 		}
-		rect {
-			stroke: lightgray;
-			transform-box: fill-box; /* ensures that transform-origin is relative to rects, not parent */
-			transform-origin: center center;
-		}
 	</style>
 	<script type="module" src="./main.js"></script>
 </head>
 <body>
-	<div id="header">
-		
+	<hxg-collapsible>
 		<hxg-select id="algorithm-select" label="Path finding algorithm:">
 		</hxg-select>
 		<br>
@@ -57,6 +47,6 @@
 
 		<br>
 		Left-click with the mouse to add/remove a wall tile.
-	</div>
+	</hgx-collapsible>
 </body>
 </html>
