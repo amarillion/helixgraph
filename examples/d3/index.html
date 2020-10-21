@@ -10,16 +10,15 @@
 		body {
 			height: 100vh;
 			margin: 0px;
+			overflow: hidden;
 		}
 
-		#header {
+		hxg-collapsible {
 			position: absolute;
 			background: #00000088;
 			color: white;
-			padding: 0.5rem;
-			left: 1rem;
-			top: 1rem;
-			min-height: 4rem;
+			margin: 1rem;
+			top: 0rem;
 		}
 	</style>
 
@@ -29,17 +28,11 @@
 			transform-box: fill-box; /* ensures that transform-origin is relative to rects, not parent */
 			transform-origin: center center;
 		}
-		rect {
-			stroke: lightgray;
-			transform-box: fill-box; /* ensures that transform-origin is relative to rects, not parent */
-			transform-origin: center center;
-		}
 	</style>
 	<script type="module" src="./main.js"></script>
 </head>
 <body>
-	<div id="header">
-		
+	<hxg-collapsible>
 		<hxg-select id="algorithm-select" label="Path finding algorithm:">
 		</hxg-select>
 		<br>
@@ -57,6 +50,6 @@
 
 		<br>
 		Left-click with the mouse to add/remove a wall tile.
-	</div>
+	</hgx-collapsible>
 </body>
 </html>

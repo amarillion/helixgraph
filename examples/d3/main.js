@@ -472,6 +472,74 @@ class Select extends HTMLElement {
 	}
 }
 
+class Collapsible extends HTMLElement {
+
+	constructor() {
+		super();
+		this.render();
+		this.expanded = true;
+	}
+
+	render() {
+		this.attachShadow({ mode: "open" });
+		this.shadowRoot.innerHTML = `
+			<style>
+			:host {
+				border: 4px solid #44444488;
+				border-radius: 0.5rem;
+			}
+			#contents {
+				overflow: hidden;
+				box-sizing: border-box;
+				transition: max-height 0.5s linear;
+				max-height: 20rem;
+			}
+			#heading {
+				width: 100%;
+				background: #44444488;
+				text-align: right;
+			}
+			#heading svg {
+				margin-right: 0.2rem;
+				transform: rotate(180deg);
+				transition: transform 0.5s;
+			}
+			#padding {
+				padding: 0.5rem;
+			}
+			:host([collapsed]) #icon {
+				transform: rotate(0deg);
+			}
+			:host([collapsed]) #contents {
+				max-height: 0px;
+			}
+			</style>
+			<div id="heading">
+				<svg id="icon" viewBox="0 0 16 16" width="16" height="16">
+					<path d="M 3,10 8,5 13,10"
+						style="stroke:#FFFFFF;fill:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter" 
+					/>
+				</svg>
+			</div>
+			<div id="contents">
+				<div id="padding">
+					<slot></slot>
+				</div>
+			</div>
+			`;
+		this.shadowRoot.querySelector("#heading").addEventListener("click", () => {
+			this.expanded = !this.expanded;
+			if (this.expanded) {
+				this.removeAttribute("collapsed");
+			}
+			else {
+				this.setAttribute("collapsed", true);
+			}
+		});
+	}
+}
+
+customElements.define("hxg-collapsible", Collapsible);
 customElements.define("hxg-select", Select);
 
 window.onload = () => {
