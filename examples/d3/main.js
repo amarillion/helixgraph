@@ -106,7 +106,6 @@ class HexagonalCell {
 class Main {
 	
 	constructor() {
-		this.counter = 0;
 		this.maxIterations = 1;
 		this.start = null;
 		this.goal = null;
@@ -280,19 +279,60 @@ class Main {
 		const svg = d3.create("svg")
 			.attr("width", "100%")
 			.attr("height", "100%")
-
+			// events tutorial:
+			// https://www.stator-afm.com/tutorial/d3-js-mouse-events/
 			.on("mouseup", () => {
-				this.mouseMode = null;
-				this.resetPath();
+				this.onEnd();
 			})
-			.on("mousedown", () => {
-				// console.log("mousedown", evt.target, evt.buttons);
+			.on("mousedown", (event) => {
+				this.onStart(event);
 			})
-			.on("mousemove", () => {
-				// console.log("mousemove", evt.target, evt.buttons);
+			.on("mousemove", (event) => {
+				if (event.buttons === 1) {
+					this.onDrag(event);
+				}
+			})
+			// important differences between touch and mouse:
+			// 1. touch event targets always equals the place where the touch _started_
+			//    that's why we need to recalculate the current target from the position
+			// 2. there can be multiple touches / targets per event
+			// 3. there is no 'buttons' property on the event
+			.on("touchmove", (event) => {
+				this.onDrag(event.touches[0]);
+			})
+			.on("touchstart", (event) => {
+				const p = event.touches[0];
+				this.onStart(p);
+			})
+			.on("touchend", () => {
+				this.onEnd();
 			});
 
 		document.body.appendChild(svg.node());
+	}
+
+	mapFillColor(d) {
+		if (d.blocked) return BLOCKED_COLOR;
+		return BASE_COLOR;
+	}
+	
+	onStart(p) {
+		const currentTarget = document.elementFromPoint(p.clientX, p.clientY);
+		const d = currentTarget.data;
+		this.mouseMode = !d.blocked;
+		d.blocked = !d.blocked;
+	}
+	onDrag(p) {
+		const target = document.elementFromPoint(p.clientX, p.clientY);
+		const d = target.data;
+		d.blocked = !!this.mouseMode;
+		d3.select(target)
+			.transition().duration(200)
+			.attr("fill", this.mapFillColor(d));
+	}
+	onEnd() {
+		this.mouseMode = null;
+		this.resetPath();
 	}
 
 	updateViz() {
@@ -302,11 +342,6 @@ class Main {
 			.selectAll("polygon")
 			.data(this.grid.eachNode());
 
-		const mapFillColor = (d) => {
-			if (d.blocked) return BLOCKED_COLOR;
-			return BASE_COLOR;
-		};
-
 		this.cellSelection.join(
 			enter => enter
 				.append("polygon")
@@ -314,33 +349,15 @@ class Main {
 				.each(
 					// store reference to SVG element.
 					// if we use old fashioned function notation, 'this' is bound to svg element.
-					function(d) { d.elt = this; } 
+					function(d) { d.elt = this; this.data = d; } 
 				)
 				.attr("points", d => d.points)
 				.attr("transform", d => {
 					return `translate(${d.px}, ${d.py})`;	
 				})
-				.attr("fill", mapFillColor)
-				.attr("width", 30)
-				.attr("height", 30)
-				// events tutorial:
-				// https://www.stator-afm.com/tutorial/d3-js-mouse-events/
-				.on("mousedown", (evt, d) => {
-					this.mouseMode = !d.blocked;
-					d.blocked = !d.blocked;
-				})
-				.on("mousemove", (evt, d) => { 
-					if (evt.buttons === 1) {
-						d.blocked = !!this.mouseMode;
-						d3.select(d.elt)
-							.transition().duration(200)
-							//TODO: try scale?
-							.attr("fill", mapFillColor(d));
-					}
-				}),
-				
+				.attr("fill", this.mapFillColor),
 			update => update 
-				.attr("fill", mapFillColor)
+				.attr("fill", this.mapFillColor)
 		);
 
 		d3.select("svg")
@@ -391,7 +408,6 @@ class Main {
 
 	resetPath() {
 		this.maxIterations = 0;
-		this.counter = 0;
 		this.validPath = false;
 		
 		// clear drawn cost function...
