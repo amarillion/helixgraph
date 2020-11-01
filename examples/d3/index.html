@@ -16,6 +16,7 @@
 			color: white;
 			margin: 1rem;
 			top: 0rem;
+			max-width: 28rem;
 		}
 	</style>
 
@@ -30,23 +31,35 @@
 </head>
 <body>
 	<hxg-collapsible>
-		<hxg-select id="algorithm-select" label="Path finding algorithm:">
-		</hxg-select>
+		<div title="Pick the path finding algorithm. Breadth First Search is the simplest, it tries all nodes one by one. Dijkstra is similar, but also takes into account weights between nodes (here only relevant on 8-way grids). A* uses a heuristic to prioritize promising nodes. The heuristic is a combination of the distance measure, tie breaker and greedy option that you can set below.">
+			<hxg-select id="algorithm-select" label="Path finding algorithm:"></hxg-select>
+		</div>
 		<br>
 
-		<hxg-select id="distance-select" label="Distance measure:">
-		</hxg-select>
+		<div title="(A* only) Main ingredient for the heuristic function. Euclidian distance is 'as the bird flies', calculated using the formula of pythagoras. This would seem a good choice, but it underestimates the actual cost on grids, especially manhattan grids. Underestimating the costs will give the heuristic less influence, so the algorithm will consider more nodes than optimal.">
+			<hxg-select id="distance-select" label="Distance measure:"></hxg-select>
+		</div>
 		<br>
 
-		<hxg-select id="tiebreaker-select" label="Tie breaker:">
-		</hxg-select>
+		<div title="(A* only) The greedy option increases the weight of the heuristic by 50%. This penalizes nodes further away from the goal, even if they are actually on the shortest path. Leads to suboptimal paths, but is faster and in a way more realistic, if you're simulating agents that don't have complete knowledge of the map.">
+			<hxg-checkbox id="greedy-checkbox" label="Greedy:"></hxg-checkbox>
+		</div>
+		<br>
+		
+		<div title="(A* only) A tie-breaker makes the algorithm choose in case many nodes have exactly equal distance (especially common problem with manhattan distance). Cross-product calculates the angle between the vectors start->node and node->goal, and prefers paths where these vectors are almost parallel.">
+			<hxg-select id="tiebreaker-select" label="Tie breaker:"></hxg-select>
+		</div>
 		<br>
 
-		<hxg-select id="grid-select" label="Grid type:">
-		</hxg-select>
+		<div title="Choose a type of grid. On 'Rectangular 4-way', cells have horizontal and vertical neighbors. On 'Rectangular 8-way', also diagonal neighbors are counted (with a distance weight of SQRT(2))">
+			<hxg-select id="grid-select" label="Grid type:">
+			</hxg-select>
+		</div>
 
 		<br>
+		Hover over options for explanation.
 		Left-click with the mouse to add/remove a wall tile.
-	</hgx-collapsible>
+	</hxg-collapsible>
+	<hxg-tooltip style="display: none;"></hxg-tooltip>
 </body>
 </html>
