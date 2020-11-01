@@ -4,6 +4,7 @@
 import { astar, breadthFirstSearch, dijkstra, trackbackNodes } from "../../src/pathFinding.js";
 import { assert } from "../../src/assert.js";
 import BaseGrid from "../../src/BaseGrid.js";
+import { Collapsible, Select, Tooltip, Checkbox } from "./components.js";
 
 const BLOCKED_COLOR = "grey";
 const BASE_COLOR = "white";
@@ -111,7 +112,7 @@ class Main {
 		this.goal = null;
 		this.validPath = false;
 		this.mouseMode = null;
-
+		
 		this.distanceSelect = document.getElementById("distance-select");
 		this.distanceSelect.options = [
 			{id: "manhattan", name:"Manhattan"},
@@ -138,6 +139,8 @@ class Main {
 			{id:"astar", name: "A*"}, {id:"bfs", name: "Breadth First Search"}, {id:"dijkstra", name: "Dijkstra"}
 		];
 
+		this.greedyCheck = document.getElementById("greedy-checkbox");
+		
 		this.distanceSelect.callback = () => {
 			this.heuristic = this.heuristicFactory(this.start, this.goal);
 		};
@@ -154,6 +157,11 @@ class Main {
 			this.heuristic = this.heuristicFactory(this.start, this.goal);
 		};
 		
+		this.greedyCheck.callback = (newVal) => {
+			this.greedy = newVal;
+			this.heuristic = this.heuristicFactory(this.start, this.goal);
+		};
+
 		this.algorithmSelect.callback = (newVal) => {
 			const valueToFunc = {
 				"astar": astar,
@@ -199,12 +207,16 @@ class Main {
 
 		if (!(tiebreaker && distance)) return () => 0;
 
+		const greedyFactor = (this.greedy === true ? 1.5 : 1);
 		return current => {
 			const dx1 = current.x - dest.x;
 			const dy1 = current.y - dest.y;
 			const dx2 = source.x - dest.x;
 			const dy2 = source.y - dest.y;
-			return distance(dx1, dy1, dx2, dy2) + 0.001 * tiebreaker(dx1, dy1, dx2, dy2);
+			return greedyFactor * (
+				distance(dx1, dy1, dx2, dy2) + 
+				0.001 * tiebreaker(dx1, dy1, dx2, dy2)
+			);
 		};
 	}
 
@@ -276,6 +288,7 @@ class Main {
 	}
 
 	initViz() {
+		this.tooltip = document.querySelector("hxg-tooltip");
 		const svg = d3.create("svg")
 			.attr("width", "100%")
 			.attr("height", "100%")
@@ -291,6 +304,10 @@ class Main {
 				if (event.buttons === 1) {
 					this.onDrag(event);
 				}
+				this.onMove(event);
+			})
+			.on("mouseleave", () => {
+				this.tooltip.style = "display: none;";
 			})
 			// important differences between touch and mouse:
 			// 1. touch event targets always equals the place where the touch _started_
@@ -329,6 +346,24 @@ class Main {
 		d3.select(target)
 			.transition().duration(200)
 			.attr("fill", this.mapFillColor(d));
+	}
+	onMove(event) {
+		const target = document.elementFromPoint(event.clientX, event.clientY);
+		if (target) {
+			const d = target.data;
+			if (d) {
+				const h = this.heuristic(d);
+				let text = `h = ${h.toFixed(2)} (heuristic)`;
+				if (this.data.has(d)) {
+					const cost = this.data.get(d).cost;
+					text += `<br>g = ${cost.toFixed(2)} (cost)<br>f = ${(h + cost).toFixed(2)} (total)`;
+				}
+				this.tooltip.innerHTML = text;
+				this.tooltip.style = 
+					`--xco: ${event.clientX + 16}px;
+					--yco: ${event.clientY + 16}px`;
+			}
+		}
 	}
 	onEnd() {
 		this.mouseMode = null;
@@ -426,137 +461,10 @@ class Main {
 	}
 }
 
-class Select extends HTMLElement {
-	
-	constructor() {	
-		super();
-		this.attachShadow({ mode: "open" });
-	
-		this._options = [];
-		this._label = this.getAttribute("label") || "";
-		this.binding = null;
-		this.render();
-		this._callback = () => {};
-		this.oldValue = null;
-	}
-
-	set label(val) {
-		this._label = val;
-		this.render();
-	}
-
-	set options(idNamePairs) {
-		this._options = idNamePairs;
-		this.render();
-	}
-
-	set callback(val) {
-		this._callback = val;
-		// immediately trigger with current value
-		const newValue = this.shadowRoot.querySelector("select").value;
-		this._callback(newValue, this.oldValue);
-		this.oldValue = newValue;
-	}
-
-	get value() {
-		return this.shadowRoot.querySelector("select").value;
-	}
-
-	onChange(event) {
-		this._callback(event.target.value, this.oldValue);
-		this.oldValue = event.target.value;
-	}
-
-	render() {
-		this.shadowRoot.innerHTML = `
-		<style>
-		:host {
-			width: 100%;
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			column-gap: 0.5rem;
-		}
-		label {
-			text-align: right;
-		}
-		</style>
-		<label>${this._label}</label>
-		<select>
-			${this._options.map(opt => `<option value="${opt.id}">${opt.name}</option>`).join()}
-		</select>`;
-		this.shadowRoot.querySelector("select").addEventListener("change", (e) => this.onChange(e));
-	}
-}
-
-class Collapsible extends HTMLElement {
-
-	constructor() {
-		super();
-		this.render();
-		this.expanded = true;
-	}
-
-	render() {
-		this.attachShadow({ mode: "open" });
-		this.shadowRoot.innerHTML = `
-			<style>
-			:host {
-				border: 4px solid #44444488;
-				border-radius: 0.5rem;
-			}
-			#contents {
-				overflow: hidden;
-				box-sizing: border-box;
-				transition: max-height 0.5s linear;
-				max-height: 20rem;
-			}
-			#heading {
-				width: 100%;
-				background: #44444488;
-				text-align: right;
-			}
-			#heading svg {
-				margin-right: 0.2rem;
-				transform: rotate(180deg);
-				transition: transform 0.5s;
-			}
-			#padding {
-				padding: 0.5rem;
-			}
-			:host([collapsed]) #icon {
-				transform: rotate(0deg);
-			}
-			:host([collapsed]) #contents {
-				max-height: 0px;
-			}
-			</style>
-			<div id="heading">
-				<svg id="icon" viewBox="0 0 16 16" width="16" height="16">
-					<path d="M 3,10 8,5 13,10"
-						style="stroke:#FFFFFF;fill:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter" 
-					/>
-				</svg>
-			</div>
-			<div id="contents">
-				<div id="padding">
-					<slot></slot>
-				</div>
-			</div>
-			`;
-		this.shadowRoot.querySelector("#heading").addEventListener("click", () => {
-			this.expanded = !this.expanded;
-			if (this.expanded) {
-				this.removeAttribute("collapsed");
-			}
-			else {
-				this.setAttribute("collapsed", true);
-			}
-		});
-	}
-}
-
 customElements.define("hxg-collapsible", Collapsible);
 customElements.define("hxg-select", Select);
+customElements.define("hxg-checkbox", Checkbox);
+customElements.define("hxg-tooltip", Tooltip);
 
 window.onload = () => {
 	/** disable RMB context menu globally */
