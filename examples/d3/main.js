@@ -117,7 +117,8 @@ class Main {
 		this.distanceSelect.options = [
 			{id: "manhattan", name:"Manhattan"},
 			{id: "euclidian", name:"Euclidian"}, 
-			{id: "octagonal", name:"8-Way"}
+			{id: "octagonal", name:"8-Way"},
+			{id: "hexagonal", name:"Catan"},
 		];
 
 		this.tiebreakerSelect = document.getElementById("tiebreaker-select");
@@ -192,25 +193,62 @@ class Main {
 
 	distanceFunc() {
 		const distanceFunctions = {
-			manhattan: (dx1, dy1) => Math.abs(dx1) + Math.abs(dy1),
-			euclidian: (dx1, dy1) => Math.sqrt(dx1 * dx1 + dy1 * dy1),
-			octagonal: (dx1, dy1) => {
-				const adx1 = Math.abs(dx1);
-				const ady1 = Math.abs(dy1);
+			manhattan: (x1, y1, x2, y2) => Math.abs(x2-x1) + Math.abs(y2-y1),
+			euclidian: (x1, y1, x2, y2) => Math.sqrt((x2-x1) * (x2-x1) + (y2-y1) * (y2-y1)),
+			octagonal: (x1, y1, x2, y2) => {
+				const adx1 = Math.abs(x2 - x1);
+				const ady1 = Math.abs(y2 - y1);
 				const min = Math.min(adx1, ady1);
 				const max = Math.max(adx1, ady1);
-				return (min * 0.414) + max;
+				return (min * (Math.sqrt(2) - 1)) + max;
+			},
+			hexagonal: (x1, y1, x2, y2) => {
+				/*
+				 * Transfrom x to rx, so that 
+				 *   x-axis forms a diagonal line, instead of a zig-zag.
+				 * 
+				 *         x        ->        rx
+				 * 
+				 *     0 1 2 3 4          0 1 2 3 4
+				 *      0 1 2 3 4          1 2 3 4 5
+				 *     0 1 2 3 4    ->    1 2 3 4 5
+				 *      0 1 2 3 4          2 3 4 5 6
+				 *     0 1 2 3 4          2 3 4 5 6
+				 */ 
+				const rx1 = x1 + Math.ceil(y1 / 2);
+				const rx2 = x2 + Math.ceil(y2 / 2);
+				const rdx = rx2 - rx1;
+				const abs_rdx = Math.abs(rdx);
+				const dy = y2 - y1;
+				const abs_dy = Math.abs(dy);
+				/**
+				 * dx < -dy \       /   dx < 0    
+				 *           \     /              
+				 *      F     \ E /   D        dy > 0
+				 *             \ /                
+				 * -------------X-----------------
+				 *             / \                
+				 *       C    / B \   A        dy < 0
+				 *           /     \               
+				 *  dx > 0  /       \  dx > -dy           
+				 */
+				
+				if (rdx * dy < 0) { // one positive, other negative
+					// areas C + D
+					return abs_rdx + abs_dy;
+				}
+				else if (abs_rdx > abs_dy) { // areas F + A 
+					return abs_rdx; 
+				}
+				else { // areas E + B
+					return abs_dy;
+				}
 			}
 		};
-		const source = this.start;
 		const dest = this.goal;
 		const func = distanceFunctions[this.distanceSelect.value];
 		return current => {
-			const dx1 = current.x - dest.x;
-			const dy1 = current.y - dest.y;
-			const dx2 = source.x - dest.x;
-			const dy2 = source.y - dest.y;
-			return func(dx1, dy1, dx2, dy2);
+			return func(current.x, current.y, dest.x, dest.y);
 		};
 	}
 
