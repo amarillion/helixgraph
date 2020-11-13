@@ -117,7 +117,8 @@ class Main {
 		this.distanceSelect.options = [
 			{id: "manhattan", name:"Manhattan"},
 			{id: "euclidian", name:"Euclidian"}, 
-			{id: "octagonal", name:"8-Way"}
+			{id: "octagonal", name:"8-Way"},
+			{id: "hexagonal", name:"Catan"},
 		];
 
 		this.tiebreakerSelect = document.getElementById("tiebreaker-select");
@@ -134,6 +135,14 @@ class Main {
 			{ id:"hexagonal", name: "Hexagonal"}
 		];
 
+		this.colorSelect = document.getElementById("color-select");
+		this.colorSelect.options = [
+			{ id:"cost", name:"Animate path" },
+			{ id:"heuristic", name: "Heuristic" },
+			{ id:"distance", name: "Distance" },
+			{ id:"tiebreaker", name: "Tie-breaker" }
+		];
+
 		this.algorithmSelect = document.getElementById("algorithm-select");
 		this.algorithmSelect.options = [
 			{id:"astar", name: "A*"}, {id:"bfs", name: "Breadth First Search"}, {id:"dijkstra", name: "Dijkstra"}
@@ -142,11 +151,11 @@ class Main {
 		this.greedyCheck = document.getElementById("greedy-checkbox");
 		
 		this.distanceSelect.callback = () => {
-			this.heuristic = this.heuristicFactory(this.start, this.goal);
+			this.heuristic = this.heuristicFactory();
 		};
 		
 		this.tiebreakerSelect.callback = () => {
-			this.heuristic = this.heuristicFactory(this.start, this.goal);
+			this.heuristic = this.heuristicFactory();
 		};
 
 		this.gridSelect.callback = (newVal, oldVal) => {
@@ -154,12 +163,12 @@ class Main {
 			if (newVal === "hexagonal" || oldVal === "hexagonal") {
 				this.initGrid();
 			}
-			this.heuristic = this.heuristicFactory(this.start, this.goal);
+			this.heuristic = this.heuristicFactory();
 		};
 		
 		this.greedyCheck.callback = (newVal) => {
 			this.greedy = newVal;
-			this.heuristic = this.heuristicFactory(this.start, this.goal);
+			this.heuristic = this.heuristicFactory();
 		};
 
 		this.algorithmSelect.callback = (newVal) => {
@@ -170,7 +179,11 @@ class Main {
 			};
 			this.algorithm = valueToFunc[newVal];
 			assert(this.algorithm);
-			this.heuristic = this.heuristicFactory(this.start, this.goal);
+			this.heuristic = this.heuristicFactory();
+			this.resetPath();
+		};
+
+		this.colorSelect.callback = () => {
 			this.resetPath();
 		};
 
@@ -178,19 +191,68 @@ class Main {
 		this.heuristic = () => 0;
 	}
 
-	heuristicFactory(source, dest) {
-		
+	distanceFunc() {
 		const distanceFunctions = {
-			manhattan: (dx1, dy1) => Math.abs(dx1) + Math.abs(dy1),
-			euclidian: (dx1, dy1) => Math.sqrt(dx1 * dx1 + dy1 * dy1),
-			octagonal: (dx1, dy1) => {
-				const adx1 = Math.abs(dx1);
-				const ady1 = Math.abs(dy1);
+			manhattan: (x1, y1, x2, y2) => Math.abs(x2-x1) + Math.abs(y2-y1),
+			euclidian: (x1, y1, x2, y2) => Math.sqrt((x2-x1) * (x2-x1) + (y2-y1) * (y2-y1)),
+			octagonal: (x1, y1, x2, y2) => {
+				const adx1 = Math.abs(x2 - x1);
+				const ady1 = Math.abs(y2 - y1);
 				const min = Math.min(adx1, ady1);
 				const max = Math.max(adx1, ady1);
-				return (min * 0.414) + max;
+				return (min * (Math.sqrt(2) - 1)) + max;
+			},
+			hexagonal: (x1, y1, x2, y2) => {
+				/*
+				 * Transfrom x to rx, so that 
+				 *   x-axis forms a diagonal line, instead of a zig-zag.
+				 * 
+				 *         x        ->        rx
+				 * 
+				 *     0 1 2 3 4          0 1 2 3 4
+				 *      0 1 2 3 4          1 2 3 4 5
+				 *     0 1 2 3 4    ->    1 2 3 4 5
+				 *      0 1 2 3 4          2 3 4 5 6
+				 *     0 1 2 3 4          2 3 4 5 6
+				 */ 
+				const rx1 = x1 + Math.ceil(y1 / 2);
+				const rx2 = x2 + Math.ceil(y2 / 2);
+				const rdx = rx2 - rx1;
+				const abs_rdx = Math.abs(rdx);
+				const dy = y2 - y1;
+				const abs_dy = Math.abs(dy);
+				/**
+				 * dx < -dy \       /   dx < 0    
+				 *           \     /              
+				 *      F     \ E /   D        dy > 0
+				 *             \ /                
+				 * -------------X-----------------
+				 *             / \                
+				 *       C    / B \   A        dy < 0
+				 *           /     \               
+				 *  dx > 0  /       \  dx > -dy           
+				 */
+				
+				if (rdx * dy < 0) { // one positive, other negative
+					// areas C + D
+					return abs_rdx + abs_dy;
+				}
+				else if (abs_rdx > abs_dy) { // areas F + A 
+					return abs_rdx; 
+				}
+				else { // areas E + B
+					return abs_dy;
+				}
 			}
 		};
+		const dest = this.goal;
+		const func = distanceFunctions[this.distanceSelect.value];
+		return current => {
+			return func(current.x, current.y, dest.x, dest.y);
+		};
+	}
+
+	tiebreakerFunc() {
 		const tiebreakerFunctions = {
 			none: () => 0,
 			crossprod: (dx1, dy1, dx2, dy2) => Math.abs(dx1*dy2 - dx2*dy1),
@@ -201,21 +263,30 @@ class Main {
 				return Math.abs ((fx * (fx - 1)) * (fy * (fy - 1)));
 			}	
 		};
-
-		const distance = distanceFunctions[this.distanceSelect.value];
-		const tiebreaker = tiebreakerFunctions[this.tiebreakerSelect.value];
-
-		if (!(tiebreaker && distance)) return () => 0;
-
-		const greedyFactor = (this.greedy === true ? 1.5 : 1);
+		const source = this.start;
+		const dest = this.goal;
+		const func = tiebreakerFunctions[this.tiebreakerSelect.value];
 		return current => {
 			const dx1 = current.x - dest.x;
 			const dy1 = current.y - dest.y;
 			const dx2 = source.x - dest.x;
 			const dy2 = source.y - dest.y;
+			return func(dx1, dy1, dx2, dy2);
+		};
+	}
+
+	heuristicFactory() {
+		
+		const distance = this.distanceFunc();
+		const tiebreaker = this.tiebreakerFunc();
+
+		if (!(tiebreaker && distance)) return () => 0;
+
+		const greedyFactor = (this.greedy === true ? 1.5 : 1);
+		return current => {
 			return greedyFactor * (
-				distance(dx1, dy1, dx2, dy2) + 
-				0.001 * tiebreaker(dx1, dy1, dx2, dy2)
+				distance(current) + 
+				0.001 * tiebreaker(current)
 			);
 		};
 	}
@@ -229,16 +300,45 @@ class Main {
 		return this._heuristic;
 	}
 
-	vizHeuristic() {
-		const maxDist = this.heuristic(this.start);
+	selectedMeasure() {
+		const MEASURES = {
+			"heuristic":  d => this.heuristic(d),
+			"distance":   this.distanceFunc(),
+			"tiebreaker": this.tiebreakerFunc(),
+		};
+		return MEASURES[this.colorSelect.value];
+	}
+
+	visualizeMeasure() {
+		const COLOR_SCALES = {
+			"heuristic":  ["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3"] /* set-3 */,
+			"distance":   ["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99"] /* paired */,			
+			"tiebreaker": ["#d01c8b","#f1b6da","#f7f7f7","#b8e186","#4dac26"] /* pink-green */,
+		};
+
+		const measure = this.selectedMeasure();
+		if (!measure) return; // 'cost', or an invalid colorOption
+
+		const [w, h] = [ this.grid.width, this.grid.height ];
+		const range = [
+			measure(this.grid.get(0,0)),
+			measure(this.grid.get(w-1,0)),
+			measure(this.grid.get(0,h-1)),
+			measure(this.grid.get(w-1,h-1)),
+			measure(this.grid.get(Math.floor(w/2),Math.floor(h/2)))
+		];
+		const min = Math.min(...range);
+		const max = Math.max(...range);
+		const delta = max - min;
+
 		const colorScale = d3.scaleLinear()
-			.domain([0, maxDist, maxDist * 2])
-			.range(["orange", "white", "purple"]);
+			.domain([min, min + delta * 0.25, min + delta * 0.5, min + delta * 0.75, max])
+			.range(COLOR_SCALES[this.colorSelect.value]);
 
 		this.cellSelection.join(
 			() => {},
 			update => update 
-				.attr("fill", d => d.blocked ? BLOCKED_COLOR : colorScale(this.heuristic(d)))
+				.attr("fill", d => d.blocked ? BLOCKED_COLOR : colorScale(measure(d)))
 		);
 	}
 
@@ -353,7 +453,12 @@ class Main {
 			const d = target.data;
 			if (d) {
 				const h = this.heuristic(d);
-				let text = `h = ${h.toFixed(2)} (heuristic)`;
+				const distance = this.distanceFunc()(d);
+				const tiebreaker = this.tiebreakerFunc()(d) * 0.001;
+				let text = 
+					`${distance.toFixed(2)} (distance)<br>
+					${tiebreaker.toPrecision(2)} (tie-breaker)<br>
+					h = ${h.toFixed(2)} (heuristic)`;
 				if (this.data.has(d)) {
 					const cost = this.data.get(d).cost;
 					text += `<br>g = ${cost.toFixed(2)} (cost)<br>f = ${(h + cost).toFixed(2)} (total)`;
@@ -407,7 +512,7 @@ class Main {
 				else return "crimson";
 			});
 
-		// this.vizHeuristic();
+		this.visualizeMeasure();
 	}
 
 	initGrid() {
@@ -429,7 +534,7 @@ class Main {
 		d3.select("svg").selectAll("polygon").remove();
 		d3.select("svg").selectAll("circle").remove();
 
-		this.heuristic = this.heuristicFactory(this.start, this.goal);
+		this.heuristic = this.heuristicFactory();
 		this.resetPath();
 	}
 
@@ -453,6 +558,8 @@ class Main {
 	}
 
 	update() {
+		if (this.colorSelect.value !== "cost") return;
+
 		if (!this.validPath) {
 			this.maxIterations++;
 			this.data = this.findPath(this.start, this.goal, this.maxIterations);
