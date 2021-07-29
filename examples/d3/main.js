@@ -455,8 +455,8 @@ class Main {
 				const h = this.heuristic(d);
 				const distance = this.distanceFunc()(d);
 				const tiebreaker = this.tiebreakerFunc()(d) * 0.001;
-				let text = 
-					`${distance.toFixed(2)} (distance)<br>
+				let text = `x = ${d.x}, y = ${d.y}<br>
+					${distance.toFixed(2)} (distance)<br>
 					${tiebreaker.toPrecision(2)} (tie-breaker)<br>
 					h = ${h.toFixed(2)} (heuristic)`;
 				if (this.data.has(d)) {
