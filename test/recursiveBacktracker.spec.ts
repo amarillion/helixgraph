@@ -1,8 +1,8 @@
 import { GridGraph, reverse } from "./helper/gridGraph.js";
 import { recursiveBackTracker } from "../src/maze.js";
-import { renderToString } from "../examples/maze/renderToString.js";
+import { Stream } from "../src/iterableUtils.js";
 
-test("Recursive backtracker with rendering", () => {
+test.skip("Recursive backtracker with rendering", () => {
 
 	const w = 8;
 	const h = 8;
@@ -12,9 +12,7 @@ test("Recursive backtracker with rendering", () => {
 	const linkNodes = (src, dir, dest) => src.link(dest, dir, reverse[dir]);
 	recursiveBackTracker(start, c => graph.getAdjacent(c), linkNodes);
 
-	console.log("\n\n", renderToString(graph), "\n\n");
-	
-	// t.pass();
+	// console.log("\n\n", renderToString(graph), "\n\n");
 });
 
 test("Recursive backtracker", () => {
@@ -33,7 +31,7 @@ test("Recursive backtracker", () => {
 	let adjacentCount = 0;
 	for (const node of graph.eachNode()) {
 		linkCount += graph.getLinks(node).length;
-		adjacentCount += graph.getAdjacent(node).length;
+		adjacentCount += Stream.of(graph.getAdjacent(node)).size();
 	}
 
 	// should contain exactly 3 edges.

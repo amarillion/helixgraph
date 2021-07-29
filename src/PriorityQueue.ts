@@ -4,11 +4,15 @@ const parent = i => ((i + 1) >>> 1) - 1;
 const left = i => (i << 1) + 1;
 const right = i => (i + 1) << 1;
 
-export default class {
+export class PriorityQueue<T> {
+	_heap: T[];
+	_comparator: (a : T, b: T) => boolean;
+
 	constructor(comparator = (a, b) => a > b) {
 		this._heap = [];
 		this._comparator = comparator;
 	}
+
 	size() {
 		return this._heap.length;
 	}

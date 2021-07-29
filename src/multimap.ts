@@ -4,13 +4,15 @@
  * if key doesn't exist, create a single-element array with value
  * if key exists, push to the end of the array
  */
-export function mmArrayPush(map, key, value) {
-	if (map.has(key)) {
+export function mmArrayPush<K, V>(map : Map<K, V[]>, key : K, value : V) {
+	let keyExists = map.has(key);
+	if (keyExists) {	
 		map.get(key).push(value);
 	}
 	else {
 		map.set(key, [value]);
 	}
+	return !keyExists;
 }
 
 /** 
@@ -19,13 +21,15 @@ export function mmArrayPush(map, key, value) {
  * if key doesn't exist, create a single-element Set with value
  * if key exists, add to the Set
  */
-export function mmSetAdd(map, key, value) {
-	if (map.has(key)) {
+export function mmSetAdd<K, V>(map : Map<K, Set<V>>, key : K, value : V) {
+	let keyExists = map.has(key);
+	if (keyExists) {	
 		map.get(key).add(value);
 	}
 	else {
 		map.set(key, new Set([value]));
 	}
+	return !keyExists;
 }
 
 /** 
@@ -34,9 +38,10 @@ export function mmSetAdd(map, key, value) {
  * if key doesn't exist, call val = createFunc(), addFunc(val), and put in the map.
  * if key exists, skip createFunc, call addFunc(val)
  */
-export function mmCreateAdd(map, key, createFunc, addFunc) {
+export function mmCreateAdd<K, V>(map : Map<K, V>, key : K, createFunc: () => V, addFunc: (v: V) => void) {
 	let val;
-	if (map.has(key)) {
+	let keyExists = map.has(key);
+	if (keyExists) {
 		val = map.get(key);
 	}
 	else {
@@ -44,4 +49,5 @@ export function mmCreateAdd(map, key, createFunc, addFunc) {
 		map.set(key, val);
 	}
 	addFunc(val);
+	return !keyExists;
 }

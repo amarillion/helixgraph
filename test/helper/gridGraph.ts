@@ -1,4 +1,4 @@
-import BaseGrid from "../../src/BaseGrid.js";
+import { TemplateGrid } from "../../src/BaseGrid.js";
 
 export const MAP = [
 //   01234567890123456789
@@ -25,6 +25,11 @@ export const reverse = {
 
 class Cell {
 
+	x: number;
+	y: number;
+	tile: any;
+	links: object;
+
 	constructor(x, y) {
 		this.x = x;
 		this.y = y;
@@ -48,7 +53,7 @@ class Cell {
 	}
 }
 
-export class GridGraph extends BaseGrid {
+export class GridGraph extends TemplateGrid<Cell> {
 
 	static fromMask(mask) {
 		const width = mask[0].length;

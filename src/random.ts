@@ -1,8 +1,8 @@
-export function randomInt(max) {
+export function randomInt(max : number) {
 	return Math.floor(Math.random() * Math.floor(max));
 }
 
-export function pickOne(list) {
+export function pickOne<T>(list : Array<T>) {
 	const idx = randomInt(list.length);
 	return list[idx];
 }
@@ -10,7 +10,7 @@ export function pickOne(list) {
 /**
 Knuth-Fisher-Yates shuffle algorithm.
 */
-export function shuffle(array) {
+export function shuffle(array: unknown[]) {
 	const len = array.length;
 	for (let i = len - 1; i > 0; i--) {
 		const n = randomInt(i + 1);

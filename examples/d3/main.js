@@ -1,9 +1,9 @@
 // rule for eslint:
 /* global d3 */
 
-import { astar, breadthFirstSearch, dijkstra, trackbackNodes } from "../../src/pathFinding.js";
-import { assert } from "../../src/assert.js";
-import BaseGrid from "../../src/BaseGrid.js";
+import { astar, breadthFirstSearch, dijkstra, trackbackNodes } from "../../lib/pathFinding.js";
+import { assert } from "../../lib/assert.js";
+import BaseGrid from "../../lib/BaseGrid.js";
 import { Collapsible, Select, Tooltip, Checkbox } from "./components.js";
 
 const BLOCKED_COLOR = "grey";

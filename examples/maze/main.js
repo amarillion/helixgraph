@@ -1,6 +1,6 @@
-import { recursiveBackTracker } from "../../src/maze.js";
-import { pickOne } from "../../src/random.js";
-import BaseGrid, { NORTH, SOUTH, EAST, WEST } from "../../src/BaseGrid.js";
+import { recursiveBackTracker } from "../../lib/maze.js";
+import { pickOne } from "../../lib/random.js";
+import BaseGrid, { NORTH, SOUTH, EAST, WEST } from "../../lib/BaseGrid.js";
 import { renderToString } from "./renderToString.js";
 
 // for being able to find the opposite direction

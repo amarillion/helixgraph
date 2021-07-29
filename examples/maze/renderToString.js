@@ -1,4 +1,4 @@
-import { SOUTH, EAST } from "../../src/BaseGrid.js";
+import { SOUTH, EAST } from "../../lib/BaseGrid.js";
 
 /** Create a string representation of the grid */
 export function renderToString(grid) {

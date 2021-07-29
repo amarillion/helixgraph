@@ -1,6 +1,6 @@
 import { shortestPathsFromSource, edgeBetween } from "../src/pathFinding.js";
 import { indexGraph, FORWARD, REVERSE, filteredNeighborFunc } from "./helper/indexGraph.js";
-import { LINEAR, ALTERNATING_AXIS, TWO_ROUTES } from "./helper/graphData";
+import { LINEAR, ALTERNATING_AXIS, TWO_ROUTES } from "./helper/graphData.js";
 
 test("simple dijkstra", () => {
 	const graph = indexGraph(LINEAR);

@@ -2,9 +2,10 @@
 	"compilerOptions": {
 		"target": "ES2015",
 		"module": "ES2020",
+		"lib": ["ES2018", "DOM"],
 		"outDir": "./lib",
-		"allowJs": true,
-		"typeRoots": []
+		"declaration": true,
+		"moduleResolution": "node"
 	},
 	"include": ["./src"],
 	"exclude": ["**/*.spec.ts"]

@@ -11,7 +11,7 @@
  * @param {*} gx goal x
  * @param {*} gy goal y
  */
-export function manhattanCrossProductHeuristic(sx, sy, cx, cy, gx, gy) {
+export function manhattanCrossProductHeuristic(sx : number, sy : number, cx : number, cy : number, gx : number, gy : number) {
 	const dx1 = cx - gx;
 	const dy1 = cy - gy;
 	const dx2 = sx - gx;
@@ -22,7 +22,7 @@ export function manhattanCrossProductHeuristic(sx, sy, cx, cy, gx, gy) {
 }
 
 // heuristic for eight-way movement on a rectangular grid.
-export function octagonalHeuristic(sx, sy, cx, cy, gx, gy) {
+export function octagonalHeuristic(sx : number, sy : number, cx : number, cy : number, gx : number, gy : number) {
 	const dx1 = cx - gx;
 	const dy1 = cy - gy;
 	const dx2 = sx - gx;
@@ -40,7 +40,7 @@ export function octagonalHeuristic(sx, sy, cx, cy, gx, gy) {
  * Astar Heuristic with opposite behaviour of the manhattanCrossProductHeuristic:
  * the tie breaker prefers paths with long stretches of horizontal/vertical, with the fewest turns possible.
  */
-export function manhattanStraightHeuristic(sx, sy, cx, cy, gx, gy) {
+export function manhattanStraightHeuristic(sx : number, sy : number, cx : number, cy : number, gx : number, gy : number) {
 	const dx1 = cx - gx;
 	const dy1 = cy - gy;
 	const dx2 = sx - gx;

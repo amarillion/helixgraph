@@ -25,7 +25,7 @@ test("astar on a grid", () => {
 	);
 	// const prev = breadthFirstSearch(source, [ dest ], (node) => graph.getAdjacent(node));
 
-	for (const [k, v] of prev.entries()) {		
+	for (const [k, v] of prev.entries()) {
 		k.tile = chars[v.edge];
 	}
 

@@ -6,11 +6,11 @@ export const EAST = 0x02;
 export const SOUTH = 0x04;
 export const WEST = 0x08;
 
-const DEFAULT_CELL_FACTORY = (x, y) => { return { x, y }; };
+const DEFAULT_CELL_FACTORY = (x : number, y : number) => { return { x, y }; };
 
 /*
 A rectangular grid of width x height cells.
-The actual cell type is determined by the cellFactory constructor argument.
+The actual cell T is determined by the cellFactory constructor argument.
 It's possible to mask / clear cells, in which case those cells are null.
 
 Using the getAdjacent method, it's possible to treat the grid as a 
@@ -20,9 +20,18 @@ e.g. astar or dijkstra on this grid directly.
 This class is designed to be extended to allow different topographies,
 such as e.g. hexagonal grids.
 */
-export default class BaseGrid {
+export class TemplateGrid<T> {
 
-	constructor(width, height, cellFactory = DEFAULT_CELL_FACTORY) {
+	cellFactory: (x : number, y : number, parent: object) => T;
+	width: number;
+	height: number;
+	_data: T[];
+
+	constructor(
+		width : number, 
+		height : number, 
+		cellFactory : (x: number, y: number, parent: object) => T
+	) {
 		this.cellFactory = cellFactory;
 		this.width = width;
 		this.height = height;
@@ -121,8 +130,7 @@ export default class BaseGrid {
 	
 	Should be overridden to implement different grid topologies.
 	*/
-	getAdjacent(n) {
-		const result = [];
+	*getAdjacent(n) : Generator<[number, T]> {
 		let dx = 0;
 		let dy = -1;
 		const x = n.x;
@@ -133,12 +141,17 @@ export default class BaseGrid {
 			const ny = y + dy;
 			const neighbor = this.get(nx, ny);
 			if (neighbor) {
-				result.push([dir, neighbor]);
+				yield [dir, neighbor];
 			}
 			// rotate 90 degrees
 			[dx, dy] = [-dy, dx];
 		}
-		return result;
 	}
 
+}
+
+export default class BaseGrid extends TemplateGrid<any> {
+	constructor(width, height, cellFactory = DEFAULT_CELL_FACTORY) {
+		super(width, height, cellFactory)
+	}
 }

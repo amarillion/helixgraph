@@ -2,7 +2,7 @@ import { dijkstra, trackbackNodes, astar, breadthFirstSearch } from "../src/path
 import { assert } from "../src/assert.js";
 
 // generates an infinite binary tree
-function *getNeighborsGenerator(node) {
+function *getNeighborsGenerator(node: number) : Iterable<[string, number]> {
 	assert(Number.isInteger(node));
 	assert(node > 0);
 
@@ -12,13 +12,13 @@ function *getNeighborsGenerator(node) {
 }
 
 test("dijkstra with a generator function", () => {
-	const prev = dijkstra(1, 11, getNeighborsGenerator, () => 1);
+	const prev = dijkstra(1, 11, getNeighborsGenerator);
 	const path = trackbackNodes(1, 11, prev);
 	expect(path).toEqual([1, 2, 5, 11 ] );
 });
 
 test("astar with a generator function", () => {
-	const prev = astar(1, 7, getNeighborsGenerator, () => 1, () => 0);
+	const prev = astar(1, 7, getNeighborsGenerator, { getWeight: () => 1, getHeuristic: () => 0 });
 	const path = trackbackNodes(1, 7, prev);
 	expect(path).toEqual([1, 3, 7 ] );
 });

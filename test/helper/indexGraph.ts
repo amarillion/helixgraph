@@ -1,3 +1,4 @@
+import { AdjacencyFunc, PredicateFunc, WeightFunc } from "../../src/definitions.js";
 import { mmArrayPush } from "../../src/multimap.js";
 
 export const FORWARD = "F";
@@ -21,14 +22,25 @@ export const REVERSE = "R";
 	* reverseEdge(edge) function
 	* listNeighbors(node) function that returns directed edges.
  */
-export function indexGraph(graphData) {
+export type GraphType<N, E> = { 
+	nodes: Iterable<N>, 
+	edges: Iterable<E>, 
+	getLeft, 
+	getRight, 
+	isSource,
+	isSink,
+	getWeight : WeightFunc<N, E> 
+};
+export function indexGraph<N, E>(graphData : GraphType<N, E>) {
 
 	const result = {
 		...graphData,
 		edgesByNode: new Map(),
 		reverse: new Map(),
 		sources: [],
-		sinks: []
+		sinks: [],
+		getNeighbors: null,
+		reverseEdge: null
 	};
 
 	// add getAdjacent function
@@ -50,10 +62,6 @@ export function indexGraph(graphData) {
 		return result.edgesByNode.get(node);
 	};
 
-	result.getWeight = function(edge) {
-		return graphData.getWeight(edge.parent);
-	};
-
 	result.reverseEdge = function(edge) {
 		return result.reverse.get(edge);
 	};
@@ -73,9 +81,9 @@ export function indexGraph(graphData) {
  * @param {*} originalGetNeighbors function(node) that returns an array of [edge, sibling] arrays.
  * @param {*} predicate function(edge), returns true if edge is discarded
  */
-export function filteredNeighborFunc(originalNeighborFunc, predicate) {
-	return (node) => {
-		const result = [];
+export function filteredNeighborFunc<N, E>(originalNeighborFunc : AdjacencyFunc<N, E>, predicate : PredicateFunc<E>) {
+	return (node : N) => {
+		const result : Array<[E, N]>= [];
 		const neighbors = originalNeighborFunc(node);
 		for (const [edge, sibling] of neighbors) {
 			if (predicate(edge)) {

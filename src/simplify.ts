@@ -1,3 +1,4 @@
+import { AdjacencyFunc, PredicateFunc } from "./definitions.js";
 import { mmArrayPush } from "./multimap.js";
 
 function followEdge(source, edge, next, isSource, isSink, getNeighbors, visited) {
@@ -86,7 +87,7 @@ function followEdge(source, edge, next, isSource, isSink, getNeighbors, visited)
  * 	getWeight, getLeft, getRight, isSoure, isSink and getNeighbors functions,
  *  as well as the data for those functions.
  */
-export function simplify(source, isSource, isSink, getNeighbors) {
+export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink : PredicateFunc<N>, getNeighbors : AdjacencyFunc<N, E>) {
 	
 	const result = {
 		getWeight: (e) => e.weight,
@@ -97,11 +98,11 @@ export function simplify(source, isSource, isSink, getNeighbors) {
 		sources: [],
 		sinks: [],
 		nodes: [],
-		edgesByNode: new Map()
-	};
-	result.getNeighbors = function(node) {
-		return result.edgesByNode.get(node) || [];
-	};
+		edgesByNode: new Map(),
+		getNeighbors: function(node) {
+			return result.edgesByNode.get(node) || [];
+		}
+	}
 
 	const visited = new Set();
 	const keyNodes = new Set();
