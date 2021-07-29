@@ -1,32 +1,31 @@
-import test from "ava";
 import { T_JUNCTION, LINEAR_THREE, CYCLICAL } from "./helper/graphData.js";
 import { indexGraph, FORWARD, REVERSE } from "./helper/indexGraph.js";
 import { simplify, flattenPath } from "../src/simplify";
 import { dijkstra, trackbackNodes, trackbackEdges } from "../src/pathFinding.js";
 
-test("Simplified dijkstra: linear", t => {
+test("Simplified dijkstra: linear", () => {
 	const graph = indexGraph(LINEAR_THREE);
 	const graph2 = simplify("A", graph.isSource, graph.isSink, graph.getNeighbors);
 	
 	const prev = dijkstra("A", ["C"], graph2.getNeighbors, graph2.getWeight);
 	const path1 = trackbackNodes("A", "C", prev);
 
-	t.deepEqual(path1, ["A", "C"] );
+	expect(path1).toEqual(["A", "C"] );
 });
 
-test("Simplified dijkstra: t-junction", t => {
+test("Simplified dijkstra: t-junction", () => {
 	const graph = indexGraph(T_JUNCTION);
 	const graph2 = simplify("A", graph.isSource, graph.isSink, graph.getNeighbors);
 	
 	const prev = dijkstra("G", "E", graph2.getNeighbors, graph2.getWeight);
 
 	const nodePath = trackbackNodes("G", "E", prev);
-	t.deepEqual(nodePath, ["G", "C", "E"] );
+	expect(nodePath).toEqual(["G", "C", "E"] );
 
 	const edgePath = trackbackEdges("G", "E", prev);
 	const flatEdgePath = flattenPath(edgePath);
 	
-	t.deepEqual(flatEdgePath, [
+	expect(flatEdgePath).toEqual([
 		{ parent: "F-G", dir: REVERSE },
 		{ parent: "C-F", dir: REVERSE },
 		{ parent: "C-D", dir: FORWARD },
@@ -35,19 +34,19 @@ test("Simplified dijkstra: t-junction", t => {
 	
 });
 
-test("Simplified dijkstra: cycle", t => {
+test("Simplified dijkstra: cycle", () => {
 	const graph = indexGraph(CYCLICAL);
 	const graph2 = simplify("A", graph.isSource, graph.isSink, graph.getNeighbors);
 	
 	const prev = dijkstra("A", "F", graph2.getNeighbors, graph2.getWeight);
 
 	const nodePath = trackbackNodes("A", "F", prev);
-	t.deepEqual(nodePath, ["A", "B", "D", "F"] );
+	expect(nodePath).toEqual(["A", "B", "D", "F"] );
 
 	const edgePath = trackbackEdges("A", "F", prev);
 	const flatEdgePath = flattenPath(edgePath);
 	
-	t.deepEqual(flatEdgePath, [
+	expect(flatEdgePath).toEqual([
 		{ parent: "A-B", dir: FORWARD },
 		{ parent: "B-C", dir: FORWARD },
 		{ parent: "C-D", dir: FORWARD },

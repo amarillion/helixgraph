@@ -12,9 +12,9 @@
 		"gamedev"
 	],
 	"main": "index.js",
+	"type": "module",
 	"scripts": {
-		"test": "ava --match='!*performance*'",
-		"perf": "ava --match='Performance'",
+		"test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
 		"lint": "eslint **/*.js"
 	},
 	"author": {
@@ -35,8 +35,8 @@
 		"access": "public"
 	},
 	"devDependencies": {
-		"ava": "3.15.0",
+		"cross-env": "7.0.3",
 		"eslint": "7.31.0",
-		"esm": "3.2.25"
+		"jest": "27.0.6"
 	}
 }

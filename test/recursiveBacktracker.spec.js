@@ -1,9 +1,8 @@
-import test from "ava";
 import { GridGraph, reverse } from "./helper/gridGraph.js";
 import { recursiveBackTracker } from "../src/maze.js";
 import { renderToString } from "../examples/maze/renderToString.js";
 
-test("Recursive backtracker with rendering", t => {
+test("Recursive backtracker with rendering", () => {
 
 	const w = 8;
 	const h = 8;
@@ -14,10 +13,11 @@ test("Recursive backtracker with rendering", t => {
 	recursiveBackTracker(start, c => graph.getAdjacent(c), linkNodes);
 
 	console.log("\n\n", renderToString(graph), "\n\n");
-	t.pass();
+	
+	// t.pass();
 });
 
-test("Recursive backtracker", t => {
+test("Recursive backtracker", () => {
 
 	const w = 2;
 	const h = 2;
@@ -37,7 +37,7 @@ test("Recursive backtracker", t => {
 	}
 
 	// should contain exactly 3 edges.
-	t.is(linkCount, 6);
+	expect(linkCount).toBe(6);
 	// but total potential edges is 4
-	t.is(adjacentCount, 8);
+	expect(adjacentCount).toBe(8);
 });

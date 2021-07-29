@@ -1,37 +1,36 @@
-import test from "ava";
 import { LINEAR, TWO_ROUTES } from "./helper/graphData.js";
 import { indexGraph, FORWARD, REVERSE } from "./helper/indexGraph.js";
 import { edgeBetween } from "../src/pathFinding.js";
 
-test("linear graph index", t => {
+test("linear graph index", () => {
 	const graph = indexGraph(LINEAR);
 	
-	t.deepEqual (graph.edgesByNode.get("A"), 
+	expect(graph.edgesByNode.get("A")).toEqual(
 		[ [ { parent: "A-B", dir: FORWARD }, "B"] ]
 	);
-	t.deepEqual (graph.edgesByNode.get("B"), 
+	expect(graph.edgesByNode.get("B")).toEqual(
 		[ [ { parent: "A-B", dir: REVERSE }, "A"] ]
 	);
 });
 
-test("linear graph reverse edges", t => {
+test("linear graph reverse edges", () => {
 	const graph = indexGraph(LINEAR);
 	const edgeAB = edgeBetween(graph.getNeighbors, "A", "B");
 	const edgeBA = edgeBetween(graph.getNeighbors, "B", "A");
-	t.is(graph.reverseEdge(edgeAB), edgeBA);
-	t.is(graph.reverseEdge(edgeBA), edgeAB);
+	expect(graph.reverseEdge(edgeAB)).toBe(edgeBA);
+	expect(graph.reverseEdge(edgeBA)).toBe(edgeAB);
 });
 
-test("two-route graph index", t => {
+test("two-route graph index", () => {
 	const graph = indexGraph(TWO_ROUTES);
 
-	t.deepEqual (graph.edgesByNode.get("A"), 
+	expect(graph.edgesByNode.get("A")).toEqual(
 		[ [ { parent: "A-B", dir: FORWARD }, "B"], [ { parent: "C-A", dir: REVERSE }, "C"] ]
 	);
-	t.deepEqual (graph.edgesByNode.get("B"), 
+	expect(graph.edgesByNode.get("B")).toEqual(
 		[ [ { parent: "A-B", dir: REVERSE }, "A"], [ { parent: "B-C", dir: FORWARD }, "C"] ]
 	);
-	t.deepEqual (graph.edgesByNode.get("C"),
+	expect(graph.edgesByNode.get("C")).toEqual(
 		[ [ { parent: "B-C", dir: REVERSE }, "B"], [ { parent: "C-A", dir: FORWARD }, "A"] ]
 	);
 

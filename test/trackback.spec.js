@@ -1,21 +1,20 @@
-import test from "ava";
 import { breadthFirstSearch, trackbackEdges, trackback } from "../src/pathFinding.js";
 import { indexGraph, FORWARD } from "./helper/indexGraph.js";
 import { LINEAR, CYCLICAL_4SS } from "./helper/graphData.js";
 
-test("trackback edges simple", t => {
+test("trackback edges simple", () => {
 	const graph = indexGraph(LINEAR);
 	const prev = breadthFirstSearch("A", graph.sinks, graph.getNeighbors);
 	
 	const path = trackbackEdges("A", "B", prev);
 
-	t.deepEqual (path, [
+	expect(path).toEqual([
 		{ parent: "A-B", dir: FORWARD }
 	]);	
 });
 
 
-test("trackback nodes complex", t => {
+test("trackback nodes complex", () => {
 	const graph = indexGraph(CYCLICAL_4SS);
 	const source = "J";
 	const prev = breadthFirstSearch(source, graph.sinks, graph.getNeighbors);
@@ -26,7 +25,7 @@ test("trackback nodes complex", t => {
 	});
 	path.unshift(source);
 
-	t.true(isValid);
-	t.deepEqual (path, [ "J", "D", "C", "B", "I" ]);
+	expect(isValid).toBe(true);
+	expect(path).toEqual([ "J", "D", "C", "B", "I" ]);
 	
 });

@@ -1,4 +1,3 @@
-import test from "ava";
 import { dijkstra, trackbackNodes, astar, breadthFirstSearch } from "../src/pathFinding.js";
 import { assert } from "../src/assert.js";
 
@@ -12,20 +11,20 @@ function *getNeighborsGenerator(node) {
 	yield [ "right", node * 2 + 1 ];
 }
 
-test("dijkstra with a generator function", t => {
+test("dijkstra with a generator function", () => {
 	const prev = dijkstra(1, 11, getNeighborsGenerator, () => 1);
 	const path = trackbackNodes(1, 11, prev);
-	t.deepEqual (path, [1, 2, 5, 11 ] );
+	expect(path).toEqual([1, 2, 5, 11 ] );
 });
 
-test("astar with a generator function", t => {
+test("astar with a generator function", () => {
 	const prev = astar(1, 7, getNeighborsGenerator, () => 1, () => 0);
 	const path = trackbackNodes(1, 7, prev);
-	t.deepEqual (path, [1, 3, 7 ] );
+	expect(path).toEqual([1, 3, 7 ] );
 });
 
-test("bfs with a generator function", t => {
+test("bfs with a generator function", () => {
 	const prev = breadthFirstSearch(1, 18, getNeighborsGenerator);
 	const path = trackbackNodes(1, 18, prev);
-	t.deepEqual (path, [1, 2, 4, 9, 18 ] );
+	expect(path).toEqual([1, 2, 4, 9, 18 ] );
 });

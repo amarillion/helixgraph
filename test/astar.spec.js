@@ -1,4 +1,3 @@
-import test from "ava";
 import { GridGraph, MAP, reverse, NORTH, EAST, SOUTH, WEST } from "./helper/gridGraph.js";
 import { astar, breadthFirstSearch, trackback, trackbackEdges } from "../src/pathFinding.js";
 
@@ -9,7 +8,7 @@ const chars = {
 	[WEST] : "<",
 };
 
-test("astar on a grid", t => {
+test("astar on a grid", () => {
 	
 	const graph = GridGraph.fromMask(MAP);
 
@@ -36,14 +35,14 @@ test("astar on a grid", t => {
 	
 	const E = EAST;
 	const S = SOUTH;
-	t.deepEqual(path, [ E, E, E, E, E, E, E, E, E, E, E, 
+	expect(path).toEqual([ E, E, E, E, E, E, E, E, E, E, E, 
 		S, S, S, S, S, S, 
 		E, E, E, E, E, E, E, E
 	]);
 });
 
 
-test("use bfs distance map for astar heuristic", t => {
+test("use bfs distance map for astar heuristic", () => {
 	
 	const graph = GridGraph.fromMask(MAP);
 
@@ -72,7 +71,7 @@ test("use bfs distance map for astar heuristic", t => {
 	
 	const E = EAST;
 	const S = SOUTH;
-	t.deepEqual(path, [ E, E, E, E, E, E, E,
+	expect(path).toEqual([ E, E, E, E, E, E, E,
 		S, S, S, S,
 		E,
 		S,
@@ -80,6 +79,6 @@ test("use bfs distance map for astar heuristic", t => {
 		S, 
 		E, E, E, E, E, E, E, E
 	]);
-	t.true(isValid);
+	expect(isValid).toBe(true);
 
 });

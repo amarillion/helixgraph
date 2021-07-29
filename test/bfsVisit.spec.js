@@ -1,24 +1,23 @@
-import test from "ava";
 import { LINEAR, CYCLICAL } from "./helper/graphData";
 import { indexGraph } from "./helper/indexGraph.js";
 import { bfsVisit, bfsGenerator } from "../src/pathFinding.js";
 
-test("bfs on simple graph", t => {
+test("bfs on simple graph", () => {
 	const graph = indexGraph(LINEAR);
 	const visited = [];
 	bfsVisit("A", graph.getNeighbors, (node) => visited.push(node));
-	t.deepEqual(visited, ["A", "B"]);
+	expect(visited).toEqual(["A", "B"]);
 });
 
-test("bfs generator on simple graph", t => {
+test("bfs generator on simple graph", () => {
 	const graph = indexGraph(LINEAR);
 	const visited = [ ...bfsGenerator("A", graph.getNeighbors) ];
-	t.deepEqual(visited, ["A", "B"]);
+	expect(visited).toEqual(["A", "B"]);
 });
 
-test("bfs on cycle", t => {
+test("bfs on cycle", () => {
 	const graph = indexGraph(CYCLICAL);
 	const visited = [];
 	bfsVisit("A", graph.getNeighbors, (node) => visited.push(node));
-	t.deepEqual(visited, ["A", "B", "C", "E", "D", "F"]);
+	expect(visited).toEqual(["A", "B", "C", "E", "D", "F"]);
 });

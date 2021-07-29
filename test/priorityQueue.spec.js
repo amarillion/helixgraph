@@ -1,8 +1,7 @@
-import test from "ava";
 import { shuffle } from "../src/random.js";
 import PriorityQueue from "../src/PriorityQueue.js";
 
-test("Priority queue", t => {
+test("Priority queue", () => {
 
 	const NUM = 50;
 	const array = [];
@@ -17,7 +16,7 @@ test("Priority queue", t => {
 
 	// check that the result is sorted
 	for (let i = 0; i < NUM; ++i) {
-		t.is(i, q.pop());
+		expect(i).toBe(q.pop());
 	}
 	
 });
