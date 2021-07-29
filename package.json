@@ -15,7 +15,7 @@
 	"type": "module",
 	"scripts": {
 		"test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-		"lint": "eslint **/*.js"
+		"lint": "eslint src/**/*.js"
 	},
 	"author": {
 		"name": "Martijn van Iersel",
