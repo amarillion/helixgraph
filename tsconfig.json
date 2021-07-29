@@ -1,0 +1,11 @@
+{
+	"compilerOptions": {
+		"target": "ES2015",
+		"module": "ES2020",
+		"outDir": "./lib",
+		"allowJs": true,
+		"typeRoots": []
+	},
+	"include": ["./src"],
+	"exclude": ["**/*.spec.ts"]
+}
