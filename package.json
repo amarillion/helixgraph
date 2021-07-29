@@ -35,8 +35,8 @@
 		"access": "public"
 	},
 	"devDependencies": {
-		"ava": "^3.10.1",
-		"eslint": "^7.5.0",
-		"esm": "^3.2.25"
+		"ava": "3.15.0",
+		"eslint": "7.31.0",
+		"esm": "3.2.25"
 	}
 }
