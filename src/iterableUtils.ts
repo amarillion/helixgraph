@@ -24,9 +24,15 @@ export class Stream<T> {
 	}
 
 	size() : number {
-		let count = 0;
-		for (const i of this.#wrapped) { count++; }
-		return count;
+		if (Array.isArray(this.#wrapped)) {
+			// more efficient O(1) length calculation
+			return this.#wrapped.length;
+		}
+		else {
+			let count = 0;
+			for (const i of this.#wrapped) { count++; }
+			return count;
+		}
 	}
 
 	collect() : T[] {
