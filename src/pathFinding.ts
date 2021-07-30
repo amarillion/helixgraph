@@ -1,15 +1,15 @@
 import { assert } from "./assert.js";
-import { AdjacencyFunc, Step, WeightFunc } from "./definitions.js";
+import { AdjacencyFunc, PathFindFunc, Step, WeightFunc } from "./definitions.js";
 import { Stream } from "./iterableUtils.js";
 import { PriorityQueue } from "./PriorityQueue.js";
 
-export function bfsVisit<N, E>(source: N, listNeighbors : AdjacencyFunc<N, E>, callback : (node : N) => void) {
-	for (const node of bfsGenerator(source, listNeighbors)) {
+export function bfsVisit<N, E>(source: N, getAdjacent : AdjacencyFunc<N, E>, callback : (node : N) => void) {
+	for (const node of bfsGenerator(source, getAdjacent)) {
 		callback(node);
 	}
 }
 
-export function *bfsGenerator<N, E>(source : N, listNeighbors : AdjacencyFunc<N, E>) {
+export function *bfsGenerator<N, E>(source : N, getAdjacent : AdjacencyFunc<N, E>) {
 	let open : N[] = [];
 	let visited = new Set<N>();
 
@@ -21,7 +21,7 @@ export function *bfsGenerator<N, E>(source : N, listNeighbors : AdjacencyFunc<N,
 
 		yield current;
 
-		for (const [, destNode] of listNeighbors(current)) {
+		for (const [, destNode] of getAdjacent(current)) {
 			if (!visited.has(destNode)) {
 				open.push(destNode);
 				visited.add(destNode);
@@ -36,18 +36,13 @@ export function *bfsGenerator<N, E>(source : N, listNeighbors : AdjacencyFunc<N,
  * Nodes are treated as opaque data objects and are not modified. You can use any kind of 
  * variable type to represent nodes: ints, strings, objects, ...
  * 
- * It checks nodes if they are target as a side-effect, to avoid one extra graph traversal...
- * (TODO: maybe this should be factored out)
- * 
- * @param {*} source starting node
+ * @param source starting node
  * @param distinations Single node or Array of nodes. Search will continue until all destinations are reached.
- * @param {function} listNeighbors function(node) that return the neighbors of given node as an array of [dir, destNode] 
- *             dir is a value that distinguishes edges on the same node. 
- *             I.e. it could be an edge, but on a grid, a compass direction would also suffice.
+ * @param getAdjacent adjacency function representing the graph. For this algorithm, edges do not need to be unique.
  * 
- * @returns Map(to, { edge, from, to, cost })
+ * @returns a map of examined nodes. Pass this to a backtracking function to extract a simple path.
  *
- * Input graph may be undirected or directed (listNeighbors should act correspondingly)
+ * Input graph may be undirected or directed (getAdjacent should act correspondingly)
  * 
  * Guaranteed to return shortest paths for unweighted networks.
  * Complexity: O(V + E)
@@ -56,7 +51,7 @@ export function *bfsGenerator<N, E>(source : N, listNeighbors : AdjacencyFunc<N,
  * 
  * For more discussion, see: https://stackoverflow.com/questions/25449781/what-is-difference-between-bfs-and-dijkstras-algorithms-when-looking-for-shorte
  */
-export function breadthFirstSearch<N, E>(source: N, dest : N | N[], listNeighbors : AdjacencyFunc<N, E>, 
+export function breadthFirstSearch<N, E>(source: N, dest : N | N[], getAdjacent : AdjacencyFunc<N, E>, 
 	{ maxIterations = 0 } = {}
 ) {
 	let open : Array<N> = [];
@@ -82,7 +77,7 @@ export function breadthFirstSearch<N, E>(source: N, dest : N | N[], listNeighbor
 			if (remain.size === 0) break;
 		}
 
-		for (const [edge, destNode] of listNeighbors(current)) {
+		for (const [edge, destNode] of getAdjacent(current)) {
 			const visited = prev.has(destNode);
 			if (!visited) {
 				open.push(destNode);
@@ -125,12 +120,12 @@ function toSet<T>(value : T[] | T) {
  * Given a weighted graph, find all paths from one source to one or more destinations
  * @param {*} source 
  * @param {*} dest - the search destination node, or an array of destinations that must all be found
- * @param {*} getNeighbors 
+ * @param {*} getAdjacent 
  * @param {*} 
  * 
  * @returns Map(to, { edge, from, to, cost })
  */
-export function dijkstra<N, E>(source : N, dest : N | N[], getNeighbors : AdjacencyFunc<N, E>, 
+export function dijkstra<N, E>(source : N, dest : N | N[], getAdjacent : AdjacencyFunc<N, E>, 
 	{ 
 		maxIterations = 0, 
 		getWeight = () => 1,	
@@ -163,8 +158,8 @@ export function dijkstra<N, E>(source : N, dest : N | N[], getNeighbors : Adjace
 		// O(N^2) like this, O(log N) with priority queue. But in my tests, priority queues only start pulling ahead in large graphs
 		const current = spliceLowest( open, (a, b) => dist.get(a) - dist.get(b) );
 
-		// check neighbors, calculate distance, or  - if it already had one - check if new path is shorter
-		for (const [edge, sibling] of getNeighbors(current)) {
+		// check adjacents, calculate distance, or  - if it already had one - check if new path is shorter
+		for (const [edge, sibling] of getAdjacent(current)) {
 			
 			if (!(visited.has(sibling))) {
 				const alt = dist.get(current) + getWeight(edge, current);
@@ -199,12 +194,12 @@ export function dijkstra<N, E>(source : N, dest : N | N[], getNeighbors : Adjace
  * Given a weighted graph, find all paths from one source to one or more destinations
  * @param {*} source 
  * @param {*} destinations 
- * @param {*} getNeighbors 
+ * @param {*} getAdjacent 
  * @param {Object} options containing getHeuristic(node), maxIterations, getWeight(edge) 
  * 
  * @returns Map(to, { edge, from, to, cost })
  */
-export function astar<N, E>(source : N, dest : N, getNeighbors : AdjacencyFunc<N, E>,
+export function astar<N, E>(source : N, dest : N, getAdjacent : AdjacencyFunc<N, E>,
 	// see: https://mariusschulz.com/blog/typing-destructured-object-parameters-in-typescript
 	{
 		maxIterations = 0,
@@ -240,7 +235,7 @@ export function astar<N, E>(source : N, dest : N, getNeighbors : AdjacencyFunc<N
 			if (remain.size === 0) break; // reached all destiniations!
 		}
 		
-		for (const [edge, sibling] of getNeighbors(current)) {
+		for (const [edge, sibling] of getAdjacent(current)) {
 			
 			const cost = dist.get(current) + getWeight(edge, current);
 			const oldCost = dist.has(sibling) ? dist.get(sibling) : Infinity;
@@ -300,7 +295,12 @@ export function trackbackNodes(source, dest, prev) {
  * 
  * TODO: for some applications, better to return an array of [ 'node' ] or an array of both?
  */
-export function trackback<N, E>(source : N, dest : N, prev : Map<N, Step<N, E>>, callback : (from : N, edge : E, to : N) => void) {
+export function trackback<N, E>(
+		source : N, 
+		dest : N, 
+		prev : Map<N, Step<N, E>>, 
+		callback : (from : N, edge : E, to : N) => void
+) {
 	let current = dest;
 
 	// set a maximum no of iterations to prevent infinite loop
@@ -322,11 +322,11 @@ export function trackback<N, E>(source : N, dest : N, prev : Map<N, Step<N, E>>,
 	assert (false, "Reached iteration limit when constructing path");
 }
 
-export function shortestPathsFromSource(source, destinations, getNeighbors, getWeight) {
-
-	// const prev = dijkstra(source, destinations, getNeighbors, getWeight);
-	const prev = breadthFirstSearch(source, destinations, getNeighbors);
-
+export function shortestPathsFromSource<N, E>(
+		source : N, 
+		destinations : N[], 
+		prev: Map<N, Step<N, E>>
+) {
 	// Now backtrack from each destination to the source
 	const result = [];
 	for (let dest of destinations) {
@@ -340,15 +340,18 @@ export function shortestPathsFromSource(source, destinations, getNeighbors, getW
 }
 
 /** 
-
 all shortest paths from sources to sinks .
 Returns an array of arrays of steps.
-
 */
-export function allShortestPaths(sources, sinks, getNeighbors, getWeight) {
+export function allShortestPaths<N, E>(
+	sources : N[], 
+	sinks : N[], 
+	algorithm: (source: N, sinks: N[]) => Map<N, Step<N, E>>
+) {
 	let allPaths = new Map();
 	for (const source of sources) {
-		const paths = shortestPathsFromSource(source, sinks, getNeighbors, getWeight);
+		const prev = algorithm(source, sinks);
+		const paths = shortestPathsFromSource(source, sinks, prev);
 		// note that it's possible that some source->sink paths are NOT possible.
 		// they will be omitted from the result
 		allPaths.set(source, paths);
@@ -358,19 +361,19 @@ export function allShortestPaths(sources, sinks, getNeighbors, getWeight) {
 
 /** 
  * Utility function.
- * given a neighbour func, find the first edge that goes from one node to another.
+ * given an adjacency func, find the first edge that goes from one node to another.
  */
-export function edgeBetween<N, E>(neighborFunc : AdjacencyFunc<N, E>, from : N, to : N) {
-	return Stream.of(neighborFunc(from))
+export function edgeBetween<N, E>(getAdjacent : AdjacencyFunc<N, E>, from : N, to : N) {
+	return Stream.of(getAdjacent(from))
 		.find(step => step[1] === to)[0];
 }
 
 /** 
  * Utility function.
- * given a neighbour func, find all edges that go from one node to another.
+ * given an adjacency func, find all edges that go from one node to another.
  */
-export function edgesBetween<N, E>(neighborFunc : AdjacencyFunc<N, E>, from : N, to : N) {
-	return Stream.of(neighborFunc(from))
+export function edgesBetween<N, E>(getAdjacent : AdjacencyFunc<N, E>, from : N, to : N) {
+	return Stream.of(getAdjacent(from))
 		.filter(step => step[1] === to)
 		.map(step => step[0])
 		.collect();

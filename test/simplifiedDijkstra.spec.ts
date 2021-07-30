@@ -1,23 +1,23 @@
 import { T_JUNCTION, LINEAR_THREE, CYCLICAL } from "./helper/graphData.js";
-import { indexGraph, FORWARD, REVERSE, GraphType } from "./helper/indexGraph.js";
+import { indexGraph, FORWARD, REVERSE } from "./helper/indexGraph.js";
 import { simplify, flattenPath } from "../src/simplify.js";
 import { dijkstra, trackbackNodes, trackbackEdges } from "../src/pathFinding.js";
 
 test("Simplified dijkstra: linear", () => {
-	const graph = indexGraph(LINEAR_THREE as GraphType<string, string>);
-	const graph2 = simplify("A", graph.isSource, graph.isSink, graph.getNeighbors);
+	const graph = indexGraph(LINEAR_THREE);
+	const graph2 = simplify("A", graph.isSource, graph.isSink, graph.getAdjacent);
 	
-	const prev = dijkstra("A", ["C"], graph2.getNeighbors, { getWeight: graph2.getWeight });
+	const prev = dijkstra("A", ["C"], graph2.getAdjacent, { getWeight: graph2.getWeight });
 	const path1 = trackbackNodes("A", "C", prev);
 
 	expect(path1).toEqual(["A", "C"] );
 });
 
 test("Simplified dijkstra: t-junction", () => {
-	const graph = indexGraph(T_JUNCTION as GraphType<string, string>);
-	const graph2 = simplify("A", graph.isSource, graph.isSink, graph.getNeighbors);
+	const graph = indexGraph(T_JUNCTION);
+	const graph2 = simplify("A", graph.isSource, graph.isSink, graph.getAdjacent);
 	
-	const prev = dijkstra("G", "E", graph2.getNeighbors, { getWeight: graph2.getWeight });
+	const prev = dijkstra("G", "E", graph2.getAdjacent, { getWeight: graph2.getWeight });
 
 	const nodePath = trackbackNodes("G", "E", prev);
 	expect(nodePath).toEqual(["G", "C", "E"] );
@@ -35,10 +35,9 @@ test("Simplified dijkstra: t-junction", () => {
 });
 
 test("Simplified dijkstra: cycle", () => {
-	const graph = indexGraph(CYCLICAL as GraphType<string, string>);
-	const graph2 = simplify("A", graph.isSource, graph.isSink, graph.getNeighbors);
-	
-	const prev = dijkstra("A", "F", graph2.getNeighbors, { getWeight: graph2.getWeight });
+	const graph = indexGraph(CYCLICAL);
+	const simplified = simplify("A", graph.isSource, graph.isSink, graph.getAdjacent);
+	const prev = dijkstra("A", "F", simplified.getAdjacent, { getWeight: simplified.getWeight });
 
 	const nodePath = trackbackNodes("A", "F", prev);
 	expect(nodePath).toEqual(["A", "B", "D", "F"] );

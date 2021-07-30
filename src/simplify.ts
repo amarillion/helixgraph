@@ -1,7 +1,7 @@
 import { AdjacencyFunc, PredicateFunc } from "./definitions.js";
 import { mmArrayPush } from "./multimap.js";
 
-function followEdge(source, edge, next, isSource, isSink, getNeighbors, visited) {
+function followEdge(source, edge, next, isSource, isSink, getAdjacent, visited) {
 	const forwardChain = {
 		edgeChain: [edge],
 		nodeChain: [source],
@@ -22,7 +22,7 @@ function followEdge(source, edge, next, isSource, isSink, getNeighbors, visited)
 
 		let reverseStep = null;
 		const nonReverseSteps = [];
-		for (const step of getNeighbors(current)) {
+		for (const step of getAdjacent(current)) {
 			if (step[1] === prev) {
 				reverseStep = step;
 				// NB we discard any double reverse Steps
@@ -77,17 +77,16 @@ function followEdge(source, edge, next, isSource, isSink, getNeighbors, visited)
 }
 
 /**
- * 
  * @param {*} source a starting node, typically one of the possible source nodes.
  * @param {*} isSource a function to determine if a given node is a source
  * @param {*} isSink a function to determine if a given node is a sink
- * @param {*} getNeighbors function that for given node, returns array [ edge, node ] pairs
+ * @param {*} getAdjacent function that for given node, returns array [ edge, node ] pairs
  * 
  * @result a structure containing: 
- * 	getWeight, getLeft, getRight, isSoure, isSink and getNeighbors functions,
+ * 	getWeight, getLeft, getRight, isSoure, isSink and getAdjacent functions,
  *  as well as the data for those functions.
  */
-export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink : PredicateFunc<N>, getNeighbors : AdjacencyFunc<N, E>) {
+export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink : PredicateFunc<N>, getAdjacent : AdjacencyFunc<N, E>) {
 	
 	const result = {
 		getWeight: (e) => e.weight,
@@ -99,7 +98,7 @@ export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink : P
 		sinks: [],
 		nodes: [],
 		edgesByNode: new Map(),
-		getNeighbors: function(node) {
+		getAdjacent: function(node) {
 			return result.edgesByNode.get(node) || [];
 		}
 	}
@@ -123,9 +122,9 @@ export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink : P
 		visited.add(current);
 
 		// console.log ("Opening node", { current });
-		for (const [edge, dest] of getNeighbors(current)) {
-			// console.log ("  Checking neighbor", { edge, dest });
-			const chains = followEdge(current, edge, dest, isSource, isSink, getNeighbors, visited);
+		for (const [edge, dest] of getAdjacent(current)) {
+			// console.log ("  Checking adjacent node", { edge, dest });
+			const chains = followEdge(current, edge, dest, isSource, isSink, getAdjacent, visited);
 			const [ forwardEdge, reverseEdge ] = chains;
 
 			if (forwardEdge && reverseEdge) {

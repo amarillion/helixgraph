@@ -139,9 +139,9 @@ export class TemplateGrid<T> {
 		for (const dir of [NORTH, EAST, SOUTH, WEST]) {
 			const nx = x + dx;
 			const ny = y + dy;
-			const neighbor = this.get(nx, ny);
-			if (neighbor) {
-				yield [dir, neighbor];
+			const adjacent = this.get(nx, ny);
+			if (adjacent) {
+				yield [dir, adjacent];
 			}
 			// rotate 90 degrees
 			[dx, dy] = [-dy, dx];

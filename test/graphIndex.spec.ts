@@ -5,18 +5,18 @@ import { edgeBetween } from "../src/pathFinding.js";
 test("linear graph index", () => {
 	const graph = indexGraph(LINEAR);
 	
-	expect(graph.edgesByNode.get("A")).toEqual(
+	expect(graph.getAdjacent("A")).toEqual(
 		[ [ { parent: "A-B", dir: FORWARD }, "B"] ]
 	);
-	expect(graph.edgesByNode.get("B")).toEqual(
+	expect(graph.getAdjacent("B")).toEqual(
 		[ [ { parent: "A-B", dir: REVERSE }, "A"] ]
 	);
 });
 
 test("linear graph reverse edges", () => {
 	const graph = indexGraph(LINEAR);
-	const edgeAB = edgeBetween(graph.getNeighbors, "A", "B");
-	const edgeBA = edgeBetween(graph.getNeighbors, "B", "A");
+	const edgeAB = edgeBetween(graph.getAdjacent, "A", "B");
+	const edgeBA = edgeBetween(graph.getAdjacent, "B", "A");
 	expect(graph.reverseEdge(edgeAB)).toBe(edgeBA);
 	expect(graph.reverseEdge(edgeBA)).toBe(edgeAB);
 });
@@ -24,13 +24,13 @@ test("linear graph reverse edges", () => {
 test("two-route graph index", () => {
 	const graph = indexGraph(TWO_ROUTES);
 
-	expect(graph.edgesByNode.get("A")).toEqual(
+	expect(graph.getAdjacent("A")).toEqual(
 		[ [ { parent: "A-B", dir: FORWARD }, "B"], [ { parent: "C-A", dir: REVERSE }, "C"] ]
 	);
-	expect(graph.edgesByNode.get("B")).toEqual(
+	expect(graph.getAdjacent("B")).toEqual(
 		[ [ { parent: "A-B", dir: REVERSE }, "A"], [ { parent: "B-C", dir: FORWARD }, "C"] ]
 	);
-	expect(graph.edgesByNode.get("C")).toEqual(
+	expect(graph.getAdjacent("C")).toEqual(
 		[ [ { parent: "B-C", dir: REVERSE }, "B"], [ { parent: "C-A", dir: FORWARD }, "A"] ]
 	);
 

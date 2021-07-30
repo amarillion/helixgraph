@@ -11,16 +11,16 @@ export function recursiveBackTracker<N, E>(start, listAdjacent : AdjacencyFunc<N
 	while (stack.length > 0) {
 		const current = stack[stack.length - 1];
 		
-		const unvisitedNeighbors = Stream
+		const unvisitedAdjacents = Stream
 			.of(listAdjacent(current))
 			.filter(([, node]) => !visited.has(node))
 			.collect();
 
-		if (unvisitedNeighbors.length === 0) {
+		if (unvisitedAdjacents.length === 0) {
 			stack.pop();
 		}
 		else {
-			const [dir, node] = pickOne(unvisitedNeighbors);
+			const [dir, node] = pickOne(unvisitedAdjacents);
 			
 			linkNodes(current, dir, node);
 			stack.push(node); 

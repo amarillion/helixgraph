@@ -1,4 +1,4 @@
-import { AdjacencyFunc, PredicateFunc, WeightFunc } from "../../src/definitions.js";
+import { AdjacencyFunc, GraphType, PredicateFunc, SimpleGraph, WeightFunc } from "../../src/definitions.js";
 import { mmArrayPush } from "../../src/multimap.js";
 
 export const FORWARD = "F";
@@ -20,72 +20,43 @@ export const REVERSE = "R";
 	* list of sources,
 	* list of sinks
 	* reverseEdge(edge) function
-	* listNeighbors(node) function that returns directed edges.
+	* getAdjacent(node) function that returns directed edges.
  */
-export type GraphType<N, E> = { 
-	nodes: Iterable<N>, 
-	edges: Iterable<E>, 
-	getLeft, 
-	getRight, 
-	isSource,
-	isSink,
-	getWeight : WeightFunc<N, E> 
-};
-export function indexGraph<N, E>(graphData : GraphType<N, E>) {
-
-	const result = {
-		...graphData,
-		edgesByNode: new Map(),
-		reverse: new Map(),
-		sources: [],
-		sinks: [],
-		getNeighbors: null,
-		reverseEdge: null
-	};
-
-	// add getAdjacent function
-
+export function indexGraph<N, E>(graphData : SimpleGraph<N, E>) : GraphType<N, E> {
+	const edgesByNode = new Map<N, any>();
+	const reverse = new Map();
 	for (const edge of graphData.edges) {
-
 		const nodeLeft = graphData.getLeft(edge);
 		const nodeRight = graphData.getRight(edge);
 		const edgeLeft = { parent: edge, dir: FORWARD };
 		const edgeRight = { parent: edge, dir: REVERSE };
-		result.reverse.set(edgeLeft, edgeRight);
-		result.reverse.set(edgeRight, edgeLeft);
+		reverse.set(edgeLeft, edgeRight);
+		reverse.set(edgeRight, edgeLeft);
 
-		mmArrayPush(result.edgesByNode, nodeLeft, [ edgeLeft, nodeRight ]);
-		mmArrayPush(result.edgesByNode, nodeRight, [ edgeRight, nodeLeft ]);
+		mmArrayPush(edgesByNode, nodeLeft, [ edgeLeft, nodeRight ]);
+		mmArrayPush(edgesByNode, nodeRight, [ edgeRight, nodeLeft ]);
 	}
 
-	result.getNeighbors = function(node) {
-		return result.edgesByNode.get(node);
+	return {
+		...graphData,
+		getAdjacent: (node) => edgesByNode.get(node),
+		isSource: (node) => graphData.sources.indexOf(node) >= 0, 
+		isSink: (node) => graphData.sinks.indexOf(node) >= 0, 
+		reverseEdge: (edge) => reverse.get(edge)
 	};
-
-	result.reverseEdge = function(edge) {
-		return result.reverse.get(edge);
-	};
-
-	for (let n of graphData.nodes) {
-		if (graphData.isSource(n)) result.sources.push(n);
-		if (graphData.isSink(n)) result.sinks.push(n);
-	}
-
-	return result;
 }
 
-
 /**
- * Filter a neighborFunc using a predicate
+ * Filter an adjacencyFunc using a predicate
  * 
- * @param {*} originalGetNeighbors function(node) that returns an array of [edge, sibling] arrays.
+ * @param {*} originalGetAdjacent function(node) that returns an array of [edge, sibling] arrays.
  * @param {*} predicate function(edge), returns true if edge is discarded
  */
-export function filteredNeighborFunc<N, E>(originalNeighborFunc : AdjacencyFunc<N, E>, predicate : PredicateFunc<E>) {
+export function filteredAdjacencyFunc<N, E>(originalGetAdjacent : AdjacencyFunc<N, E>, predicate : PredicateFunc<E>) {
 	return (node : N) => {
-		const result : Array<[E, N]>= [];
-		const neighbors = originalNeighborFunc(node);
-		for (const [edge, sibling] of neighbors) {
+		const result : Array<[E, N]> = [];
+		const adjacents = originalGetAdjacent(node);
+		for (const [edge, sibling] of adjacents) {
 			if (predicate(edge)) {
 				continue;
 			}
