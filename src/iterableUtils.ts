@@ -19,6 +19,11 @@ export class Stream<T> {
 		return find(this.#wrapped, predicate);
 	}
 
+	first() : T {
+		const iterator = this.#wrapped[Symbol.iterator]();
+		return iterator.next().value;
+	}
+
 	map<U>(func: (t: T) => U) : Stream<U> {
 		return new Stream<U>(map(this.#wrapped, func));
 	}

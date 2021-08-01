@@ -16,7 +16,7 @@ export function *bfsGenerator<N, E>(source : N, getAdjacent : AdjacencyFunc<N, E
 	open.push(source);
 	visited.add(source);
 
-	while (open.length > 0) {
+	while (open.length) {
 		const current = open.shift();
 
 		yield current;
@@ -64,7 +64,7 @@ export function breadthFirstSearch<N, E>(source: N, dest : N | N[], getAdjacent 
 	// prev.set(source, { edge: null, from: null, to: source, cost } );
 
 	let i = maxIterations;
-	while (open.length > 0) {
+	while (open.length) {
 		
 		i--; // 0 -> -1 means Infinite.
 		if (i === 0) break;
@@ -103,7 +103,7 @@ function spliceLowest<T>(queue : Set<T>, comparator : (a : T, b: T) => number) {
 			minElt = elt;
 		}
 	}
-	queue.delete(minElt);
+	if (minElt) queue.delete(minElt);
 	return minElt;
 }
 
@@ -148,7 +148,7 @@ export function dijkstra<N, E>(source : N, dest : N | N[], getAdjacent : Adjacen
 	dist.set(source, 0);
 
 	let i = maxIterations;
-	while (open.size > 0) {
+	while (open.size) {
 		
 		i--; // 0 -> -1 means Infinite.
 		if (i === 0) break;
@@ -269,7 +269,7 @@ export function trackbackEdges<N, E>(source : N, dest : N, prev : Map<N, Step<N,
 	return isValid ? path : null;
 }
 
-export function trackbackNodes(source, dest, prev) {
+export function trackbackNodes<N>(source: N, dest : N, prev : Map<N, Step<N, unknown>>) {
 	const path = [];
 	const isValid = trackback (source, dest, prev, (from, edge, to ) => {
 		path.unshift( to );

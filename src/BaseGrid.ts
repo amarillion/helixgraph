@@ -44,7 +44,7 @@ export class TemplateGrid<T> {
 	The mask is an array of strings. Width & height are derived from this array.
 	Each cell that is either '.' or ' ' is kept, the rest is removed.
 	*/
-	applyMask(mask) {
+	applyMask(mask : string[]) {
 		const width = mask[0].length;
 		const height = mask.length;
 
@@ -95,15 +95,15 @@ export class TemplateGrid<T> {
 	}
 	
 	// internal mapping from coordinate to index.
-	_index(x, y) {
+	_index(x : number, y : number) {
 		return x + y * this.width;
 	}
 
-	remove(x, y) {
+	remove(x : number, y : number) {
 		if (this.inRange(x, y)) { this._data[this._index(x, y)] = null; }
 	}
 
-	get(x, y) {
+	get(x : number, y : number) {
 		if (this.inRange(x, y)) {
 			return this._data[this._index(x, y)];
 		}
@@ -112,7 +112,7 @@ export class TemplateGrid<T> {
 		}
 	}
 
-	inRange(x, y) {
+	inRange(x : number, y : number) {
 		return x >= 0 && y >= 0 && x < this.width && y < this.height;
 	}
 
@@ -130,7 +130,7 @@ export class TemplateGrid<T> {
 	
 	Should be overridden to implement different grid topologies.
 	*/
-	*getAdjacent(n) : Generator<[number, T]> {
+	*getAdjacent(n : { x : number, y : number }) : Generator<[number, T]> {
 		let dx = 0;
 		let dy = -1;
 		const x = n.x;
@@ -151,7 +151,7 @@ export class TemplateGrid<T> {
 }
 
 export default class BaseGrid extends TemplateGrid<any> {
-	constructor(width, height, cellFactory = DEFAULT_CELL_FACTORY) {
+	constructor(width : number, height : number, cellFactory = DEFAULT_CELL_FACTORY) {
 		super(width, height, cellFactory)
 	}
 }

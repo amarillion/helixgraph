@@ -2,8 +2,8 @@ import { LinkFunc, AdjacencyFunc } from "./definitions.js";
 import { Stream } from "./iterableUtils.js";
 import { pickOne } from "./random.js";
 
-export function recursiveBackTracker<N, E>(start, listAdjacent : AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>) {	
-	const stack = [];
+export function recursiveBackTracker<N, E>(start : N, listAdjacent : AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>) {
+	const stack : N[] = [];
 	stack.push(start);
 	const visited = new Set();
 	visited.add(start);
