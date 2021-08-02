@@ -1,9 +1,9 @@
 // rule for eslint:
 /* global d3 */
 
-import { astar, breadthFirstSearch, dijkstra, trackbackNodes } from "../../src/pathFinding.js";
-import { assert } from "../../src/assert.js";
-import BaseGrid from "../../src/BaseGrid.js";
+import { astar, breadthFirstSearch, dijkstra, trackbackNodes } from "../../lib/pathFinding.js";
+import { assert } from "../../lib/assert.js";
+import BaseGrid from "../../lib/BaseGrid.js";
 import { Collapsible, Select, Tooltip, Checkbox } from "./components.js";
 
 const BLOCKED_COLOR = "grey";
@@ -455,8 +455,8 @@ class Main {
 				const h = this.heuristic(d);
 				const distance = this.distanceFunc()(d);
 				const tiebreaker = this.tiebreakerFunc()(d) * 0.001;
-				let text = 
-					`${distance.toFixed(2)} (distance)<br>
+				let text = `x = ${d.x}, y = ${d.y}<br>
+					${distance.toFixed(2)} (distance)<br>
 					${tiebreaker.toPrecision(2)} (tie-breaker)<br>
 					h = ${h.toFixed(2)} (heuristic)`;
 				if (this.data.has(d)) {

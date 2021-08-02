@@ -1,8 +1,8 @@
 /* rule for eslint: */
 /* global Phaser */
-import { astar, trackback, breadthFirstSearch, dijkstra } from "../../src/pathFinding.js";
-import { manhattanCrossProductHeuristic, manhattanStraightHeuristic, octagonalHeuristic } from "../../src/astarHeuristics.js";
-import { assert } from "../../src/assert.js";
+import { astar, trackback, breadthFirstSearch, dijkstra } from "../../lib/pathFinding.js";
+import { manhattanCrossProductHeuristic, manhattanStraightHeuristic, octagonalHeuristic } from "../../lib/astarHeuristics.js";
+import { assert } from "../../lib/assert.js";
 
 class Game extends Phaser.Game {
 	
