@@ -1,5 +1,5 @@
 import { assert } from "./assert.js";
-import { AdjacencyFunc, PathFindFunc, Step, WeightFunc } from "./definitions.js";
+import { AdjacencyFunc, Step, WeightFunc } from "./definitions.js";
 import { Stream } from "./iterableUtils.js";
 import { PriorityQueue } from "./PriorityQueue.js";
 
@@ -10,8 +10,8 @@ export function bfsVisit<N, E>(source: N, getAdjacent : AdjacencyFunc<N, E>, cal
 }
 
 export function *bfsGenerator<N, E>(source : N, getAdjacent : AdjacencyFunc<N, E>) {
-	let open : N[] = [];
-	let visited = new Set<N>();
+	const open : N[] = [];
+	const visited = new Set<N>();
 
 	open.push(source);
 	visited.add(source);
@@ -54,7 +54,7 @@ export function *bfsGenerator<N, E>(source : N, getAdjacent : AdjacencyFunc<N, E
 export function breadthFirstSearch<N, E>(source: N, dest : N | N[], getAdjacent : AdjacencyFunc<N, E>, 
 	{ maxIterations = 0 } = {}
 ) {
-	let open : Array<N> = [];
+	const open : Array<N> = [];
 	const dist = new Map<N, number>();
 	const prev = new Map<N, Step<N, E>>();
 	const remain = toSet(dest);
@@ -139,7 +139,7 @@ export function dijkstra<N, E>(source : N, dest : N | N[], getAdjacent : Adjacen
 	const dist = new Map<N, number>();
 	const visited = new Set<N>();
 	const prev = new Map<N, Step<N, E>>();
-	let remain = toSet(dest);
+	const remain = toSet(dest);
 	
 	// TODO: more efficient to use a priority queue here
 	const open = new Set<N>();
@@ -296,10 +296,10 @@ export function trackbackNodes<N>(source: N, dest : N, prev : Map<N, Step<N, unk
  * TODO: for some applications, better to return an array of [ 'node' ] or an array of both?
  */
 export function trackback<N, E>(
-		source : N, 
-		dest : N, 
-		prev : Map<N, Step<N, E>>, 
-		callback : (from : N, edge : E, to : N) => void
+	source : N, 
+	dest : N, 
+	prev : Map<N, Step<N, E>>, 
+	callback : (from : N, edge : E, to : N) => void
 ) {
 	let current = dest;
 
@@ -323,13 +323,13 @@ export function trackback<N, E>(
 }
 
 export function shortestPathsFromSource<N, E>(
-		source : N, 
-		destinations : N[], 
-		prev: Map<N, Step<N, E>>
+	source : N, 
+	destinations : N[], 
+	prev: Map<N, Step<N, E>>
 ) {
 	// Now backtrack from each destination to the source
 	const result = [];
-	for (let dest of destinations) {
+	for (const dest of destinations) {
 		const path = trackbackEdges(source, dest, prev);
 		if (path !== null) {
 			result.push(path);
@@ -348,7 +348,7 @@ export function allShortestPaths<N, E>(
 	sinks : N[], 
 	algorithm: (source: N, sinks: N[]) => Map<N, Step<N, E>>
 ) {
-	let allPaths = new Map();
+	const allPaths = new Map();
 	for (const source of sources) {
 		const prev = algorithm(source, sinks);
 		const paths = shortestPathsFromSource(source, sinks, prev);

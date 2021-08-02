@@ -4,12 +4,20 @@ module.exports = {
 		"es6": true,
 		"jest": true
 	},
-	"extends": "eslint:recommended",
+	"parser": "@typescript-eslint/parser",
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/eslint-recommended",
+		"plugin:@typescript-eslint/recommended"
+	],
 	"parserOptions": {
 		"sourceType": "module",
 		"ecmaVersion": 10
 	},
 	"rules": {
+		"@typescript-eslint/explicit-module-boundary-types": [
+			"off",
+		],
 		"indent": [
 			"error",
 			"tab"

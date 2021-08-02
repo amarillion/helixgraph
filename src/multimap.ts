@@ -5,7 +5,7 @@
  * if key exists, push to the end of the array
  */
 export function mmArrayPush<K, V>(map : Map<K, V[]>, key : K, value : V) {
-	let keyExists = map.has(key);
+	const keyExists = map.has(key);
 	if (keyExists) {	
 		map.get(key).push(value);
 	}
@@ -22,7 +22,7 @@ export function mmArrayPush<K, V>(map : Map<K, V[]>, key : K, value : V) {
  * if key exists, add to the Set
  */
 export function mmSetAdd<K, V>(map : Map<K, Set<V>>, key : K, value : V) {
-	let keyExists = map.has(key);
+	const keyExists = map.has(key);
 	if (keyExists) {	
 		map.get(key).add(value);
 	}
@@ -40,7 +40,7 @@ export function mmSetAdd<K, V>(map : Map<K, Set<V>>, key : K, value : V) {
  */
 export function mmCreateAdd<K, V>(map : Map<K, V>, key : K, createFunc: () => V, addFunc: (v: V) => void) {
 	let val;
-	let keyExists = map.has(key);
+	const keyExists = map.has(key);
 	if (keyExists) {
 		val = map.get(key);
 	}

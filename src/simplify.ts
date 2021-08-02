@@ -101,7 +101,7 @@ export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink : P
 		getAdjacent: function(node) {
 			return result.edgesByNode.get(node) || [];
 		}
-	}
+	};
 
 	const visited = new Set();
 	const keyNodes = new Set();

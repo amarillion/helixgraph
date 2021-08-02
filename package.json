@@ -17,7 +17,7 @@
 		"clean": "rm -r lib",
 		"build": "tsc",
 		"test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-		"lint": "eslint src/**/*.js"
+		"lint": "eslint src/**/*.ts"
 	},
 	"author": {
 		"name": "Martijn van Iersel",
@@ -37,6 +37,8 @@
 	},
 	"devDependencies": {
 		"@types/jest": "^26.0.24",
+		"@typescript-eslint/eslint-plugin": "^4.28.5",
+		"@typescript-eslint/parser": "^4.28.5",
 		"cross-env": "7.0.3",
 		"eslint": "7.31.0",
 		"jest": "27.0.6",

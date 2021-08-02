@@ -35,6 +35,7 @@ export class Stream<T> {
 		}
 		else {
 			let count = 0;
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			for (const i of this.#wrapped) { count++; }
 			return count;
 		}

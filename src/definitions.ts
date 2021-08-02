@@ -10,7 +10,7 @@ export type AdjacencyFunc<N, E> = (from: N) => Iterable<[E, N]>;
 export type LinkFunc<N, E> = (from: N, edge: E, to: N) => boolean
 
 export type PathFindFunc<N, E> = 
-	(src: N, dest: N | N[], getAdjacent: AdjacencyFunc<N, E>, options: {}) => Map<N, Step<N, E>>;
+	(src: N, dest: N | N[], getAdjacent: AdjacencyFunc<N, E>, options: Record<string, unknown>) => Map<N, Step<N, E>>;
 
 /** 
  * Weight for a given edge.
@@ -45,7 +45,6 @@ export interface GraphType<N, E> extends SimpleGraph<N, E> {
 	getAdjacent : AdjacencyFunc<N, E>,
 	isSource?: PredicateFunc<N>,
 	isSink?: PredicateFunc<N>,
-	getWeight? : WeightFunc<N, E>
-	reverse? : any
-	reverseEdge? : any
-};
+	getWeight? : WeightFunc<N, E>,
+	reverseEdge? : (e: E) => E,
+}

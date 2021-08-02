@@ -22,7 +22,7 @@ such as e.g. hexagonal grids.
 */
 export class TemplateGrid<T> {
 
-	cellFactory: (x : number, y : number, parent: object) => T;
+	cellFactory: (x : number, y : number, parent: unknown) => T;
 	width: number;
 	height: number;
 	_data: T[];
@@ -30,7 +30,7 @@ export class TemplateGrid<T> {
 	constructor(
 		width : number, 
 		height : number, 
-		cellFactory : (x: number, y: number, parent: object) => T
+		cellFactory : (x: number, y: number, parent: unknown) => T
 	) {
 		this.cellFactory = cellFactory;
 		this.width = width;
@@ -150,8 +150,8 @@ export class TemplateGrid<T> {
 
 }
 
-export default class BaseGrid extends TemplateGrid<any> {
+export default class BaseGrid extends TemplateGrid<unknown> {
 	constructor(width : number, height : number, cellFactory = DEFAULT_CELL_FACTORY) {
-		super(width, height, cellFactory)
+		super(width, height, cellFactory);
 	}
 }
