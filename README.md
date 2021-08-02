@@ -1,6 +1,6 @@
 # helixgraph
 
-An library of path finding & graph algorithms for game development, for JavaScript ES6
+A library of path finding & graph algorithms for game development, for JavaScript ES6
 
 This library includes
 
@@ -12,6 +12,8 @@ The algorithms are suitable for tilemaps, regular grids, as well as (non-regular
 ## Installation
 
   `npm install @amarillion/helixgraph`
+
+TypeScript definitions are included
 
 ## Live demo
 

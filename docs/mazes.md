@@ -8,7 +8,7 @@ If we take away a few edges, it becomes more interesting, reminiscent of a maze:
 
 ![A graph that looks like a maze](./maze.png)
 
-You could think of the process of making a maze as the transformation of one, densely connected graph into another, sparser graph. The input graph contains all *possible* paths you can take between cells. The output graph contains a random selection of edges, as few as possible, so that each node is *just* reachable. In the graph algorithm world, this is called a *minimum spanning tree*.
+You could think of the process of making a maze as the transformation of one, densely connected graph into another, sparser graph. The input graph contains all *possible* paths you can take between cells. The output graph contains a random selection of edges, as few as possible, so that each node is *just* reachable. In the graph algorithm world, this is called a [minimum spanning tree](https://en.wikipedia.org/wiki/Minimum_spanning_tree).
 
 If you want to know more, I highly recommend [Mazes for programmers](http://www.mazesforprogrammers.com/)
 
@@ -29,7 +29,7 @@ recursiveBackTracker(
 	
 	grid.randomCell(), // start seed
 	
-	// getAdjacent defines the input graph, it's exactly like a getNeighbor function
+	// getAdjacent defines the input graph
 	n => grid.getAdjacent(n),  
 	
 	// linkCells is called for each edge that we choose to keep in the output graph

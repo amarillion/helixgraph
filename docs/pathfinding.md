@@ -13,7 +13,7 @@ Each algorithm has the exact same function signature and return data structure, 
 
 ''Breadth first search'' is a simple but effective algorithm. Use it if all nodes are equal (i.e. your graph is unweighted) and it's not possible to come up with a decent heuristic (see below for explanation). For example, BFS applies for arbitrary graphs that are not based on a regular grid, or for mazes (where most A* heuristics are practically useless)
 
-Assuming you start from node `src`, want to find a path to node `dest`, and you have a suitable `getNeighbor` function as explained in the chapter on [representing graphs](./graphs.md), then you can do:
+Assuming you start from node `src`, want to find a path to node `dest`, and you have a suitable `getAdjacent` function as explained in the chapter on [representing graphs](./graphs.md), then you can do:
 
 ```js
 import { 
@@ -22,9 +22,9 @@ import {
 
 let src; // source node;
 let dest; // destination node;
-let getNeighbor; // function defining the graph
+let getAdjacent; // function defining the graph
 
-const pathData = breadthFirstSearch(src, dest, getNeighbor);
+const pathData = breadthFirstSearch(src, dest, getAdjacent);
 
 // sequence of nodes you go through, from src to dest
 const nodes = trackbackNodes(src, dest, pathData);
@@ -49,9 +49,9 @@ import {
 
 let src; // source node;
 let dest; // destination node;
-let getNeighbor; // function defining the graph
+let getAdjacent; // function defining the graph
 
-const pathData = dijkstra(src, dest, getNeighbor, {
+const pathData = dijkstra(src, dest, getAdjacent, {
 	getWeight: (edge, node) => { /* calculate or obtain weight here */ }
 });
 
@@ -87,9 +87,9 @@ The full example is thus:
 
 	let src; // source node;
 	let dest; // destination node;
-	let getNeighbor; // function defining the graph
+	let getAdjacent; // function defining the graph
 
-	const pathData = dijkstra(src, dest, getNeighbor, {
+	const pathData = dijkstra(src, dest, getAdjacent, {
 		 // For simple flat maps, it's ok to use unit weights. This is actually the default.
 		getWeight: () => 1,
 		getHeuristic: pythagoras

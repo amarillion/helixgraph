@@ -6,9 +6,9 @@ In mathematics, a *graph* is a network consisting of *nodes* connected by *edges
 
 There are many ways to represent a graph in computer memory. Helixgraph puts few restrictions on how you store your graph. This makes helixgraph combine well with other libraries for tilemaps, graphs, or any custom data structure that you already use.
 
-Most algorithms can work with a graph that is specified using only two declarations: 1. a *getNeighbors* function, and 2. one or more *source nodes*. 
+Most algorithms can work with a graph that is specified using only two declarations: 1. a *getAdjacent* function, and 2. one or more *source nodes*. 
 
-*getNeighbors* should be a function that, given a node, returns an iterable of [ edge, node ] pairs that represent neighboring edges and their nodes.
+*getAdjacent* should be a function that, given a node, returns an iterable of [ edge, node ] pairs that represent neighboring edges and their nodes.
 
 ## Representing nodes
 
@@ -44,15 +44,15 @@ const edges = ['A-B', 'B-C', 'C-A', 'A-D'];
 
 ![A simple directed graph](./simple.png)
 
-To make helixgraph work with this data, we need to write a getNeighbors function, that takes a node as parameter, and returns an array of edge, node pairs.
+To make helixgraph work with this data, we need to write a getAdjacent function, that takes a node as parameter, and returns an array of edge, node pairs.
 
-So: `getNeighbors('A')` should return `[ ['A-B', 'B'], ['A-D', 'D'] ]`, and `getNeighbors('B')` should return `[ ['B-C', 'C'] ]`. We assume that the edges are directed, i.e. you can go only from A to B, not in reverse (for more on that, see below).
+So: `getAdjacent('A')` should return `[ ['A-B', 'B'], ['A-D', 'D'] ]`, and `getAdjacent('B')` should return `[ ['B-C', 'C'] ]`. We assume that the edges are directed, i.e. you can go only from A to B, not in reverse (for more on that, see below).
 
 a few custom helper functions can make this happen:
 
 ```js
 // We collect all edge data in this object
-const neighbors = {};
+const adjacents = {};
 
 // helper function
 function addEdge(neighbors, edge) {
@@ -61,20 +61,20 @@ function addEdge(neighbors, edge) {
 	const rightNode = edge[2];
 
 	// initialise if node wasn't seen before
-	if (!(leftNode in neighbors)) neighbors[leftNode] = [];
+	if (!(leftNode in adjacents)) adjacents[leftNode] = [];
 
 	// add data for one edge
-	neighbors[leftNode].push([edge, rightNode]);
+	adjacents[leftNode].push([edge, rightNode]);
 }
 
 
 // Populate helper data
 for (edge of edges) {
-	addEdge(neighbors, edge);
+	addEdge(adjacents, edge);
 }
 
 // now the graph is defined by this function:
-function getNeighbors(node) { return neighbors[node]; }
+function getAdjacent(node) { return adjacents[node]; }
 ```
 
 ## Directed versus undirected graphs
@@ -83,7 +83,7 @@ In the previous example, all edges were directional. This means that there was a
 
 For most path finding situations, you want edges to be bidirectional. To handle that, we must create an edge 'B-A' corresponding to the reverse of edge 'A-B' 
 
-So: `getNeighbors('A')` should return `[ ['A-B', 'B'], ['A-C', 'C'], ['A-D', 'D'] ]`, and `getNeighbors('B')` should return `[ ['B-A', 'A'], ['B-C', 'C'] ]`
+So: `getAdjacent('A')` should return `[ ['A-B', 'B'], ['A-C', 'C'], ['A-D', 'D'] ]`, and `getAdjacent('B')` should return `[ ['B-A', 'A'], ['B-C', 'C'] ]`
 
 ![In this graph, each edge goes both ways. This is equivalent to an undirected graph](./simple-bidir.png)
 
@@ -131,10 +131,10 @@ To get the node at position (1,2) out, we can do:
 node = map.get[1][2]
 ```
 
-And to define its neighbors, we need something like the code below. For fun, we'll add a twist: we'll write our function as a [generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*), instead of returning an array. Helixgraph algorithms will work either way.
+And to define its adjacents, we need something like the code below. For fun, we'll add a twist: we'll write our function as a [generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*), instead of returning an array. As mentioned before, your getAdjacent function should return an [iterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols), which can be an array, or a generator. Helixgraph algorithms will work either way.
 
 ```js
-function *getNeighbors(node) {
+function *getAdjacent(node) {
 	
 	let [dx, dy] = [0, -1]
 	const result = [];
