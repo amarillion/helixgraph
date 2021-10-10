@@ -44,6 +44,27 @@ export class Stream<T> {
 	collect() : T[] {
 		return [...this.#wrapped];
 	}
+
+	reduce<U>(fn: (cur : T, acc : U) => U, init : U) {
+		let acc : U = init;
+		for (const i of this.#wrapped) { 
+			acc = fn(i, acc);
+		}
+		return acc;
+	}
+
+	max() {
+		//TODO: implement in terms of reduce...
+		let isFirst = true;
+		let result : T;
+		for (const i of this.#wrapped) { 
+			if (isFirst || i > result) {
+				result = i;
+			}
+			isFirst = false;
+		}
+		return result;
+	}
 }
 
 function *filter<T>(iter : Iterable<T>, predictate : PredicateFunc<T>) {
