@@ -4,11 +4,17 @@ const parent = (i : number) => ((i + 1) >>> 1) - 1;
 const left = (i : number) => (i << 1) + 1;
 const right = (i : number) => (i + 1) << 1;
 
+/** 
+ * Should return a positive number if a has higher priority, or 0 or negative otherwise
+ * (This class does not actually care about the distinction between 0 and negative numbers)
+ */
+type ComparatorFunc<T> = (a : T, b : T) => number;
+
 export class PriorityQueue<T> {
 	#heap: T[];
-	#comparator: (a : T, b: T) => boolean;
+	#comparator: ComparatorFunc<T>;
 
-	constructor(comparator = (a : T, b : T) => a > b) {
+	constructor(comparator : ComparatorFunc<T> = (a, b) => b > a ? 1 : -1) {
 		this.#heap = [];
 		this.#comparator = comparator;
 	}
@@ -52,7 +58,7 @@ export class PriorityQueue<T> {
 	}
 
 	private _greater(i : number, j : number) {
-		return this.#comparator(this.#heap[i], this.#heap[j]);
+		return this.#comparator(this.#heap[i], this.#heap[j]) > 0;
 	}
 
 	private _swap(i : number, j : number) {

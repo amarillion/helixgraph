@@ -215,7 +215,7 @@ export function astar<N, E>(source : N, dest : N, getAdjacent : AdjacencyFunc<N,
 	const prev = new Map<N, Step<N, E>>();
 	
 	const priority = new Map();
-	const open = new PriorityQueue<N>((a, b) => priority.get(a) < priority.get(b));
+	const open = new PriorityQueue<N>((a, b) => priority.get(b) - priority.get(a));
 
 	open.push(source);
 	dist.set(source, 0);

@@ -10,7 +10,7 @@ test("Priority queue", () => {
 	for (let i = 0; i < NUM; ++i) array.unshift(i);
 	shuffle(array);
 
-	const q = new PriorityQueue((a,b) => a < b);
+	const q = new PriorityQueue<number>((a,b) => b - a);
 	
 	q.push(...array);
 
