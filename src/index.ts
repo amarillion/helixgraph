@@ -12,4 +12,12 @@ export {
 
 export {
 	recursiveBackTracker
-} from "./maze.js";
+} from "./recursiveBacktracker.js";
+
+export {
+	prim
+} from "./prim.js";
+
+export {
+	kruskal
+} from "./kruskal.js";
