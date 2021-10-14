@@ -1,7 +1,9 @@
-import { recursiveBackTracker } from "../../lib/maze.js";
+import { recursiveBackTracker } from "../../lib/recursiveBacktracker.js";
 import { pickOne } from "../../lib/random.js";
 import BaseGrid, { NORTH, SOUTH, EAST, WEST } from "../../lib/BaseGrid.js";
 import { renderToString } from "./renderToString.js";
+import { prim } from "../../lib/prim.js";
+import { kruskal } from "../../lib/kruskal.js";
 
 // for being able to find the opposite direction
 const reverse = {
@@ -71,10 +73,20 @@ window.onload = () => {
 	const grid = new BaseGrid(10, 10, cellFactory);
 	
 	// generate maze
-	recursiveBackTracker(
-		grid.randomCell(), // start cell
+	// recursiveBackTracker(
+	// 	grid.randomCell(), // start cell
+	// 	n => grid.getAdjacent(n), 
+	// 	linkCells );
+
+	// prim(
+	// 	grid.randomCell(), // start cell
+	// 	n => grid.getAdjacent(n), 
+	// 	linkCells);
+
+	kruskal(
+		grid.eachNode(),
 		n => grid.getAdjacent(n), 
-		linkCells );
+		linkCells);
 	
 	const elt = document.getElementById("mainDiv");
 	elt.innerHTML = `<pre>${renderToString(grid)}</pre>`;
