@@ -1,18 +1,18 @@
 import { GridGraph, reverse } from "./helper/gridGraph.js";
-import { recursiveBackTracker } from "../src/recursiveBacktracker";
 import { Stream } from "../src/iterableUtils.js";
+import { prim } from "../src/prim.js";
 
-test("Recursive backtracker", () => {
+test("Prim's algorithm", () => {
 
 	const w = 2;
 	const h = 2;
 	const graph = new GridGraph(w, h);
 	
 	// given a grid of 2x2
-	// apply recursive backtracker
 	const start = graph.get(0, 0);
 	const linkNodes = (src, dir, dest) => src.link(dest, dir, reverse[dir]);
-	recursiveBackTracker(start, c => graph.getAdjacent(c), linkNodes);
+	
+	prim(start, c => graph.getAdjacent(c), linkNodes);
 
 	let linkCount = 0;
 	let adjacentCount = 0;
