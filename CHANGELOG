@@ -1,3 +1,10 @@
+version 0.6
+
+- Added prim and kruskal minimum spannig tree algorithms, for maze generation
+- Improve maze example, allow algorithm selection
+- Backwards breaking changes:
+	- signature of the comparator function supplied to PriorityQueue has changed
+
 version 0.5.1
 
 - converted to TypeScript, publish TypeScript definitions.
