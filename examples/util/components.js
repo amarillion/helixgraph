@@ -51,68 +51,6 @@ export class Checkbox extends HTMLElement {
 
 }
 
-export class Select extends HTMLElement {
-	
-	constructor() {
-		super();
-		this.attachShadow({ mode: "open" });
-	
-		this._options = [];
-		this._label = this.getAttribute("label") || "";
-		this.binding = null;
-		this.render();
-		this._callback = () => {};
-		this.oldValue = null;
-	}
-
-	set label(val) {
-		this._label = val;
-		this.render();
-	}
-
-	set options(idNamePairs) {
-		this._options = idNamePairs;
-		this.render();
-	}
-
-	set callback(val) {
-		this._callback = val;
-		// immediately trigger with current value
-		const newValue = this.shadowRoot.querySelector("select").value;
-		this._callback(newValue, this.oldValue);
-		this.oldValue = newValue;
-	}
-
-	get value() {
-		return this.shadowRoot.querySelector("select").value;
-	}
-
-	onChange(event) {
-		this._callback(event.target.value, this.oldValue);
-		this.oldValue = event.target.value;
-	}
-
-	render() {
-		this.shadowRoot.innerHTML = `
-		<style>
-		:host {
-			width: 100%;
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			column-gap: 0.5rem;
-		}
-		label {
-			text-align: right;
-		}
-		</style>
-		<label>${this._label}</label>
-		<select>
-			${this._options.map(opt => `<option value="${opt.id}">${opt.name}</option>`).join()}
-		</select>`;
-		this.shadowRoot.querySelector("select").addEventListener("change", (e) => this.onChange(e));
-	}
-}
-
 export class Tooltip extends HTMLElement {
 
 	constructor() {
@@ -204,3 +142,97 @@ export class Collapsible extends HTMLElement {
 		});
 	}
 }
+
+/*
+export class Signal {
+	constructor() {
+		this._listeners = [];
+	}
+
+	add(listener) {
+		this._listeners.add(listener);
+	}
+
+	fire(...args) {
+		for(const l of this._listeners) {
+			l.apply(null, args);
+		}
+	}
+}
+
+export class SelectModel {
+
+	constructor(options = []) {
+		this._onChange = new Signal();
+		this._options = options;
+		this._selectedIndex = -1;
+	}
+
+	get onChange() {
+		return this._onChange;
+	}
+}
+*/
+
+export class Select extends HTMLElement {
+	
+	constructor() {
+		super();
+		this.attachShadow({ mode: "open" });
+	
+		this._options = [];
+		this._label = this.getAttribute("label") || "";
+		this.binding = null;
+		this.render();
+		this._callback = () => {};
+		this.oldValue = null;
+	}
+
+	set label(val) {
+		this._label = val;
+		this.render();
+	}
+
+	set options(idNamePairs) {
+		this._options = idNamePairs;
+		this.render();
+	}
+
+	set callback(val) {
+		this._callback = val;
+		// immediately trigger with current value
+		const newValue = this.shadowRoot.querySelector("select").value;
+		this._callback(newValue, this.oldValue);
+		this.oldValue = newValue;
+	}
+
+	get value() {
+		return this.shadowRoot.querySelector("select").value;
+	}
+
+	onChange(event) {
+		this._callback(event.target.value, this.oldValue);
+		this.oldValue = event.target.value;
+	}
+
+	render() {
+		this.shadowRoot.innerHTML = `
+		<style>
+		:host {
+			width: 100%;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			column-gap: 0.5rem;
+		}
+		label {
+			text-align: right;
+		}
+		</style>
+		<label>${this._label}</label>
+		<select>
+			${this._options.map(opt => `<option value="${opt.id}">${opt.name}</option>`).join()}
+		</select>`;
+		this.shadowRoot.querySelector("select").addEventListener("change", (e) => this.onChange(e));
+	}
+}
+
