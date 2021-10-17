@@ -18,6 +18,9 @@ module.exports = {
 		"@typescript-eslint/explicit-module-boundary-types": [
 			"off",
 		],
+		"@typescript-eslint/no-empty-function": [
+			"off",
+		],
 		"indent": [
 			"error",
 			"tab"
