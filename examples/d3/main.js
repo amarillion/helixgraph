@@ -544,6 +544,10 @@ class Main {
 
 		setInterval(
 			() => this.update(), 20);
+		
+		window.onresize = () => {
+			this.initGrid();
+		};
 	}
 
 	resetPath() {
