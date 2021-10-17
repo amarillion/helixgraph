@@ -9,16 +9,30 @@
 		body {
 			height: 100vh;
 			margin: 0px;
+			overflow: hidden;
 		}
 
 		#mainDiv {
 			height: 100%;
 		}
+
+		hxg-collapsible {
+			position: absolute;
+			background: #00000088;
+			color: white;
+			margin: 1rem;
+			top: 0rem;
+			max-width: 28rem;
+		}
 	</style>
 	<script type="module" src="./main.js"></script>
 </head>
 <body>
-	<div id="mainDiv">
-	</div>
+	<hxg-collapsible>
+		<div title="Pick the maze generation algorithm.">
+			<hxg-select id="algorithm-select" label="Maze generation algorithm:"></hxg-select>
+		</div>
+	</hxg-collapsible>
+	<canvas id="myCanvas" width="1024" height="768"></canvas>
 </body>
 </html>

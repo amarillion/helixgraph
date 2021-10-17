@@ -4,7 +4,7 @@
 import { astar, breadthFirstSearch, dijkstra, trackbackNodes } from "../../lib/pathFinding.js";
 import { assert } from "../../lib/assert.js";
 import BaseGrid from "../../lib/BaseGrid.js";
-import { Collapsible, Select, Tooltip, Checkbox } from "./components.js";
+import { Collapsible, Select, Tooltip, Checkbox } from "../util/components.js";
 
 const BLOCKED_COLOR = "grey";
 const BASE_COLOR = "white";
@@ -544,6 +544,10 @@ class Main {
 
 		setInterval(
 			() => this.update(), 20);
+		
+		window.onresize = () => {
+			this.initGrid();
+		};
 	}
 
 	resetPath() {
