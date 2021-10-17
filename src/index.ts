@@ -15,7 +15,10 @@ export {
 } from "./recursiveBacktracker.js";
 
 export {
-	prim
+	prim,
+	PRIM_LAST_ADDED,
+	PRIM_LAST_ADDED_RANDOM_EDGES,
+	PRIM_RANDOM
 } from "./prim.js";
 
 export {
