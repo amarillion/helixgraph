@@ -5,7 +5,8 @@
 		"lib": ["ES2018", "DOM"],
 		"outDir": "./lib",
 		"declaration": true,
-		"moduleResolution": "node"
+		"moduleResolution": "node",
+		"esModuleInterop": true
 	},
 	"include": ["./src"],
 	"exclude": ["**/*.spec.ts"]

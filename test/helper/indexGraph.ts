@@ -1,4 +1,4 @@
-import { AdjacencyFunc, GraphType, PredicateFunc, SimpleGraph, WeightFunc } from "../../src/definitions.js";
+import { AdjacencyFunc, GraphType, PredicateFunc, SimpleGraph } from "../../src/definitions.js";
 import { mmArrayPush } from "../../src/multimap.js";
 
 export const FORWARD = "F";
@@ -23,6 +23,7 @@ export const REVERSE = "R";
 	* getAdjacent(node) function that returns directed edges.
  */
 export function indexGraph<N, E>(graphData : SimpleGraph<N, E>) : GraphType<N, E> {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const edgesByNode = new Map<N, any>();
 	const reverse = new Map();
 	for (const edge of graphData.edges) {

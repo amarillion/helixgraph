@@ -31,23 +31,3 @@ export function mmSetAdd<K, V>(map : Map<K, Set<V>>, key : K, value : V) {
 	}
 	return !keyExists;
 }
-
-/** 
- * Map<key, ???>
- * 
- * if key doesn't exist, call val = createFunc(), addFunc(val), and put in the map.
- * if key exists, skip createFunc, call addFunc(val)
- */
-export function mmCreateAdd<K, V>(map : Map<K, V>, key : K, createFunc: () => V, addFunc: (v: V) => void) {
-	let val;
-	const keyExists = map.has(key);
-	if (keyExists) {
-		val = map.get(key);
-	}
-	else {
-		val = createFunc();
-		map.set(key, val);
-	}
-	addFunc(val);
-	return !keyExists;
-}

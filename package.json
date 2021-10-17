@@ -16,8 +16,9 @@
 	"scripts": {
 		"clean": "rm -r lib",
 		"build": "tsc",
-		"test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-		"lint": "eslint src/**/*.ts",
+		"test": "jest",
+		"test:coverage": "jest --coverage",
+		"lint": "eslint {src,test}/**/*.ts",
 		"prepublishOnly": "npm run clean; npm run lint && npm t && npm run build"
 	},
 	"author": {

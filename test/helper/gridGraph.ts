@@ -27,8 +27,8 @@ class Cell {
 
 	x: number;
 	y: number;
-	tile: any;
-	links: object;
+	tile: unknown;
+	links: { [key: number]: Cell };
 
 	constructor(x, y) {
 		this.x = x;

@@ -42,7 +42,7 @@ test("cyclical dijkstra with direction restrictions", () => {
 	
 	const edgeAC = edgeBetween(graph.getAdjacent, "A", "C");
 	let adjacencyFunc = filteredAdjacencyFunc(graph.getAdjacent, e => e === edgeAC);
-	let prev = breadthFirstSearch("A", graph.sinks, adjacencyFunc)
+	let prev = breadthFirstSearch("A", graph.sinks, adjacencyFunc);
 	let paths = shortestPathsFromSource("A", graph.sinks, prev);
 	expect(paths).toEqual([
 		[ { parent: "A-B", dir: FORWARD }, { parent: "B-C", dir: FORWARD } ],
@@ -50,7 +50,7 @@ test("cyclical dijkstra with direction restrictions", () => {
 	
 	const edgeCA = edgeBetween(graph.getAdjacent, "C", "A");
 	adjacencyFunc = filteredAdjacencyFunc(graph.getAdjacent, e => e === edgeCA);
-	prev = breadthFirstSearch("A", graph.sinks, adjacencyFunc)
+	prev = breadthFirstSearch("A", graph.sinks, adjacencyFunc);
 	paths = shortestPathsFromSource("A", graph.sinks, prev);
 	expect(paths).toEqual([
 		[ { parent: "C-A", dir: REVERSE } ],
