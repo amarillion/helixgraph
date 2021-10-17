@@ -4,6 +4,7 @@ import BaseGrid, { NORTH, SOUTH, EAST, WEST } from "../../lib/BaseGrid.js";
 import { prim, PRIM_LAST_ADDED_RANDOM_EDGES, PRIM_RANDOM } from "../../lib/prim.js";
 import { kruskal } from "../../lib/kruskal.js";
 import { Collapsible, Select } from "../util/components.js";
+import { assert } from "../../lib/assert.js";
 
 // for being able to find the opposite direction
 const reverse = {
@@ -81,23 +82,19 @@ class Cell {
 	}
 }
 
-// alternative maze generation algorithm
-// TODO: currently unusued
-export function binaryTree(grid) {
+// antoher alternative maze generation algorithm
+// THIS works only with a rectangular grid...
+// TODO: move to library
+export function binaryTree(grid, linkCells) {
 
-	for (const cell of grid.eachCell()) {
+	for (const cell of grid.eachNode()) {
 		
-		const neighbors = [];
+		const neighbors = [...grid.getAdjacent(cell)]
+			.filter(([key]) => key === NORTH || key === EAST);
 		
-		const north = grid.findNeighbor(cell, NORTH);
-		if (north) neighbors.push({ dir: NORTH, cell: north });
-		
-		const east = grid.findNeighbor(cell, EAST);
-		if (east) neighbors.push({ dir: EAST, cell: east });
-		
-		const item = pickOne(neighbors);
-		if (item) { 
-			cell.link(item.cell, item.dir, reverse[item.dir]); 
+		if (neighbors.length > 0) {
+			const [ dir, to ] = pickOne(neighbors);
+			linkCells(cell, dir, to); 
 		}
 	}
 }
@@ -105,43 +102,54 @@ export function binaryTree(grid) {
 customElements.define("hxg-collapsible", Collapsible);
 customElements.define("hxg-select", Select);
 
-window.onload = () => {
-	
-	const linkCells = (src, dir, dest) => { src.link(dest, dir, reverse[dir]); };
-	
-	const canvasWidth = (document.body.clientWidth);
-	const canvasHeight = (document.body.clientHeight);
-	const canvas = document.getElementById("myCanvas");
+const linkCells = (src, dir, dest) => { src.link(dest, dir, reverse[dir]); };
 
-	canvas.setAttribute("width", canvasWidth);
-	canvas.setAttribute("height", canvasHeight);
+class Main {
 
-	let algorithm = null;
+	refreshCanvas() {
+		const canvasWidth = (document.body.clientWidth);
+		const canvasHeight = (document.body.clientHeight);
 	
-	const algorithmSelect = document.getElementById("algorithm-select");
-	algorithmSelect.options = [
-		{ id: "recursivebt", name: "Recursive Backtracker" },
-		{ id: "kruskal", name: "Kruskal's algorithm" },
-		{ id: "prim_last_node", name: "Prim's algorithm (last node)" },
-		{ id: "prim_random", name: "Prim's algorithm (random)" },
-	];
+		this.canvas.setAttribute("width", canvasWidth);
+		this.canvas.setAttribute("height", canvasHeight);
 
-	const algorithmFactory = () => {
-		switch (algorithmSelect.value) {
+		this.refreshMaze();
+	}
+
+	refreshMaze() {
+		const canvasWidth = (document.body.clientWidth);
+		const canvasHeight = (document.body.clientHeight);
+
+		const cellFactory = (x, y) => new Cell(x, y);
+		const grid = new BaseGrid(
+			Math.floor((canvasWidth - margin * 2) / CELL_SIZE), 
+			Math.floor((canvasHeight - margin * 2) / CELL_SIZE),
+			cellFactory
+		);
+		this.algorithm(grid);
+		const ctx = this.canvas.getContext("2d");
+		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		for (const node of grid.eachNode()) {
+			node.render(ctx);
+		}
+	};
+
+	refreshAlgorithm() {
+		switch (this.algorithmSelect.value) {
 		case "recursivebt": 
-			algorithm = (grid) => recursiveBackTracker(
+			this.algorithm = (grid) => recursiveBackTracker(
 				grid.randomCell(), // start cell
 				n => grid.getAdjacent(n), 
 				linkCells );
 			break;
 		case "kruskal":
-			algorithm = (grid) => kruskal(
+			this.algorithm = (grid) => kruskal(
 				grid.eachNode(),
 				n => grid.getAdjacent(n), 
 				linkCells);
 			break;
 		case "prim_last_node": 
-			algorithm = (grid) => prim(
+			this.algorithm = (grid) => prim(
 				grid.randomCell(), // start cell
 				n => grid.getAdjacent(n), 
 				linkCells, {
@@ -149,38 +157,48 @@ window.onload = () => {
 				});
 			break;
 		case "prim_random": 
-			algorithm = (grid) => prim(
+			this.algorithm = (grid) => prim(
 				grid.randomCell(), // start cell
 				n => grid.getAdjacent(n), 
 				linkCells, {
 					tiebreaker: PRIM_RANDOM
 				});
 			break;
+		case "binary_tree": 
+			this.algorithm = (grid) => binaryTree(grid, linkCells);
+			break;
+		default:
+			assert(`Coding error - algorithm ${this.algorithmSelect.value} is unknown`);
 		}
 
-		return algorithm;
-	};
+		this.refreshMaze();
+	}
 
-	const refresh = (algorithm) => {
-		const cellFactory = (x, y) => new Cell(x, y);
-		const grid = new BaseGrid(
-			Math.floor((canvasWidth - margin * 2) / CELL_SIZE), 
-			Math.floor((canvasHeight - margin * 2) / CELL_SIZE),
-			cellFactory
-		);
-		algorithm(grid);
-		const ctx = canvas.getContext("2d");
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		for (const node of grid.eachNode()) {
-			node.render(ctx);
-		}
-	};
+	constructor() {
+		this.canvas = document.getElementById("myCanvas");
+	
+		this.algorithmSelect = document.getElementById("algorithm-select");
+		this.algorithmSelect.options = [
+			{ id: "recursivebt", name: "Recursive Backtracker" },
+			{ id: "kruskal", name: "Kruskal's algorithm" },
+			{ id: "prim_last_node", name: "Prim's algorithm (last node)" },
+			{ id: "prim_random", name: "Prim's algorithm (random)" },
+			{ id: "binary_tree", name: "Binary tree" }
+		];
+	
+		this.algorithmSelect.callback = () => {
+			this.refreshAlgorithm();
+		};
+	
+		window.onresize = () => {
+			this.refreshCanvas();
+		};
 
-	algorithmSelect.callback = () => {
-		algorithm = algorithmFactory();
-		refresh(algorithm);
-	};
+		this.refreshCanvas();
+	}
 
-	algorithm = algorithmFactory();
-	refresh(algorithm);
+}
+
+window.onload = () => {
+	new Main();
 };
