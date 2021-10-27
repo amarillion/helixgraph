@@ -9,7 +9,9 @@
 		"graphs",
 		"algorithms",
 		"games",
-		"gamedev"
+		"gamedev",
+		"maze",
+		"maze-generator"
 	],
 	"main": "lib/index.js",
 	"type": "module",
