@@ -12,10 +12,3 @@ export declare function mmArrayPush<K, V>(map: Map<K, V[]>, key: K, value: V): b
  * if key exists, add to the Set
  */
 export declare function mmSetAdd<K, V>(map: Map<K, Set<V>>, key: K, value: V): boolean;
-/**
- * Map<key, ???>
- *
- * if key doesn't exist, call val = createFunc(), addFunc(val), and put in the map.
- * if key exists, skip createFunc, call addFunc(val)
- */
-export declare function mmCreateAdd<K, V>(map: Map<K, V>, key: K, createFunc: () => V, addFunc: (v: V) => void): boolean;

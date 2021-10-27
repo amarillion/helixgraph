@@ -9,4 +9,6 @@ export declare class Stream<T> {
     map<U>(func: (t: T) => U): Stream<U>;
     size(): number;
     collect(): T[];
+    reduce<U>(fn: (cur: T, acc: U) => U, init: U): U;
+    max(): T;
 }
