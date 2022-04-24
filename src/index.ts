@@ -11,16 +11,17 @@ export {
 } from "./astarHeuristics.js";
 
 export {
-	recursiveBackTracker
+	recursiveBackTracker, RecursiveBackTrackerIter
 } from "./recursiveBacktracker.js";
 
 export {
 	prim,
+	PrimIter,
 	PRIM_LAST_ADDED,
 	PRIM_LAST_ADDED_RANDOM_EDGES,
 	PRIM_RANDOM
 } from "./prim.js";
 
 export {
-	kruskal
+	kruskal, KruskalIter
 } from "./kruskal.js";

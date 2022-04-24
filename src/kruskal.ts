@@ -8,18 +8,18 @@ type EdgeType<N, E> = {
 	dest: N;
 };
 
-class KruskalState<N, E> {
+export class KruskalIter<N, E> implements IterableIterator<void> {
 
 	edges: EdgeType<N, E>[];
-	linkCells: LinkFunc<N, E>;
 	setByNode: Map<N, number>;
 	nodesBySet: Map<number, N[]>;
+	linkNodes: LinkFunc<N, E>;
 
-	constructor(nodeIterator : Iterable<N>, getUndirectedEdges : AdjacencyFunc<N, E>, linkCells : LinkFunc<N, E>) {
+	constructor(nodeIterator : Iterable<N>, getUndirectedEdges : AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>) {
 		this.edges = [];
-		this.linkCells = linkCells;
 		this.setByNode = new Map();
 		this.nodesBySet = new Map();
+		this.linkNodes = linkNodes;
 
 		for (const node of nodeIterator) {
 			const setIdx = this.setByNode.size;
@@ -30,11 +30,12 @@ class KruskalState<N, E> {
 				this.edges.push({ src: node, dir, dest });
 			}
 		}
+
+		shuffle(this.edges);
 	}
 
-	merge(leftNode, dir, rightNode) {
-		this.linkCells(leftNode, dir, rightNode);
-
+	merge(leftNode: N, dir: E, rightNode: N) {
+		this.linkNodes(leftNode, dir, rightNode);
 		const winnerIdx = this.setByNode.get(leftNode);
 		const loserIdx = this.setByNode.get(rightNode);
 		const winners = this.nodesBySet.get(winnerIdx);
@@ -46,26 +47,34 @@ class KruskalState<N, E> {
 		this.nodesBySet.delete(loserIdx);
 	}
 
-	canMerge(leftNode, rightNode) {
+	canMerge(leftNode: N, rightNode: N) {
 		return this.setByNode.get(leftNode) !== this.setByNode.get(rightNode);
 	}
 
-	run() {
-		const edges = this.edges;
-		shuffle(edges);
-
-		let maxIt = 10000000;
-		while(edges.length > 0) {
-			const { src, dir, dest } = edges.pop();
+	next() {
+		while(true) {
+			if (this.edges.length === 0) return { value: undefined, done: true };
+			const { src, dir, dest } = this.edges.pop();
 			if (this.canMerge(src, dest)) {
 				this.merge(src, dir, dest);
+				return { value: undefined, done: this.edges.length === 0 };
 			}
-			if (--maxIt < 0) { throw new Error("Infinite loop detected"); }
 		}
+	}
+
+	[Symbol.iterator]() {
+		// assumes you iterate only once, unlike iterables for data collections
+		// this is valid, although not common practice
+		return this;
 	}
 }
 
-export function kruskal<N, E>(nodeIterator : Iterable<N>, getUndirectedEdges : AdjacencyFunc<N, E>, linkCells : LinkFunc<N, E>) {
-	const state = new KruskalState(nodeIterator, getUndirectedEdges, linkCells);
-	state.run();
+export function kruskal<N, E>(nodeIterator : Iterable<N>, getUndirectedEdges : AdjacencyFunc<N, E>, linkNodes : LinkFunc<N, E>) {
+	const iter = new KruskalIter(nodeIterator, getUndirectedEdges, linkNodes);
+	let maxIt = 10000000;
+	
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	for (const _ of iter) {
+		if (--maxIt < 0) { throw new Error("Infinite loop detected"); }
+	}
 }

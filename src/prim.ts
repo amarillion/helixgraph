@@ -46,10 +46,95 @@ export const PRIM_RANDOM : PrimTieBreaker = (() => {
 	};
 })();
 
+// only used internally
+type EdgeType<N, E> = {
+	src: N;
+	dir: E;
+	dest: N;
+	weight: number;
+	tiebreaker: number;
+};
+
+export class PrimIter<N, E> implements IterableIterator<void> {
+
+	collectedNodes: Set<N>;
+	edgeQueue: PriorityQueue<EdgeType<N, E>>;
+	tiebreaker: PrimTieBreaker;
+	getWeight: WeightFunc<N, E>;
+	getAdjacent: AdjacencyFunc<N, E>;
+	linkNodes: LinkFunc<N, E>;
+
+	constructor(startNode : N, 
+		getAdjacent : AdjacencyFunc<N, E>,
+		linkNodes: LinkFunc<N, E>,
+		{
+			getWeight = () => 1,
+			tiebreaker = PRIM_LAST_ADDED_RANDOM_EDGES
+		} : {
+			getWeight?: WeightFunc<N, E>,
+			tiebreaker?: PrimTieBreaker
+		} = {}
+	) {
+		this.getAdjacent = getAdjacent;
+		this.getWeight = getWeight;
+		this.tiebreaker = tiebreaker;
+
+		this.collectedNodes = new Set<N>();
+		this.edgeQueue = new PriorityQueue<EdgeType<N, E>>((a, b) => b.weight - a.weight || b.tiebreaker - a.tiebreaker);
+		
+		tiebreaker.start();
+	
+		this.collectNode(startNode);
+		this.linkNodes = linkNodes;
+	}
+
+	collectNode(node : N) {
+		for (const [ edge, dest ] of this.getAdjacent(node)) {
+			
+			// choice of tiebreaker determines the texture of the maze. 
+			// a random tiebreaker creates a texture more like kruskal or random prim
+			// a decreasing tiebreaker creates a texture more like the recursive backtracker
+			this.edgeQueue.push({ 
+				src: node, 
+				dir: edge, 
+				dest, 
+				weight: this.getWeight(edge, node), 
+				tiebreaker: this.tiebreaker.next()
+			});
+		}
+		this.tiebreaker.nextNode();
+		this.collectedNodes.add(node);
+	}
+
+	canLinkTo(destNode : N) {
+		return !this.collectedNodes.has(destNode);
+	}
+
+	next() {
+		while(true) {
+			if (this.edgeQueue.isEmpty()) {
+				return { value: undefined, done: true };
+			}
+		
+			const { src, dir, dest } = this.edgeQueue.pop();
+	
+			if (this.canLinkTo(dest)) {
+				this.collectNode(dest);
+				this.linkNodes(src, dir, dest);
+				return { value: undefined, done: false };
+			}
+		}
+	}
+
+	[Symbol.iterator]() {
+		return this;
+	}
+}
+
 export function prim<N, E>(
 	startNode : N, 
 	getAdjacent : AdjacencyFunc<N, E>, 
-	linkCells : LinkFunc<N, E>, 
+	linkNodes : LinkFunc<N, E>, 
 	{
 		maxIterations = 0,
 		getWeight = () => 1,
@@ -60,48 +145,10 @@ export function prim<N, E>(
 		tiebreaker?: PrimTieBreaker
 	} = {}
 ) {
-	const collectedNodes = new Set<N>();
-
-	// only used internally
-	type EdgeType = {
-		src: N;
-		dir: E;
-		dest: N;
-		weight: number;
-		tiebreaker: number;
-	};
-
-	const edgeQueue = new PriorityQueue<EdgeType>((a, b) => b.weight - a.weight || b.tiebreaker - a.tiebreaker);
-	
-	tiebreaker.start();
-	const collectNode = (node : N) => {
-		for (const [ edge, dest ] of getAdjacent(node)) {
-			
-			// choice of tiebreaker determines the texture of the maze. 
-			// a random tiebreaker creates a texture more like kruskal or random prim
-			// a decreasing tiebreaker creates a texture more like the recursive backtracker
-			edgeQueue.push({ src: node, dir: edge, dest, weight: getWeight(edge, node), tiebreaker: tiebreaker.next() });
-		}
-		tiebreaker.nextNode();
-		collectedNodes.add(node);
-	};
-
-	collectNode(startNode);
-
-	const canLinkTo = (destNode : N) => !collectedNodes.has(destNode); 
-
-	let i = maxIterations;
-	while(!edgeQueue.isEmpty()) {
-		
-		// then continue
-		const { src, dir, dest } = edgeQueue.pop();
-
-		if (canLinkTo(dest)) {
-			linkCells(src, dir, dest);
-			collectNode(dest);
-		}
-
-		i--; // i 0 -> -1 means infinite
-		if (i === 0) break;
+	const iter = new PrimIter(startNode, getAdjacent, linkNodes, { getWeight, tiebreaker });
+	let maxIt = maxIterations;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	for (const _ of iter) {
+		if (--maxIt === 0) { throw new Error("Infinite loop detected"); }
 	}
 }
