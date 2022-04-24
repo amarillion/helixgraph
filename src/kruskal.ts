@@ -69,12 +69,16 @@ export class KruskalIter<N, E> implements IterableIterator<void> {
 	}
 }
 
-export function kruskal<N, E>(nodeIterator : Iterable<N>, getUndirectedEdges : AdjacencyFunc<N, E>, linkNodes : LinkFunc<N, E>) {
+export function kruskal<N, E>(nodeIterator : Iterable<N>, getUndirectedEdges : AdjacencyFunc<N, E>, linkNodes : LinkFunc<N, E>, 
+	{ maxIterations = 0 } : { maxIterations?: number } = {}
+) {
 	const iter = new KruskalIter(nodeIterator, getUndirectedEdges, linkNodes);
-	let maxIt = 10000000;
+	let maxIt = maxIterations;
 	
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	for (const _ of iter) {
-		if (--maxIt < 0) { throw new Error("Infinite loop detected"); }
+		if (maxIt > 0) {
+			if (--maxIt === 0) { throw new Error("Infinite loop detected"); }
+		}
 	}
 }

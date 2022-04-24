@@ -25,3 +25,15 @@ test("Kruskal's algorithm", () => {
 	// but total potential edges is 4
 	expect(adjacentCount).toBe(8);
 });
+
+test("Kruskal's algorithm max iterations", () => {
+	const w = 2;
+	const h = 2;
+	const graph = new GridGraph(w, h);
+	// given a grid of 2x2
+	const linkNodes = (src, dir, dest) => src.link(dest, dir, reverse[dir]);
+		
+	expect(() =>
+		kruskal(graph.eachNode(), c => graph.getAdjacent(c), linkNodes, { maxIterations: 1 })
+	).toThrow();
+});
