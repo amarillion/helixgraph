@@ -36,10 +36,15 @@ export class KruskalIter<N, E> implements IterableIterator<void> {
 
 	merge(leftNode: N, dir: E, rightNode: N) {
 		this.linkNodes(leftNode, dir, rightNode);
-		const winnerIdx = this.setByNode.get(leftNode);
-		const loserIdx = this.setByNode.get(rightNode);
+		const leftIdx = this.setByNode.get(leftNode);
+		const rightIdx = this.setByNode.get(rightNode);
+		const leftCount = this.nodesBySet.get(leftIdx).length;
+		const rightCount = this.nodesBySet.get(rightIdx).length;
+		// when merging two sets of nodes, keep the largest one unchanged
+		const winnerIdx = leftCount > rightCount ? leftIdx : rightIdx;
+		const loserIdx = leftCount > rightCount ? rightIdx : leftIdx;
+		
 		const winners = this.nodesBySet.get(winnerIdx);
-
 		for (const loser of this.nodesBySet.get(loserIdx)) {
 			winners.push(loser);
 			this.setByNode.set(loser, winnerIdx);
