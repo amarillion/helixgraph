@@ -8,7 +8,7 @@ There are many ways to represent a graph in computer memory. Helixgraph puts few
 
 Most algorithms can work with a graph that is specified using only two declarations: 1. a *getAdjacent* function, and 2. one or more *source nodes*. 
 
-*getAdjacent* should be a function that, given a node, returns an iterable of [ edge, node ] pairs that represent neighboring edges and their nodes.
+*getAdjacent* should be a function that, given a node, returns an iterable of [ edge, node ] pairs that represent neighboring edges and their nodes. Read on for an example that will make this more clear.
 
 ## Representing nodes
 
@@ -44,9 +44,9 @@ const edges = ['A-B', 'B-C', 'C-A', 'A-D'];
 
 ![A simple directed graph](./simple.png)
 
-To make helixgraph work with this data, we need to write a getAdjacent function, that takes a node as parameter, and returns an array of edge, node pairs.
+To make helixgraph work with this data, we need to write a getAdjacent function, that takes a node as parameter, and returns an *iterable* of [edge, node] pairs. An array is an iterable too, so we can return an array to keep things simple.
 
-So: `getAdjacent('A')` should return `[ ['A-B', 'B'], ['A-D', 'D'] ]`, and `getAdjacent('B')` should return `[ ['B-C', 'C'] ]`. We assume that the edges are directed, i.e. you can go only from A to B, not in reverse (for more on that, see below).
+So: `getAdjacent('A')` should return `[ ['A-B', 'B'], ['A-D', 'D'] ]`, and `getAdjacent('B')` should return `[ ['B-C', 'C'] ]`. As mentioned, edges are directed, i.e. you can go only from A to B, not in reverse (for more on that, see below).
 
 a few custom helper functions can make this happen:
 
@@ -131,7 +131,7 @@ To get the node at position (1,2) out, we can do:
 node = map.get[1][2]
 ```
 
-And to define its adjacents, we need something like the code below. For fun, we'll add a twist: we'll write our function as a [generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*), instead of returning an array. As mentioned before, your getAdjacent function should return an [iterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols), which can be an array, or a generator. Helixgraph algorithms will work either way.
+And to define its adjacents, we need something like the code below. For fun, we'll add a twist: we'll write our `getAdjacent` function as a [generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*), instead of returning an array. As mentioned before, your getAdjacent function should return an [iterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols), which can be an array, or a generator. Helixgraph algorithms will work either way.
 
 ```js
 function *getAdjacent(node) {
