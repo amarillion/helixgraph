@@ -5,7 +5,7 @@ A library of path finding & graph algorithms for game development, for JavaScrip
 This library includes
 
 * path finding algorithms such as A*, dijkstra, and breadth-first-search
-* a random maze generation algorithm
+* a few maze generation algorithms
 
 The algorithms are suitable for tilemaps, regular grids, as well as (non-regular) graphs.
 
