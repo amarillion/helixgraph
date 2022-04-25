@@ -1,3 +1,10 @@
+version 0.7
+
+- Create IteratableIterators for minimum spanning tree algorithms: RecursiveBacktrackerIter, KruskalIter and PrimIter
+- Backwards breaking change:
+	- Renamed KruskalState to KruskalIter. 
+- add new example, based on p5.js, that shows how the kruskal algorithm works
+
 version 0.6
 
 - Added prim and kruskal minimum spannig tree algorithms, for maze generation
