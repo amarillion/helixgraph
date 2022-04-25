@@ -1,4 +1,5 @@
 import { AdjacencyFunc, LinkFunc, WeightFunc } from "./definitions.js";
+import { PriorityQueue } from "./PriorityQueue.js";
 export interface PrimTieBreaker {
     start(): void;
     nextNode(): void;
@@ -20,8 +21,35 @@ export declare const PRIM_LAST_ADDED: PrimTieBreaker;
  * Produces low-river mazes with lots of branches and lots of short dead-ends.
  */
 export declare const PRIM_RANDOM: PrimTieBreaker;
-export declare function prim<N, E>(startNode: N, getAdjacent: AdjacencyFunc<N, E>, linkCells: LinkFunc<N, E>, { maxIterations, getWeight, tiebreaker }?: {
+declare type EdgeType<N, E> = {
+    src: N;
+    dir: E;
+    dest: N;
+    weight: number;
+    tiebreaker: number;
+};
+export declare class PrimIter<N, E> implements IterableIterator<void> {
+    collectedNodes: Set<N>;
+    edgeQueue: PriorityQueue<EdgeType<N, E>>;
+    tiebreaker: PrimTieBreaker;
+    getWeight: WeightFunc<N, E>;
+    getAdjacent: AdjacencyFunc<N, E>;
+    linkNodes: LinkFunc<N, E>;
+    constructor(startNode: N, getAdjacent: AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>, { getWeight, tiebreaker }?: {
+        getWeight?: WeightFunc<N, E>;
+        tiebreaker?: PrimTieBreaker;
+    });
+    collectNode(node: N): void;
+    canLinkTo(destNode: N): boolean;
+    next(): {
+        value: any;
+        done: boolean;
+    };
+    [Symbol.iterator](): this;
+}
+export declare function prim<N, E>(startNode: N, getAdjacent: AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>, { maxIterations, getWeight, tiebreaker }?: {
     maxIterations?: number;
     getWeight?: WeightFunc<N, E>;
     tiebreaker?: PrimTieBreaker;
 }): void;
+export {};
