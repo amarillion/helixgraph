@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js"></script>
+  <script language="javascript" type="module">
+	import { AnimatedMazeComponent } from './animated-maze-component.js';
+
+	customElements.define('animated-maze', AnimatedMazeComponent)
+	const elt = document.createElement('animated-maze');
+	document.querySelector('body').appendChild(elt);
+
+  </script>
+
+  <!-- This line removes any default padding and style.
+       You might only need one of these values set. -->
+  <style> body { padding: 0; margin: 0; width: 100%; height: 100vh; overflow: hidden; } </style>
+</head>
+
+<body>
+</body>
+</html>
