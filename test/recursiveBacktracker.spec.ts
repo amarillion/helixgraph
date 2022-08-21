@@ -1,5 +1,5 @@
 import { GridGraph, reverse } from "./helper/gridGraph.js";
-import { recursiveBackTracker } from "../src/recursiveBacktracker";
+import { recursiveBackTracker } from "../src/recursiveBacktracker.js";
 import { Stream } from "../src/iterableUtils.js";
 
 test("Recursive backtracker", () => {

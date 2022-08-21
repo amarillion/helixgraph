@@ -1,4 +1,4 @@
-import { manhattanStraightHeuristic } from "../src/astarHeuristics";
+import { manhattanStraightHeuristic } from "../src/astarHeuristics.js";
 
 test("Cross product heuristic", () => {
 	

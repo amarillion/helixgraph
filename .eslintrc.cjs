@@ -8,7 +8,10 @@ module.exports = {
 	"extends": [
 		"eslint:recommended",
 		"plugin:@typescript-eslint/eslint-recommended",
-		"plugin:@typescript-eslint/recommended"
+		"plugin:@typescript-eslint/recommended",
+	],
+	"plugins": [
+		"import"
 	],
 	"parserOptions": {
 		"sourceType": "module",
@@ -48,6 +51,7 @@ module.exports = {
 			{ "allowAfterThis": true }
 		],
 		// allow while(true)
-		"no-constant-condition": ["error", { "checkLoops": false }]
+		"no-constant-condition": ["error", { "checkLoops": false }],
+		"import/extensions": [ "error", "always" ]
 	}
 }
