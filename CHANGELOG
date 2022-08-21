@@ -1,3 +1,8 @@
+version 0.7.1
+
+- Updated dev dependencies
+- Consistent use of file extensions in imports
+
 version 0.7
 
 - Create IteratableIterators for minimum spanning tree algorithms: RecursiveBacktrackerIter, KruskalIter and PrimIter
