@@ -6,7 +6,8 @@
 		"outDir": "./lib",
 		"declaration": true,
 		"moduleResolution": "node",
-		"esModuleInterop": true
+		"esModuleInterop": true,
+		"noImplicitAny": true
 	},
 	"include": ["./src"],
 	"exclude": ["**/*.spec.ts"]

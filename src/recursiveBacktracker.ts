@@ -16,7 +16,7 @@ export class RecursiveBackTrackerIter<N, E> implements IterableIterator<void> {
 		this.visited.add(start);
 	}
 
-	next() {
+	next(): IteratorResult<void> {
 		while(true) {
 			if (this.stack.length === 0) return { value: undefined, done: true };
 

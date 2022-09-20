@@ -56,7 +56,7 @@ export class KruskalIter<N, E> implements IterableIterator<void> {
 		return this.setByNode.get(leftNode) !== this.setByNode.get(rightNode);
 	}
 
-	next() {
+	next(): IteratorResult<void> {
 		while(true) {
 			if (this.edges.length === 0) return { value: undefined, done: true };
 			const { src, dir, dest } = this.edges.pop();

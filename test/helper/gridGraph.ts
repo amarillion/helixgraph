@@ -1,4 +1,4 @@
-import { TemplateGrid } from "../../src/BaseGrid.js";
+import { DirectionType, EAST, NORTH, SOUTH, TemplateGrid, WEST } from "../../src/BaseGrid.js";
 
 export const MAP = [
 //   01234567890123456789
@@ -11,40 +11,38 @@ export const MAP = [
 	".....##............."
 ];
 
-export const NORTH = 0x01;
-export const EAST = 0x02;
-export const SOUTH = 0x04;
-export const WEST = 0x08;
-
-export const reverse = {
+export const reverse : { [dir: number]: DirectionType } = {
 	[NORTH]: SOUTH,
 	[SOUTH]: NORTH,
 	[EAST]: WEST,
 	[WEST]: EAST
 };
 
-class Cell {
+export class Cell {
 
 	x: number;
 	y: number;
 	tile: unknown;
 	links: { [key: number]: Cell };
 
-	constructor(x, y) {
+	constructor(x: number, y: number) {
 		this.x = x;
 		this.y = y;
 		this.links = {};
 	}
 
-	link(other, dir, reverse) {
+	link(other: Cell, dir: DirectionType, reverse?: DirectionType) {
+		let result = true;
 		if (dir in this.links) {
 			console.log("WARNING: creating link that already exists: ", { dir, reverse });
+			result = false;
 		}
 		this.links[dir] = other;
 		if (reverse) { other.link(this, reverse); }
+		return result;
 	}
 
-	linked(dir) {
+	linked(dir: DirectionType) {
 		return dir in this.links;
 	}
 
@@ -55,7 +53,7 @@ class Cell {
 
 export class GridGraph extends TemplateGrid<Cell> {
 
-	static fromMask(mask) {
+	static fromMask(mask: string[]) {
 		const width = mask[0].length;
 		const height = mask.length;
 		const result = new GridGraph(width, height);
@@ -63,7 +61,7 @@ export class GridGraph extends TemplateGrid<Cell> {
 		return result;
 	}
 
-	constructor(width, height, cellFactory = (x, y) => new Cell(x, y)) {
+	constructor(width: number, height: number, cellFactory = (x: number, y: number) => new Cell(x, y)) {
 		super(width, height, cellFactory);
 	}
 
@@ -71,7 +69,7 @@ export class GridGraph extends TemplateGrid<Cell> {
 		return 1;
 	}
 	
-	getLinks(n) {
+	getLinks(n: Cell) {
 		return Object.entries(n.links);
 	}
 

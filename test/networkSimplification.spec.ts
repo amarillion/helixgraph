@@ -2,12 +2,14 @@ import { T_JUNCTION, LINEAR_THREE, DEAD_END, CYCLICAL } from "./helper/graphData
 import { indexGraph, FORWARD, REVERSE } from "./helper/indexGraph.js";
 import { simplify } from "../src/simplify.js";
 import { edgeBetween, edgesBetween } from "../src/pathFinding.js";
+import { assert } from "../src/assert.js";
 
 test("Simplify network: linear", () => {
 	const graph = indexGraph(LINEAR_THREE);
+	assert(graph.isSource && graph.isSink);
 	const graph2 = simplify("A", graph.isSource, graph.isSink, graph.getAdjacent);
 	expect(graph2.nodes).toEqual(["A", "C"]);
-	expect(graph2.getAdjacent("A")[0][0]).toEqual({
+	expect([...graph2.getAdjacent("A")][0][0]).toEqual({
 		weight: 2,
 		edgeChain: [{ parent: "A-B", dir: FORWARD }, { parent: "B-C", dir: FORWARD } ],
 		nodeChain: ["A", "B"],
@@ -18,6 +20,7 @@ test("Simplify network: linear", () => {
 
 test("Simplify network: t-junction", () => {
 	const graph = indexGraph(T_JUNCTION);
+	assert(graph.isSource && graph.isSink);
 	const graph2 = simplify("A", graph.isSource, graph.isSink, graph.getAdjacent);
 	expect(graph2.nodes).toEqual(["A", "C", "E", "G"]);
 
@@ -48,6 +51,7 @@ test("Simplify network: t-junction", () => {
 
 test("Simplify network: dead-end", () => {
 	const graph = indexGraph(DEAD_END);
+	assert(graph.isSource && graph.isSink);
 	const graph2 = simplify("A", graph.isSource, graph.isSink, graph.getAdjacent);
 	expect(graph2.nodes).toEqual(["A", "C", "E"]);
 
@@ -66,6 +70,7 @@ test("Simplify network: dead-end", () => {
 
 test("Simplify network: cycle", () => {
 	const graph = indexGraph(CYCLICAL);
+	assert(graph.isSource && graph.isSink);
 	const graph2 = simplify("A", graph.isSource, graph.isSink, graph.getAdjacent);
 	expect(graph2.nodes).toEqual(["A", "B", "D", "F"]);
 

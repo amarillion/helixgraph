@@ -12,7 +12,7 @@ export interface PrimTieBreaker {
  * Produces windy mazes with high river, like the recursive backtracker.
  */
 export const PRIM_LAST_ADDED_RANDOM_EDGES : PrimTieBreaker = (() => { 
-	let counter;
+	let counter: number;
 	return {
 		start: () => counter = 0,
 		nextNode: () => --counter,
@@ -26,7 +26,7 @@ export const PRIM_LAST_ADDED_RANDOM_EDGES : PrimTieBreaker = (() => {
  * Relies more on the weight function to do something interesting.
  */
 export const PRIM_LAST_ADDED : PrimTieBreaker = (() => { 
-	let counter;
+	let counter: number;
 	return {
 		start: () => counter = 0,
 		nextNode: () => {},
@@ -110,7 +110,7 @@ export class PrimIter<N, E> implements IterableIterator<void> {
 		return !this.collectedNodes.has(destNode);
 	}
 
-	next() {
+	next(): IteratorResult<void> {
 		while(true) {
 			if (this.edgeQueue.isEmpty()) {
 				return { value: undefined, done: true };

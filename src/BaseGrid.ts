@@ -1,10 +1,12 @@
 import { assert } from "./assert.js";
 import { randomInt } from "./random.js";
 
-export const NORTH = 0x01;
-export const EAST = 0x02;
-export const SOUTH = 0x04;
-export const WEST = 0x08;
+export type DirectionType = 1|2|4|8;
+
+export const NORTH: DirectionType = 0x01;
+export const EAST: DirectionType = 0x02;
+export const SOUTH: DirectionType = 0x04;
+export const WEST: DirectionType = 0x08;
 
 const DEFAULT_CELL_FACTORY = (x : number, y : number) => { return { x, y }; };
 
@@ -130,7 +132,7 @@ export class TemplateGrid<T> {
 	
 	Should be overridden to implement different grid topologies.
 	*/
-	*getAdjacent(n : { x : number, y : number }) : Generator<[number, T]> {
+	*getAdjacent(n : { x : number, y : number }) : Generator<[DirectionType, T]> {
 		let dx = 0;
 		let dy = -1;
 		const x = n.x;

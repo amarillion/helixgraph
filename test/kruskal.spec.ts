@@ -1,6 +1,7 @@
-import { GridGraph, reverse } from "./helper/gridGraph.js";
+import { Cell, GridGraph, reverse } from "./helper/gridGraph.js";
 import { Stream } from "../src/iterableUtils.js";
 import { kruskal } from "../src/kruskal.js";
+import { DirectionType } from "../src/BaseGrid.js";
 
 test("Kruskal's algorithm", () => {
 
@@ -9,7 +10,7 @@ test("Kruskal's algorithm", () => {
 	const graph = new GridGraph(w, h);
 	
 	// given a grid of 2x2
-	const linkNodes = (src, dir, dest) => src.link(dest, dir, reverse[dir]);
+	const linkNodes = (src: Cell, dir: DirectionType, dest: Cell) => src.link(dest, dir, reverse[dir]);
 	
 	kruskal(graph.eachNode(), c => graph.getAdjacent(c), linkNodes);
 
@@ -31,7 +32,7 @@ test("Kruskal's algorithm max iterations", () => {
 	const h = 2;
 	const graph = new GridGraph(w, h);
 	// given a grid of 2x2
-	const linkNodes = (src, dir, dest) => src.link(dest, dir, reverse[dir]);
+	const linkNodes = (src: Cell, dir: DirectionType, dest: Cell) => src.link(dest, dir, reverse[dir]);
 		
 	expect(() =>
 		kruskal(graph.eachNode(), c => graph.getAdjacent(c), linkNodes, { maxIterations: 1 })

@@ -1,6 +1,8 @@
-import { GridGraph, reverse } from "./helper/gridGraph.js";
+import { Cell, GridGraph, reverse } from "./helper/gridGraph.js";
 import { recursiveBackTracker } from "../src/recursiveBacktracker.js";
 import { Stream } from "../src/iterableUtils.js";
+import { assert } from "../src/assert.js";
+import { DirectionType } from "../src/BaseGrid.js";
 
 test("Recursive backtracker", () => {
 
@@ -11,7 +13,8 @@ test("Recursive backtracker", () => {
 	// given a grid of 2x2
 	// apply recursive backtracker
 	const start = graph.get(0, 0);
-	const linkNodes = (src, dir, dest) => src.link(dest, dir, reverse[dir]);
+	assert(start);
+	const linkNodes = (src: Cell, dir: DirectionType, dest: Cell) => src.link(dest, dir, reverse[dir]);
 	recursiveBackTracker(start, c => graph.getAdjacent(c), linkNodes);
 
 	let linkCount = 0;
