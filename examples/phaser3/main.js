@@ -2,11 +2,22 @@
 /* global Phaser */
 
 import { assert } from "../../lib/assert.js";
-import { EAST, NORTH, SOUTH, TemplateGrid, WEST } from "../../lib/BaseGrid.js";
-import { KruskalIter } from "../../lib/kruskal.js";
-import { recursiveBackTracker, RecursiveBackTrackerIter } from "../../lib/recursiveBacktracker.js";
+import { TemplateGrid } from "../../lib/BaseGrid.js";
+import { RecursiveBackTrackerIter } from "../../lib/recursiveBacktracker.js";
 
-// for being able to find the opposite direction
+const MSEC_PER_ITERATION = 20;
+const TILE_WIDTH = 64;
+const TILE_HEIGHT = 64;
+
+const NORTH = 1;
+const EAST = 2;
+const SOUTH = 4;
+const WEST = 8;
+
+const HORIZONTAL = EAST|WEST;
+const VERTICAL = NORTH|SOUTH;
+
+// for being able to find opposite directions
 const REVERSE = {
 	[NORTH]: SOUTH,
 	[SOUTH]: NORTH,
@@ -14,10 +25,8 @@ const REVERSE = {
 	[WEST]: EAST
 };
 
-const HORIZONTAL = EAST|WEST;
-const VERTICAL = NORTH|SOUTH;
-
-const terrain = {
+// Corresponding tile-idx for every combination of the 4 cardinal directions.
+const TILE_IDX_BY_TERRAIN = {
 	[EAST]: 0,
 	[EAST|WEST]: 1,
 	[WEST]: 2,
@@ -36,7 +45,6 @@ const terrain = {
 	[NORTH]: 15,
 };
 
-// cell implementation that keeps track of links to neighboring cells
 class Node {
 
 	constructor(x, y, grid, onChange) {
@@ -46,16 +54,10 @@ class Node {
 		this.onChange = onChange;
 		this.links = {};
 		this.tunnel = null;
+		this.color = null;
 	}
 
 	getByDir(dir) {
-		// prefer to return existing links TO tunnel if available, 
-		if (dir in this.links) return this.links[dir];
-
-		// if this node is a tunnel, only existing links can be returned, even if they are undefined
-		if (this.tunnel) return this.links[dir];
-
-		// otherwise look up from grid.
 		switch(dir) {
 		case NORTH: return this.grid.get(this.x, this.y - 1);
 		case  EAST: return this.grid.get(this.x + 1, this.y);
@@ -66,24 +68,32 @@ class Node {
 
 	createTunnel() {
 		assert(!this.tunnel, "Error, created tunnel twice");
-		this.tunnel = new Node(this.x, this.y, this.grid, () => { console.log("TUNNEL ONCHANGE"); this.onChange(this.tunnel); } );
-		this.tunnel.tunnel = this; // bidirectional link
+		this.tunnel = new Node(this.x, this.y, this.grid, () => { this.onChange(this.tunnel); } );
+		this.tunnel.tunnel = this; // A tunnel is a pair of nodes that refer to each other
 		return this.tunnel;
 	}
 
-	*getAdjacent() {
+	/** iterates over adjacent pristine nodes, but can also offer up potential new tunnels */
+	*getOpenLinks() {
+		if (this.tunnel) return;
+
 		for (const dir of [NORTH, EAST, SOUTH, WEST]) {
 			const adjacent = this.getByDir(dir);
 			if (adjacent) {
-				yield [{ dir, tunnel: false }, adjacent];
+				// only pristine nodes
+				if (Object.keys(adjacent.links).length === 0) {
+					yield [{ dir, tunnel: false }, adjacent];
+				}
 				
 				// see if we can create potentially a new tunnel
-				// TODO: tunnel can be any length as long as we pass orthogonal passages.
-				const adjacent2 = adjacent.getByDir(dir);
-				const orthogonal = adjacent.isOrthogonal(dir);
-				const alreadyHasTunnel = Boolean(adjacent.tunnel);
-				if (adjacent2 && orthogonal && !alreadyHasTunnel) {
-					yield [{ dir, tunnel: true }, adjacent2 ];
+				const otherSide = adjacent.getByDir(dir);
+				if (otherSide) {
+					const orthogonal = adjacent.isOrthogonal(dir);
+					const alreadyHasTunnel = Boolean(adjacent.tunnel);
+					const otherSidePristine = Object.keys(otherSide.links).length === 0;
+					if (otherSidePristine && orthogonal && !alreadyHasTunnel) {
+						yield [{ dir, tunnel: true }, otherSide ];
+					}
 				}
 
 			}
@@ -92,48 +102,37 @@ class Node {
 
 	isOrthogonal(dir) {
 		const dirSet = this.dirSet();
-		switch(dir) {
-		case NORTH: case SOUTH: return dirSet === HORIZONTAL;
-		case EAST: case WEST: return dirSet === VERTICAL;
-		default: assert(false);
-		}
+		return (dirSet === HORIZONTAL || dirSet === VERTICAL) && ((dir & dirSet) === 0);
 	}
 
 	/**
 	 * @param {*} other cell to link to
 	 * @param {*} dir one of NORTH, EAST, SOUTH, WEST
+	 * @param {*} reverse optional - if defined, also create link in this reverse direction
 	 */
 	link(other, dir, reverse) {
-		if (dir in this.links) {
-			// console.log("LINK already exists.");
-			// This can happen, due to the way that tunnel edges skip a node. 
-			// The middle node is unknown to the algorithm and needs to be visted when backtra
-			// alternative would be to create a virtual tunnel node that becomes real when linked...
-			return;
-		}
+		assert (!(dir in this.links), "Trying to create link twice");
 		this.links[dir] = other;
 		if (reverse) {
-			// call recursively once!
+			// call recursively just once!
 			other.link(this, reverse);
 		}
 		this.onChange(this);
 	}
 
-	makeEdge(other, edge) {
+	makeEdge(other, edge, color) {
+		this.color = color;
+		other.color = color;
 		if (edge.tunnel) {
 			const adjacent = this.getByDir(edge.dir);
 			const tunnel = adjacent.createTunnel();
-			
+			tunnel.color = color;
 			this.link(tunnel, edge.dir, REVERSE[edge.dir]);
 			tunnel.link(other, edge.dir, REVERSE[edge.dir]);
 		}
 		else {
 			this.link(other, edge.dir, REVERSE[edge.dir]);
 		}
-	}
-
-	linked(dir) {
-		return dir in this.links;
 	}
 
 	dirSet() {
@@ -146,62 +145,95 @@ class Scene extends Phaser.Scene {
 	constructor() {
 		super({ key: "Main Scene" });
 		this.prevTime = 0;
+		this.running = false;
 	}
 
 	preload() {
 		this.load.image("pipes", "pipes.png");
 	}
 
-	create() {
-		const mw = 12;
-		const mh = 12;
+	reset() {
+		if (this.map) this.map.destroy();
+		const mw = Math.floor(this.scale.width / TILE_WIDTH);
+		const mh = Math.floor(this.scale.height / TILE_HEIGHT);
 
-		// Creating a blank tilemap with the specified dimensions
-		this.map = this.make.tilemap({ tileWidth: 64, tileHeight: 64, width: mw, height: mh });
+		this.map = this.make.tilemap({ tileWidth: TILE_WIDTH, tileHeight: TILE_HEIGHT, width: mw, height: mh });
 		const tiles = this.map.addTilesetImage("pipes");
 		this.layer0 = this.map.createBlankLayer("layer0", tiles);
 		this.layer1 = this.map.createBlankLayer("layer1", tiles);
-		// layer.setScale(2);
-		// this.layer.randomize(0, 0, 25, 13, [ 1, 2, 4, 9, 11, 15 ]);
 
 		const grid = new TemplateGrid(mw, mh, (x, y, self) => new Node(x, y, self, (n) => this.onChange(n)));
-		const start = grid.get(5, 5);
 		
+		const cx = Math.floor(mw / 2);
+		const cy = Math.floor(mh / 2);
 		this.iter = new RecursiveBackTrackerIter(
-			start, n => n.getAdjacent(), (src, edge, dest) => src.makeEdge(dest, edge)
+			grid.get(cx + 1, cy + 1), n => n.getOpenLinks(), (src, edge, dest) => src.makeEdge(dest, edge, "grey")
 		);
 
-		// this.iter = new KruskalIter(
-		// 	grid.eachNode(), (n) => grid.getAdjacent(n), (src, dir, dest) => src.link(dest, dir, reverse[dir])
-		// );
+		this.iter2 = new RecursiveBackTrackerIter(
+			grid.get(cx - 1, cy - 1), n => n.getOpenLinks(), (src, edge, dest) => src.makeEdge(dest, edge, "red")
+		);
+		this.running = true;
+	}
 
+	create() {
+		this.reset();
+		this.scale.on("resize", (newSize) => {
+			if (
+				Math.floor(newSize.width / TILE_WIDTH) !== this.map.width ||
+				Math.floor(newSize.height / TILE_HEIGHT) !== this.map.height
+			) {
+				this.reset();
+			}
+		});
 	}
 
 	onChange(node) {
+		function drawNodeOnLayer(layer, node) {
+			const dirSet = node.dirSet();
+			// to toggle between red and grey tiles, just add 16.
+			const tileOffset = (node.color === "red") ? 16 : 0;
+			layer.putTileAt(TILE_IDX_BY_TERRAIN[dirSet] + tileOffset, node.x, node.y);
+		}
+
 		const isTunnel = Boolean(node.tunnel);
 		if (isTunnel) {
-			this.layer0.putTileAt(terrain[HORIZONTAL], node.x, node.y);
-			this.layer1.putTileAt(terrain[VERTICAL], node.x, node.y);
+			for (const tunnelPart of [node, node.tunnel]) {
+				const dirSet = tunnelPart.dirSet();
+				const layer = (dirSet & HORIZONTAL) > 0 ? this.layer0 : this.layer1;
+				drawNodeOnLayer(layer, tunnelPart);
+			}
 		}
 		else {
-			const dirSet = node.dirSet();
-			const tile = terrain[dirSet];
-			this.layer1.putTileAt(tile, node.x, node.y);
+			drawNodeOnLayer(this.layer1, node);
 		}
 	}
 
-	update (time, delta) {
-		if (time - this.prevTime > 100) {
-			this.iter.next();
+	update (time) {
+		if (!this.running) return;
+
+		if (time - this.prevTime > MSEC_PER_ITERATION) {
 			this.prevTime = time;
+			
+			let allDone = true;
+			if (!this.iter.next().done) allDone = false;
+			if (!this.iter2.next().done) allDone = false;
+			
+			if (allDone) {
+				this.running = false;
+				setTimeout(() => this.reset(), 1000);
+			}
 		}
 	}
 }
 
 const config = {
 	type: Phaser.AUTO,
-	width: "100%",
-	height: "100%",
+	scale: {
+		mode: Phaser.Scale.RESIZE,
+		width: "100%",
+		height: "100%"
+	},
 	physics: {
 		default: "arcade",
 		arcade: {
