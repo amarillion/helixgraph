@@ -348,7 +348,7 @@ export function allShortestPaths<N, E>(
 	sinks : N[], 
 	algorithm: (source: N, sinks: N[]) => Map<N, Step<N, E>>
 ) {
-	const allPaths = new Map();
+	const allPaths = new Map<N, E[][]>();
 	for (const source of sources) {
 		const prev = algorithm(source, sinks);
 		const paths = shortestPathsFromSource(source, sinks, prev);
