@@ -152,7 +152,7 @@ export class TemplateGrid<T> {
 
 }
 
-export default class BaseGrid extends TemplateGrid<unknown> {
+export class BaseGrid extends TemplateGrid<unknown> {
 	constructor(width : number, height : number, cellFactory = DEFAULT_CELL_FACTORY) {
 		super(width, height, cellFactory);
 	}

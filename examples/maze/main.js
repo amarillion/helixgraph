@@ -1,6 +1,6 @@
 import { recursiveBackTracker } from "../../lib/recursiveBacktracker.js";
 import { pickOne } from "../../lib/random.js";
-import BaseGrid, { NORTH, SOUTH, EAST, WEST } from "../../lib/BaseGrid.js";
+import { BaseGrid, NORTH, SOUTH, EAST, WEST } from "../../lib/BaseGrid.js";
 import { prim, PRIM_LAST_ADDED_RANDOM_EDGES, PRIM_RANDOM } from "../../lib/prim.js";
 import { kruskal } from "../../lib/kruskal.js";
 import { Collapsible, Select } from "../util/components.js";
