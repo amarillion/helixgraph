@@ -16,7 +16,7 @@
 	"main": "lib/index.js",
 	"type": "module",
 	"scripts": {
-		"clean": "rm -r lib",
+		"clean": "rm -rf lib",
 		"build": "tsc",
 		"test": "jest",
 		"test:coverage": "jest --coverage",
