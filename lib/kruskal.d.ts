@@ -12,10 +12,7 @@ export declare class KruskalIter<N, E> implements IterableIterator<void> {
     constructor(nodeIterator: Iterable<N>, getUndirectedEdges: AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>);
     merge(leftNode: N, dir: E, rightNode: N): void;
     canMerge(leftNode: N, rightNode: N): boolean;
-    next(): {
-        value: any;
-        done: boolean;
-    };
+    next(): IteratorResult<void>;
     [Symbol.iterator](): this;
 }
 export declare function kruskal<N, E>(nodeIterator: Iterable<N>, getUndirectedEdges: AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>, { maxIterations }?: {

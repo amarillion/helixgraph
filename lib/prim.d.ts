@@ -41,10 +41,7 @@ export declare class PrimIter<N, E> implements IterableIterator<void> {
     });
     collectNode(node: N): void;
     canLinkTo(destNode: N): boolean;
-    next(): {
-        value: any;
-        done: boolean;
-    };
+    next(): IteratorResult<void>;
     [Symbol.iterator](): this;
 }
 export declare function prim<N, E>(startNode: N, getAdjacent: AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>, { maxIterations, getWeight, tiebreaker }?: {

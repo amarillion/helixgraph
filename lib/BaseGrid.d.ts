@@ -1,7 +1,8 @@
-export declare const NORTH = 1;
-export declare const EAST = 2;
-export declare const SOUTH = 4;
-export declare const WEST = 8;
+export declare type DirectionType = 1 | 2 | 4 | 8;
+export declare const NORTH: DirectionType;
+export declare const EAST: DirectionType;
+export declare const SOUTH: DirectionType;
+export declare const WEST: DirectionType;
 export declare class TemplateGrid<T> {
     cellFactory: (x: number, y: number, parent: unknown) => T;
     width: number;
@@ -19,9 +20,9 @@ export declare class TemplateGrid<T> {
     getAdjacent(n: {
         x: number;
         y: number;
-    }): Generator<[number, T]>;
+    }): Generator<[DirectionType, T]>;
 }
-export default class BaseGrid extends TemplateGrid<unknown> {
+export declare class BaseGrid extends TemplateGrid<unknown> {
     constructor(width: number, height: number, cellFactory?: (x: number, y: number) => {
         x: number;
         y: number;

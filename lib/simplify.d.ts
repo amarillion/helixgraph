@@ -10,16 +10,51 @@ import { AdjacencyFunc, PredicateFunc } from "./definitions.js";
  *  as well as the data for those functions.
  */
 export declare function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink: PredicateFunc<N>, getAdjacent: AdjacencyFunc<N, E>): {
-    getWeight: (e: any) => any;
-    getLeft: (e: any) => any;
-    getRight: (e: any) => any;
+    getWeight: (e: {
+        edgeChain: E[];
+        nodeChain: N[];
+    } & {
+        right: N;
+        left: N;
+        weight: number;
+    }) => number;
+    getLeft: (e: {
+        edgeChain: E[];
+        nodeChain: N[];
+    } & {
+        right: N;
+        left: N;
+        weight: number;
+    }) => N;
+    getRight: (e: {
+        edgeChain: E[];
+        nodeChain: N[];
+    } & {
+        right: N;
+        left: N;
+        weight: number;
+    }) => N;
     isSource: PredicateFunc<N>;
     isSink: PredicateFunc<N>;
-    sources: any[];
-    sinks: any[];
-    nodes: any[];
-    edgesByNode: Map<any, any>;
-    getAdjacent: (node: any) => any;
+    edgesByNode: Map<N, [[{
+        edgeChain: E[];
+        nodeChain: N[];
+    } & {
+        right: N;
+        left: N;
+        weight: number;
+    }, N]]>;
+    getAdjacent: AdjacencyFunc<N, {
+        edgeChain: E[];
+        nodeChain: N[];
+    } & {
+        right: N;
+        left: N;
+        weight: number;
+    }>;
+    sources: N[];
+    sinks: N[];
+    nodes: N[];
 };
 /**
  *
@@ -27,4 +62,6 @@ export declare function simplify<N, E>(source: N, isSource: PredicateFunc<N>, is
  * Concatenate the edgeChains of each simplified edge
  * Reverse the edgeChains when necessary.
  */
-export declare function flattenPath(path: any): any;
+export declare function flattenPath<E>(path: {
+    edgeChain: E;
+}[]): any[];

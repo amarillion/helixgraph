@@ -60,7 +60,7 @@ export declare function astar<N, E>(source: N, dest: N, getAdjacent: AdjacencyFu
  * @param {*} prev Map (node, [dir, srcNode]) - result from astar, dijkstra, or breadthFirstSearch
  */
 export declare function trackbackEdges<N, E>(source: N, dest: N, prev: Map<N, Step<N, E>>): E[];
-export declare function trackbackNodes<N>(source: N, dest: N, prev: Map<N, Step<N, unknown>>): any[];
+export declare function trackbackNodes<N>(source: N, dest: N, prev: Map<N, Step<N, unknown>>): N[];
 /**
  *
  * @callback trackbackFun
@@ -79,12 +79,12 @@ export declare function trackbackNodes<N>(source: N, dest: N, prev: Map<N, Step<
  * TODO: for some applications, better to return an array of [ 'node' ] or an array of both?
  */
 export declare function trackback<N, E>(source: N, dest: N, prev: Map<N, Step<N, E>>, callback: (from: N, edge: E, to: N) => void): boolean;
-export declare function shortestPathsFromSource<N, E>(source: N, destinations: N[], prev: Map<N, Step<N, E>>): any[];
+export declare function shortestPathsFromSource<N, E>(source: N, destinations: N[], prev: Map<N, Step<N, E>>): E[][];
 /**
 all shortest paths from sources to sinks .
 Returns an array of arrays of steps.
 */
-export declare function allShortestPaths<N, E>(sources: N[], sinks: N[], algorithm: (source: N, sinks: N[]) => Map<N, Step<N, E>>): Map<any, any>;
+export declare function allShortestPaths<N, E>(sources: N[], sinks: N[], algorithm: (source: N, sinks: N[]) => Map<N, Step<N, E>>): Map<N, E[][]>;
 /**
  * Utility function.
  * given an adjacency func, find the first edge that goes from one node to another.
