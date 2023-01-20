@@ -132,7 +132,7 @@ class Main {
 		for (const node of grid.eachNode()) {
 			node.render(ctx);
 		}
-	};
+	}
 
 	refreshAlgorithm() {
 		switch (this.algorithmSelect.value) {
