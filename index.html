@@ -5,15 +5,45 @@
 	<meta name="viewport"
 		  content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
 	<title>Helixgraph examples</title>
+	<style>
+		body {
+			font-family: 'Sans-serif';
+			text-align: center;
+		}
+		ul {
+			display: flex;
+			flex-wrap: wrap;
+			padding: 0;
+		}
+		li {
+			list-style: none;
+			width: 400px;
+			margin: 0.5rem;
+			padding: 0.5rem;
+			background: #eee;
+			text-align: center;
+		}
+		img {
+			width: 60%;
+			margin: 1rem;
+		}
+		a {
+			text-decoration: none;
+		}
+		a :hover {
+			text-decoration: underline;
+		}
+	</style>
 </head>
 <body>
 	<h1>Helixgraph</h1>
-	<p>Examples:</p>
+	<p>Online demos of <a href="https://github.com/amarillion/helixgraph">helixgraph</a> algorithms</p>
 	<ul>
-	<li><a href="examples/d3">Interactive path-finding visualization in D3.js</a></li>
-	<li><a href="examples/phaser-ce">Path finding game using phaser-ce </a></li>
-	<li><a href="examples/maze">Maze generation with your choice of algorithm</a></li>
-	<li><a href="examples/p5-kruskal/">Animated random Kruskal algorithm on a polar grid, using p5.js</a></li>
+	<li><a href="examples/d3"><h2>Interactive Path Finding</h2><img src="icons/pathfinding.png"><br>Interactive path-finding visualization in D3.js</a></li>
+	<li><a href="examples/phaser-ce"><h2>Path Finding Game</h2><img src="icons/phaser-ce.png"><br>Path finding game using phaser-ce TileMap</a></li>
+	<li><a href="examples/maze"><h2>Maze Generation</h2><img src="icons/maze.png"><br>Maze generation with your choice of algorithm</a></li>
+	<li><a href="examples/phaser3"><h2>Weave Mazes</h2><img src="icons/phaser3.png"><br>Generating weave mazes using phaser3 TileMap</a></li>
+	<li><a href="examples/p5-kruskal/"><h2>Kruskal Mazes</h2></h2><img src="icons/kruskal.png"><br>Animated random Kruskal algorithm on a polar grid, using p5.js</a></li>
 	<ul>
 </body>
 </html>
