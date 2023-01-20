@@ -1,3 +1,9 @@
+version 0.7.2
+
+- Update dev dependencies
+- Improvements to TypeScript typing.
+- added example of weave mazes using Phaser 3.
+
 version 0.7.1
 
 - Updated dev dependencies
