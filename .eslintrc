@@ -1,0 +1,46 @@
+{
+	"env": {
+		"browser": true,
+		"es6": true,
+		"jest": true
+	},
+	"parser": "@typescript-eslint/parser",
+	"extends": [
+		"eslint:recommended",
+		"plugin:@stylistic/recommended-extends",
+		"plugin:@typescript-eslint/recommended",
+	],
+	"plugins": [
+		"import", "@stylistic"
+	],
+	"parserOptions": {
+		"sourceType": "module",
+		"ecmaVersion": 10
+	},
+	"rules": {
+		"eqeqeq": [ "error", "always" ], // Require the use of === and !==.
+		"camelcase": [ "error" ], // Enforce camelcase naming convention.
+		"@stylistic/comma-dangle": [ "off" ], // Do not require trailing commas
+		"@stylistic/indent": [ "error", "tab" ], // Define consistent indentation style.
+		"@stylistic/indent-binary-ops": [ "error", "tab" ], // Define consistent indentation for binary operators in multiline expressions. 
+		"@stylistic/no-tabs": [ "error", { "allowIndentationTabs": true } ], // Allow tabs only for indentation.
+		"@stylistic/array-bracket-spacing": [ "error", "always" ], // Require spaces between array brackets and other tokens.
+		"@stylistic/semi": [ "error", "always" ], // Require semicolons at the end of each statement.
+		"@stylistic/no-trailing-spaces": [ "error", { "skipBlankLines": true } ], // Allow blank lines.
+		"@stylistic/arrow-parens": [ "off" ], // Allow arrow functions to omit parentheses when they have exactly one parameter.
+		"@stylistic/member-delimiter-style": [ "error", { "multiline": { "delimiter": "comma", "requireLast": true }, "singleline": { "delimiter": "comma" } } ], // Require delimitation using comma. 
+		"@stylistic/quotes": [ "error", "double" ],
+		"@stylistic/max-statements-per-line": [ "off" ],
+		"@stylistic/operator-linebreak": [ "off" ],
+		"@typescript-eslint/explicit-module-boundary-types": [ "off" ],
+		"@stylistic/linebreak-style": [ "error", "unix" ],
+		/** don't allow underscores in names unless they're after this. 
+			Used to emulate private variables. */
+		"no-underscore-dangle": [
+			"error", 
+			{ "allowAfterThis": true }
+		],
+		"no-constant-condition": ["error", { "checkLoops": false }], 		// allow while(true)
+		"import/extensions": [ "error", "always" ]
+	}
+}
