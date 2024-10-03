@@ -6,10 +6,10 @@ test("linear graph index", () => {
 	const graph = indexGraph(LINEAR);
 	
 	expect(graph.getAdjacent("A")).toEqual(
-		[ [ { parent: "A-B", dir: FORWARD }, "B"] ]
+		[ [ { parent: "A-B", dir: FORWARD }, "B" ] ]
 	);
 	expect(graph.getAdjacent("B")).toEqual(
-		[ [ { parent: "A-B", dir: REVERSE }, "A"] ]
+		[ [ { parent: "A-B", dir: REVERSE }, "A" ] ]
 	);
 });
 
@@ -25,13 +25,12 @@ test("two-route graph index", () => {
 	const graph = indexGraph(TWO_ROUTES);
 
 	expect(graph.getAdjacent("A")).toEqual(
-		[ [ { parent: "A-B", dir: FORWARD }, "B"], [ { parent: "C-A", dir: REVERSE }, "C"] ]
+		[ [ { parent: "A-B", dir: FORWARD }, "B" ], [ { parent: "C-A", dir: REVERSE }, "C" ] ]
 	);
 	expect(graph.getAdjacent("B")).toEqual(
-		[ [ { parent: "A-B", dir: REVERSE }, "A"], [ { parent: "B-C", dir: FORWARD }, "C"] ]
+		[ [ { parent: "A-B", dir: REVERSE }, "A" ], [ { parent: "B-C", dir: FORWARD }, "C" ] ]
 	);
 	expect(graph.getAdjacent("C")).toEqual(
-		[ [ { parent: "B-C", dir: REVERSE }, "B"], [ { parent: "C-A", dir: FORWARD }, "A"] ]
+		[ [ { parent: "B-C", dir: REVERSE }, "B" ], [ { parent: "C-A", dir: FORWARD }, "A" ] ]
 	);
-
 });

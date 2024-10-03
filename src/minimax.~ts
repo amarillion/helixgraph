@@ -1,0 +1,43 @@
+import { AdjacencyFunc } from "./definitions";
+
+export function minimax<N>(start : N, getMoves : AdjacencyFunc<N, unknown>, getScore : (N) => number, maxPly = 10) {
+
+	function helper(plyRemain: number, isMax: boolean, state: N) {
+		// for each move
+
+		if (plyRemain <= 0) {
+			return getScore(state);
+		}
+
+		let first = true;
+		let bestScore = 0;
+		
+		for(const [, next] of getMoves(state)) {
+			const score = helper(plyRemain-1, false, next);
+			if (first) {
+				bestScore = score;
+				first = false;
+			}
+			else {
+				if (isMax)
+				{
+					// max' turn. Get max score of moves...
+					if (score > bestScore) bestScore = score;
+					// check for scores that are automatic win...
+				}
+				else {
+					// get min score of moves
+					if (score < bestScore) bestScore = score;
+				}
+			}
+		}
+
+		// there were no moves. return score of current board
+		if (first) {
+			return getScore(state);
+		}
+	}
+
+	return helper(maxPly, true, start);
+	## TODO: return best move
+} 

@@ -36,7 +36,6 @@ const HEX_DIRS = {
 let octagonalToggle = false;
 
 class RectangularCell {
-
 	constructor(x, y, grid) {
 		this.grid = grid;
 		this.x = x;
@@ -55,7 +54,7 @@ class RectangularCell {
 			if (!this.grid.inRange(nx, ny)) continue;
 			const cell = this.grid.get(nx, ny);
 			if (!cell.blocked)
-				result.push ([key, cell]);
+				result.push ([ key, cell ]);
 		}
 		return result;
 	}
@@ -67,7 +66,6 @@ class RectangularCell {
 }
 
 class HexagonalCell {
-
 	constructor(x, y, grid) {
 		this.grid = grid;
 		this.x = x;
@@ -92,7 +90,7 @@ class HexagonalCell {
 			if (!this.grid.inRange(nx, ny)) continue;
 			const cell = this.grid.get(nx, ny);
 			if (!cell.blocked)
-				result.push ([key, cell]);
+				result.push ([ key, cell ]);
 		}
 		return result;
 	}
@@ -103,9 +101,7 @@ class HexagonalCell {
 	get cy() { return this.py + 20; }
 }
 
-
 class Main {
-	
 	constructor() {
 		this.maxIterations = 1;
 		this.start = null;
@@ -116,7 +112,7 @@ class Main {
 		this.distanceSelect = document.getElementById("distance-select");
 		this.distanceSelect.options = [
 			{id: "manhattan", name:"Manhattan"},
-			{id: "euclidian", name:"Euclidian"}, 
+			{id: "euclidian", name:"Euclidian"},
 			{id: "octagonal", name:"8-Way"},
 			{id: "hexagonal", name:"Catan"},
 		];
@@ -125,12 +121,12 @@ class Main {
 		this.tiebreakerSelect.options = [
 			{id:"crossprod", name:"Cross Product"},
 			{id:"straight", name:"Near bounding box"},
-			{id:"none", name:"None"}, 
+			{id:"none", name:"None"},
 		];
 
 		this.gridSelect = document.getElementById("grid-select");
 		this.gridSelect.options = [
-			{ id:"rectangular", name:"Rectangular 4-way"}, 
+			{ id:"rectangular", name:"Rectangular 4-way"},
 			{ id:"octagonal", name: "Rectangular 8-way"},
 			{ id:"hexagonal", name: "Hexagonal"}
 		];
@@ -204,17 +200,17 @@ class Main {
 			},
 			hexagonal: (x1, y1, x2, y2) => {
 				/*
-				 * Transfrom x to rx, so that 
+				 * Transfrom x to rx, so that
 				 *   x-axis forms a diagonal line, instead of a zig-zag.
-				 * 
+				 *
 				 *         x        ->        rx
-				 * 
+				 *
 				 *     0 1 2 3 4          0 1 2 3 4
 				 *      0 1 2 3 4          1 2 3 4 5
 				 *     0 1 2 3 4    ->    1 2 3 4 5
 				 *      0 1 2 3 4          2 3 4 5 6
 				 *     0 1 2 3 4          2 3 4 5 6
-				 */ 
+				 */
 				const rx1 = x1 + Math.ceil(y1 / 2);
 				const rx2 = x2 + Math.ceil(y2 / 2);
 				const rdx = rx2 - rx1;
@@ -222,23 +218,23 @@ class Main {
 				const dy = y2 - y1;
 				const abs_dy = Math.abs(dy);
 				/**
-				 * dx < -dy \       /   dx < 0    
-				 *           \     /              
+				 * dx < -dy \       /   dx < 0
+				 *           \     /
 				 *      F     \ E /   D        dy > 0
-				 *             \ /                
+				 *             \ /
 				 * -------------X-----------------
-				 *             / \                
+				 *             / \
 				 *       C    / B \   A        dy < 0
-				 *           /     \               
-				 *  dx > 0  /       \  dx > -dy           
+				 *           /     \
+				 *  dx > 0  /       \  dx > -dy
 				 */
 				
 				if (rdx * dy < 0) { // one positive, other negative
 					// areas C + D
 					return abs_rdx + abs_dy;
 				}
-				else if (abs_rdx > abs_dy) { // areas F + A 
-					return abs_rdx; 
+				else if (abs_rdx > abs_dy) { // areas F + A
+					return abs_rdx;
 				}
 				else { // areas E + B
 					return abs_dy;
@@ -261,7 +257,7 @@ class Main {
 				const fy = dy2 === 0 ? 0.5 : dy1 / dy2;
 				// Map x 0..1 into curve -(x(x-1))
 				return Math.abs ((fx * (fx - 1)) * (fy * (fy - 1)));
-			}	
+			}
 		};
 		const source = this.start;
 		const dest = this.goal;
@@ -276,7 +272,6 @@ class Main {
 	}
 
 	heuristicFactory() {
-		
 		const distance = this.distanceFunc();
 		const tiebreaker = this.tiebreakerFunc();
 
@@ -285,7 +280,7 @@ class Main {
 		const greedyFactor = (this.greedy === true ? 1.5 : 1);
 		return current => {
 			return greedyFactor * (
-				distance(current) + 
+				distance(current) +
 				0.001 * tiebreaker(current)
 			);
 		};
@@ -311,15 +306,15 @@ class Main {
 
 	visualizeMeasure() {
 		const COLOR_SCALES = {
-			"heuristic":  ["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3"] /* set-3 */,
-			"distance":   ["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99"] /* paired */,			
-			"tiebreaker": ["#d01c8b","#f1b6da","#f7f7f7","#b8e186","#4dac26"] /* pink-green */,
+			"heuristic":  [ "#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3" ] /* set-3 */,
+			"distance":   [ "#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99" ] /* paired */,
+			"tiebreaker": [ "#d01c8b","#f1b6da","#f7f7f7","#b8e186","#4dac26" ] /* pink-green */,
 		};
 
 		const measure = this.selectedMeasure();
 		if (!measure) return; // 'cost', or an invalid colorOption
 
-		const [w, h] = [ this.grid.width, this.grid.height ];
+		const [ w, h ] = [ this.grid.width, this.grid.height ];
 		const range = [
 			measure(this.grid.get(0,0)),
 			measure(this.grid.get(w-1,0)),
@@ -332,24 +327,24 @@ class Main {
 		const delta = max - min;
 
 		const colorScale = d3.scaleLinear()
-			.domain([min, min + delta * 0.25, min + delta * 0.5, min + delta * 0.75, max])
+			.domain([ min, min + delta * 0.25, min + delta * 0.5, min + delta * 0.75, max ])
 			.range(COLOR_SCALES[this.colorSelect.value]);
 
 		this.cellSelection.join(
 			() => {},
-			update => update 
+			update => update
 				.attr("fill", d => d.blocked ? BLOCKED_COLOR : colorScale(measure(d)))
 		);
 	}
 
 	findPath(source, dest, maxIterations) {
-		const weightFunc = octagonalToggle 
-			? (edge) => RECTANGULAR_8WAY[edge].w 
+		const weightFunc = octagonalToggle
+			? (edge) => RECTANGULAR_8WAY[edge].w
 			: () => 1;
-		const opts = { 
+		const opts = {
 			maxIterations,
 			getWeight: weightFunc,
-			getHeuristic: this.heuristic 
+			getHeuristic: this.heuristic
 		};
 		return this.algorithm(source, dest, node => node.neighborFunc(), opts);
 	}
@@ -357,11 +352,11 @@ class Main {
 	drawPath(data, source, dest) {
 		const maxDist = this.heuristic(this.start);
 		const colorScale = d3.scaleLinear()
-			.domain([0, maxDist * 0.6, maxDist * 1.2])
-			.range(["blue", "beige", "red"]);
+			.domain([ 0, maxDist * 0.6, maxDist * 1.2 ])
+			.range([ "blue", "beige", "red" ]);
 
 		for (const { to, cost } of data.values()) {
-			const rect = d3.select(to.elt);	
+			const rect = d3.select(to.elt);
 			rect.attr("fill", colorScale(cost));
 		}
 		
@@ -464,7 +459,7 @@ class Main {
 					text += `<br>g = ${cost.toFixed(2)} (cost)<br>f = ${(h + cost).toFixed(2)} (total)`;
 				}
 				this.tooltip.innerHTML = text;
-				this.tooltip.style = 
+				this.tooltip.style =
 					`--xco: ${event.clientX + 16}px;
 					--yco: ${event.clientY + 16}px`;
 			}
@@ -489,20 +484,20 @@ class Main {
 				.each(
 					// store reference to SVG element.
 					// if we use old fashioned function notation, 'this' is bound to svg element.
-					function(d) { d.elt = this; this.data = d; } 
+					function(d) { d.elt = this; this.data = d; }
 				)
 				.attr("points", d => d.points)
 				.attr("transform", d => {
-					return `translate(${d.px}, ${d.py})`;	
+					return `translate(${d.px}, ${d.py})`;
 				})
 				.attr("fill", this.mapFillColor),
-			update => update 
+			update => update
 				.attr("fill", this.mapFillColor)
 		);
 
 		d3.select("svg")
 			.selectAll("circle")
-			.data([this.start, this.goal])
+			.data([ this.start, this.goal ])
 			.join("circle")
 			.attr("r", 15)
 			.attr("cx", d => d.cx)
@@ -521,10 +516,10 @@ class Main {
 
 		const isHexagonal = this.gridSelect.value === "hexagonal";
 		this.grid = new BaseGrid(
-			Math.ceil(w / 30), Math.ceil(h / 30), 
-			(x, y, grid) => 
-				isHexagonal 
-					? new HexagonalCell(x, y, grid) 
+			Math.ceil(w / 30), Math.ceil(h / 30),
+			(x, y, grid) =>
+				isHexagonal
+					? new HexagonalCell(x, y, grid)
 					: new RectangularCell(x, y, grid)
 		);
 

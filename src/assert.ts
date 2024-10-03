@@ -4,7 +4,7 @@ class AssertionError extends Error {
 	}
 }
 
-export function assert(test : unknown, msg?: string) : asserts test {
+export function assert(test: unknown, msg?: string): asserts test {
 	if (!test) {
 		console.error(msg);
 		throw new AssertionError(msg);

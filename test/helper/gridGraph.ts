@@ -11,7 +11,7 @@ export const MAP = [
 	".....##............."
 ];
 
-export const reverse : { [dir: number]: DirectionType } = {
+export const reverse: { [dir: number]: DirectionType } = {
 	[NORTH]: SOUTH,
 	[SOUTH]: NORTH,
 	[EAST]: WEST,
@@ -19,7 +19,6 @@ export const reverse : { [dir: number]: DirectionType } = {
 };
 
 export class Cell {
-
 	x: number;
 	y: number;
 	tile: unknown;
@@ -52,7 +51,6 @@ export class Cell {
 }
 
 export class GridGraph extends TemplateGrid<Cell> {
-
 	static fromMask(mask: string[]) {
 		const width = mask[0].length;
 		const height = mask.length;
@@ -65,7 +63,7 @@ export class GridGraph extends TemplateGrid<Cell> {
 		super(width, height, cellFactory);
 	}
 
-	getWeight () {
+	getWeight() {
 		return 1;
 	}
 	
@@ -82,5 +80,4 @@ export class GridGraph extends TemplateGrid<Cell> {
 		}
 		return result;
 	}
-
 }

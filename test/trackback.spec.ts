@@ -10,9 +10,8 @@ test("trackback edges simple", () => {
 
 	expect(path).toEqual([
 		{ parent: "A-B", dir: FORWARD }
-	]);	
+	]);
 });
-
 
 test("trackback nodes complex", () => {
 	const graph = indexGraph(CYCLICAL_4SS);
@@ -27,5 +26,4 @@ test("trackback nodes complex", () => {
 
 	expect(isValid).toBe(true);
 	expect(path).toEqual([ "J", "D", "C", "B", "I" ]);
-	
 });

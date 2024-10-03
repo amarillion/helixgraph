@@ -5,7 +5,7 @@ test("mmArrayPush", () => {
 	mmArrayPush(mmap, 3, 5);
 	mmArrayPush(mmap, 3, 9);
 	mmArrayPush(mmap, 3, 9);
-	expect(mmap.get(3)).toStrictEqual([5, 9, 9]);
+	expect(mmap.get(3)).toStrictEqual([ 5, 9, 9 ]);
 });
 
 test("mmSetAdd", () => {

@@ -1,8 +1,8 @@
-export function randomInt(max : number) {
+export function randomInt(max: number) {
 	return Math.floor(Math.random() * Math.floor(max));
 }
 
-export function pickOne<T>(list : Array<T>) {
+export function pickOne<T>(list: Array<T>) {
 	const idx = randomInt(list.length);
 	return list[idx];
 }
@@ -15,7 +15,7 @@ export function shuffle(array: unknown[]) {
 	for (let i = len - 1; i > 0; i--) {
 		const n = randomInt(i + 1);
 		
-		[array[n], array[i]] = [array[i], array[n]];
+		[ array[n], array[i] ] = [ array[i], array[n] ];
 	}
 	return array;
 }

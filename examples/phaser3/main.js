@@ -46,7 +46,6 @@ const TILE_IDX_BY_TERRAIN = {
 };
 
 class Node {
-
 	constructor(x, y, grid, onChange) {
 		this.x = x;
 		this.y = y;
@@ -68,7 +67,7 @@ class Node {
 
 	createTunnel() {
 		assert(!this.tunnel, "Error, created tunnel twice");
-		this.tunnel = new Node(this.x, this.y, this.grid, () => { this.onChange(this.tunnel); } );
+		this.tunnel = new Node(this.x, this.y, this.grid, () => { this.onChange(this.tunnel); });
 		this.tunnel.tunnel = this; // A tunnel is a pair of nodes that refer to each other
 		return this.tunnel;
 	}
@@ -77,12 +76,12 @@ class Node {
 	*getOpenLinks() {
 		if (this.tunnel) return;
 
-		for (const dir of [NORTH, EAST, SOUTH, WEST]) {
+		for (const dir of [ NORTH, EAST, SOUTH, WEST ]) {
 			const adjacent = this.getByDir(dir);
 			if (adjacent) {
 				// only pristine nodes
 				if (Object.keys(adjacent.links).length === 0) {
-					yield [{ dir, tunnel: false }, adjacent];
+					yield [ { dir, tunnel: false }, adjacent ];
 				}
 				
 				// see if we can create potentially a new tunnel
@@ -92,10 +91,9 @@ class Node {
 					const alreadyHasTunnel = Boolean(adjacent.tunnel);
 					const otherSidePristine = Object.keys(otherSide.links).length === 0;
 					if (otherSidePristine && orthogonal && !alreadyHasTunnel) {
-						yield [{ dir, tunnel: true }, otherSide ];
+						yield [ { dir, tunnel: true }, otherSide ];
 					}
 				}
-
 			}
 		}
 	}
@@ -141,7 +139,6 @@ class Node {
 }
 
 class Scene extends Phaser.Scene {
-	
 	constructor() {
 		super({ key: "Main Scene" });
 		this.prevTime = 0;
@@ -198,7 +195,7 @@ class Scene extends Phaser.Scene {
 
 		const isTunnel = Boolean(node.tunnel);
 		if (isTunnel) {
-			for (const tunnelPart of [node, node.tunnel]) {
+			for (const tunnelPart of [ node, node.tunnel ]) {
 				const dirSet = tunnelPart.dirSet();
 				const layer = (dirSet & HORIZONTAL) > 0 ? this.layer0 : this.layer1;
 				drawNodeOnLayer(layer, tunnelPart);

@@ -34,7 +34,6 @@ const margin = 10;
 
 // cell implementation that keeps track of links to neighboring cells
 class Cell {
-
 	constructor(x, y) {
 		this.x = x;
 		this.y = y;
@@ -52,9 +51,9 @@ class Cell {
 			console.log("WARNING: creating link that already exists: ", { dir, reverse });
 		}
 		this.links[dir] = other;
-		if (reverse) { 
+		if (reverse) {
 			// call recursively, but without reversing again
-			other.link(this, reverse); 
+			other.link(this, reverse);
 		}
 	}
 
@@ -70,7 +69,7 @@ class Cell {
 		ctx.strokeStyle = "black";
 
 		// ctx.lineCap = "round";
-		for (const dir of [NORTH, EAST, SOUTH, WEST]) {
+		for (const dir of [ NORTH, EAST, SOUTH, WEST ]) {
 			if (this.linked(dir)) continue;
 
 			const segment = SEGMENTS[dir];
@@ -86,15 +85,13 @@ class Cell {
 // THIS works only with a rectangular grid...
 // TODO: move to library
 export function binaryTree(grid, linkCells) {
-
 	for (const cell of grid.eachNode()) {
-		
-		const neighbors = [...grid.getAdjacent(cell)]
-			.filter(([key]) => key === NORTH || key === EAST);
+		const neighbors = [ ...grid.getAdjacent(cell) ]
+			.filter(([ key ]) => key === NORTH || key === EAST);
 		
 		if (neighbors.length > 0) {
 			const [ dir, to ] = pickOne(neighbors);
-			linkCells(cell, dir, to); 
+			linkCells(cell, dir, to);
 		}
 	}
 }
@@ -105,7 +102,6 @@ customElements.define("hxg-select", Select);
 const linkCells = (src, dir, dest) => { src.link(dest, dir, reverse[dir]); };
 
 class Main {
-
 	refreshCanvas() {
 		const canvasWidth = (document.body.clientWidth);
 		const canvasHeight = (document.body.clientHeight);
@@ -122,7 +118,7 @@ class Main {
 
 		const cellFactory = (x, y) => new Cell(x, y);
 		const grid = new BaseGrid(
-			Math.floor((canvasWidth - margin * 2) / CELL_SIZE), 
+			Math.floor((canvasWidth - margin * 2) / CELL_SIZE),
 			Math.floor((canvasHeight - margin * 2) / CELL_SIZE),
 			cellFactory
 		);
@@ -136,35 +132,35 @@ class Main {
 
 	refreshAlgorithm() {
 		switch (this.algorithmSelect.value) {
-		case "recursivebt": 
+		case "recursivebt":
 			this.algorithm = (grid) => recursiveBackTracker(
 				grid.randomCell(), // start cell
-				n => grid.getAdjacent(n), 
-				linkCells );
+				n => grid.getAdjacent(n),
+				linkCells);
 			break;
 		case "kruskal":
 			this.algorithm = (grid) => kruskal(
 				grid.eachNode(),
-				n => grid.getAdjacent(n), 
+				n => grid.getAdjacent(n),
 				linkCells);
 			break;
-		case "prim_last_node": 
+		case "prim_last_node":
 			this.algorithm = (grid) => prim(
 				grid.randomCell(), // start cell
-				n => grid.getAdjacent(n), 
+				n => grid.getAdjacent(n),
 				linkCells, {
 					tiebreaker: PRIM_LAST_ADDED_RANDOM_EDGES
 				});
 			break;
-		case "prim_random": 
+		case "prim_random":
 			this.algorithm = (grid) => prim(
 				grid.randomCell(), // start cell
-				n => grid.getAdjacent(n), 
+				n => grid.getAdjacent(n),
 				linkCells, {
 					tiebreaker: PRIM_RANDOM
 				});
 			break;
-		case "binary_tree": 
+		case "binary_tree":
 			this.algorithm = (grid) => binaryTree(grid, linkCells);
 			break;
 		default:
@@ -196,7 +192,6 @@ class Main {
 
 		this.refreshCanvas();
 	}
-
 }
 
 window.onload = () => {

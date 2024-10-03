@@ -1,7 +1,6 @@
 import { manhattanStraightHeuristic } from "../src/astarHeuristics.js";
 
 test("Cross product heuristic", () => {
-	
 	for (let y = 0; y < 30; ++y) {
 		let row = "";
 		for (let x = 0; x < 15; ++x) {

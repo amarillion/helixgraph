@@ -4,7 +4,7 @@ import { mmArrayPush } from "../../src/multimap.js";
 export const FORWARD = "F";
 export const REVERSE = "R";
 
-/* 
+/*
 	Create a directed graph from simple undirected graph data.
 	Given a data structure that defines at least the following:
 	* array of undirected edges
@@ -22,7 +22,7 @@ export const REVERSE = "R";
 	* reverseEdge(edge) function
 	* getAdjacent(node) function that returns directed edges.
  */
-export function indexGraph<N, E>(graphData : SimpleGraph<N, E>) : GraphType<N, E> {
+export function indexGraph<N, E>(graphData: SimpleGraph<N, E>): GraphType<N, E> {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const edgesByNode = new Map<N, any>();
 	const reverse = new Map();
@@ -41,27 +41,27 @@ export function indexGraph<N, E>(graphData : SimpleGraph<N, E>) : GraphType<N, E
 	return {
 		...graphData,
 		getAdjacent: (node) => edgesByNode.get(node),
-		isSource: (node) => graphData.sources.indexOf(node) >= 0, 
-		isSink: (node) => graphData.sinks.indexOf(node) >= 0, 
+		isSource: (node) => graphData.sources.indexOf(node) >= 0,
+		isSink: (node) => graphData.sinks.indexOf(node) >= 0,
 		reverseEdge: (edge) => reverse.get(edge)
 	};
 }
 
 /**
  * Filter an adjacencyFunc using a predicate
- * 
+ *
  * @param {*} originalGetAdjacent function(node) that returns an array of [edge, sibling] arrays.
  * @param {*} predicate function(edge), returns true if edge is discarded
  */
-export function filteredAdjacencyFunc<N, E>(originalGetAdjacent : AdjacencyFunc<N, E>, predicate : PredicateFunc<E>) {
-	return (node : N) => {
-		const result : Array<[E, N]> = [];
+export function filteredAdjacencyFunc<N, E>(originalGetAdjacent: AdjacencyFunc<N, E>, predicate: PredicateFunc<E>) {
+	return (node: N) => {
+		const result: Array<[E, N]> = [];
 		const adjacents = originalGetAdjacent(node);
-		for (const [edge, sibling] of adjacents) {
+		for (const [ edge, sibling ] of adjacents) {
 			if (predicate(edge)) {
 				continue;
 			}
-			result.push([edge, sibling]);
+			result.push([ edge, sibling ]);
 		}
 		return result;
 	};

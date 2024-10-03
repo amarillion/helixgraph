@@ -55,5 +55,4 @@ test("cyclical dijkstra with direction restrictions", () => {
 	expect(paths).toEqual([
 		[ { parent: "C-A", dir: REVERSE } ],
 	]);
-
 });

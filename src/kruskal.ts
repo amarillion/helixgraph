@@ -3,19 +3,18 @@ import { shuffle } from "./random.js";
 
 // for internal use
 type EdgeType<N, E> = {
-	src: N;
-	dir: E;
-	dest: N;
+	src: N,
+	dir: E,
+	dest: N,
 };
 
 export class KruskalIter<N, E> implements IterableIterator<void> {
-
 	edges: EdgeType<N, E>[];
 	setByNode: Map<N, number>;
 	nodesBySet: Map<number, N[]>;
 	linkNodes: LinkFunc<N, E>;
 
-	constructor(nodeIterator : Iterable<N>, getUndirectedEdges : AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>) {
+	constructor(nodeIterator: Iterable<N>, getUndirectedEdges: AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>) {
 		this.edges = [];
 		this.setByNode = new Map();
 		this.nodesBySet = new Map();
@@ -26,7 +25,7 @@ export class KruskalIter<N, E> implements IterableIterator<void> {
 			this.setByNode.set(node, setIdx);
 			this.nodesBySet.set(setIdx, [ node ]);
 
-			for (const [dir, dest] of getUndirectedEdges(node)) {
+			for (const [ dir, dest ] of getUndirectedEdges(node)) {
 				this.edges.push({ src: node, dir, dest });
 			}
 		}
@@ -57,7 +56,7 @@ export class KruskalIter<N, E> implements IterableIterator<void> {
 	}
 
 	next(): IteratorResult<void> {
-		while(true) {
+		while (true) {
 			if (this.edges.length === 0) return { value: undefined, done: true };
 			const { src, dir, dest } = this.edges.pop();
 			if (this.canMerge(src, dest)) {
@@ -74,8 +73,8 @@ export class KruskalIter<N, E> implements IterableIterator<void> {
 	}
 }
 
-export function kruskal<N, E>(nodeIterator : Iterable<N>, getUndirectedEdges : AdjacencyFunc<N, E>, linkNodes : LinkFunc<N, E>, 
-	{ maxIterations = 0 } : { maxIterations?: number } = {}
+export function kruskal<N, E>(nodeIterator: Iterable<N>, getUndirectedEdges: AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>,
+	{ maxIterations = 0 }: { maxIterations?: number } = {}
 ) {
 	const iter = new KruskalIter(nodeIterator, getUndirectedEdges, linkNodes);
 	let maxIt = maxIterations;

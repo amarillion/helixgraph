@@ -5,7 +5,6 @@ import { assert } from "../src/assert.js";
 import { DirectionType } from "../src/BaseGrid.js";
 
 test("Prim's algorithm", () => {
-
 	const w = 2;
 	const h = 2;
 	const graph = new GridGraph(w, h);

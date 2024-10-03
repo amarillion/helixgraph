@@ -64,9 +64,8 @@ class Grid {
 }
 
 export function createRobinMaze() {
-
 	const GRID_SIZE = 22;
-	const ROWLEN_FOR_RADIUS = initRowLenForRadius(); // number of cells in row of a quadrant		
+	const ROWLEN_FOR_RADIUS = initRowLenForRadius(); // number of cells in row of a quadrant
 	const script = scriptGenerator();
 	let CELL_SIZE = 1;
 	
@@ -128,7 +127,7 @@ export function createRobinMaze() {
 				// link counter-clock-wise neighbor
 				if (xx > 0) { cell.link("CCW", row[xx - 1], "CW"); }
 				if (yy > 0) {
-					// does the inner neighbor have two outer neighbors? 
+					// does the inner neighbor have two outer neighbors?
 					const { parentIndex, border } = innerRowIsShorter ?
 						// if so, check which one we are.
 						{ border: (xx % 2 === 0) ? "OUT1" : "OUT2", parentIndex: Math.floor(xx / 2) } :
@@ -158,7 +157,7 @@ export function createRobinMaze() {
 	}
 
 	function updateCellSize(width, height) {
-		const minSize = Math.min(width, height) * 0.9; // minus 10% margin		
+		const minSize = Math.min(width, height) * 0.9; // minus 10% margin
 		CELL_SIZE = Math.max(3, Math.floor(minSize / 50)); // size of a single square
 	}
 
@@ -185,7 +184,6 @@ export function createRobinMaze() {
 			// do nothing for 100 frames before starting over
 			for (let i = 0; i < 100; ++i) { yield; }
 			clearGrid();
-			
 		}
 	}
 
@@ -198,7 +196,6 @@ export function createRobinMaze() {
 			cell => Object.entries(cell.links),
 			(src, border, dest) => src.removeBorder(border, dest),
 		);
-
 	}
 
 	return { setup, onResize, draw };

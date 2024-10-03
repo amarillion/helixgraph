@@ -1,11 +1,9 @@
-
 /**
  * A wrapper for p5 sketching functions that handles canvas creation and resize events.
  */
 export class P5Wrapper extends HTMLElement {
-	
 	/**
-	 * @param {*} implementationFactory: a function that returns three functions: 
+	 * @param {*} implementationFactory: a function that returns three functions:
 	 *   setup(sketch)
 	 *   draw(sketch)
 	 *   onResize(w, h)
@@ -42,15 +40,13 @@ export class P5Wrapper extends HTMLElement {
 				draw(sketch);
 			};
 
-			this.resizeObserver = new ResizeObserver(() => { 
+			this.resizeObserver = new ResizeObserver(() => {
 				const SCREEN_W = this.offsetWidth;
 				const SCREEN_H = this.offsetHeight;
 				onResize(SCREEN_W, SCREEN_H);
 				sketch.resizeCanvas(SCREEN_W, SCREEN_H);
 			});
-	
 		});
 		this.resizeObserver.observe(this);
 	}
-
 }

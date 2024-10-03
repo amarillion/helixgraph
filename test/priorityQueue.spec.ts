@@ -2,7 +2,6 @@ import { shuffle } from "../src/random.js";
 import { PriorityQueue } from "../src/PriorityQueue.js";
 
 test("Priority queue", () => {
-
 	const NUM = 50;
 	const array = [];
 
@@ -10,7 +9,7 @@ test("Priority queue", () => {
 	for (let i = 0; i < NUM; ++i) array.unshift(i);
 	shuffle(array);
 
-	const q = new PriorityQueue<number>((a,b) => b - a);
+	const q = new PriorityQueue<number>((a, b) => b - a);
 	
 	q.push(...array);
 
@@ -18,5 +17,4 @@ test("Priority queue", () => {
 	for (let i = 0; i < NUM; ++i) {
 		expect(i).toBe(q.pop());
 	}
-	
 });

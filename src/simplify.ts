@@ -6,19 +6,18 @@ import { mmArrayPush } from "./multimap.js";
  * @param {*} isSource a function to determine if a given node is a source
  * @param {*} isSink a function to determine if a given node is a sink
  * @param {*} getAdjacent function that for given node, returns array [ edge, node ] pairs
- * 
- * @result a structure containing: 
- * 	getWeight, getLeft, getRight, isSoure, isSink and getAdjacent functions,
+ *
+ * @result a structure containing:
+ *  getWeight, getLeft, getRight, isSoure, isSink and getAdjacent functions,
  *  as well as the data for those functions.
  */
-export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink : PredicateFunc<N>, getAdjacent : AdjacencyFunc<N, E>) {
-
-	type ChainType = { edgeChain: E[], nodeChain: N[] }
+export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink: PredicateFunc<N>, getAdjacent: AdjacencyFunc<N, E>) {
+	type ChainType = { edgeChain: E[], nodeChain: N[] };
 		
 	function followEdge(source: N, edge: E, next: N, visited: Set<N>) {
 		const forwardChain: ChainType = {
-			edgeChain: [edge],
-			nodeChain: [source],
+			edgeChain: [ edge ],
+			nodeChain: [ source ],
 		};
 		const reverseChain: ChainType = {
 			edgeChain: [],
@@ -26,7 +25,7 @@ export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink : P
 		};
 	
 		let prev = source;
-		let current =  next;
+		let current = next;
 	
 		while (true) {
 			if (visited.has(current)) {
@@ -47,29 +46,28 @@ export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink : P
 			}
 	
 			const degree = nonReverseSteps.length + 1;
-			const isKeyNode = isSource(current) || 
-					isSink(current) || 
-					degree > 2;
+			const isKeyNode = isSource(current) ||
+				isSink(current) ||
+				degree > 2;
 	
 			if (isKeyNode) {
-	
 				// chain ends
 				// final reverse step
 				reverseChain.edgeChain.unshift(reverseStep[0]);
 				reverseChain.nodeChain.unshift(current);
 				
-				return [{ nodeChain: forwardChain.nodeChain, 
-					edgeChain: forwardChain.edgeChain, 
+				return [ { nodeChain: forwardChain.nodeChain,
+					edgeChain: forwardChain.edgeChain,
 					left: source,
 					right: current,
-					weight: forwardChain.edgeChain.length 
+					weight: forwardChain.edgeChain.length
 				}, {
 					nodeChain: reverseChain.nodeChain,
 					edgeChain: reverseChain.edgeChain,
 					left: current,
 					right: source,
-					weight: reverseChain.edgeChain.length 
-				}];
+					weight: reverseChain.edgeChain.length
+				} ];
 			}
 			else if (degree === 1) {
 				// dead end
@@ -87,16 +85,15 @@ export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink : P
 				current = forwardStep[1];
 			}
 		}
-			
 	}
 	
 	type NewEdgeType = ChainType & {
 		right: N,
 		left: N,
-		weight: number
+		weight: number,
 	};
 
-	const result : {
+	const result: {
 		getWeight: (e: NewEdgeType) => number,
 		getLeft: (e: NewEdgeType) => N,
 		getRight: (e: NewEdgeType) => N,
@@ -120,7 +117,7 @@ export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink : P
 		edgesByNode: new Map<N, [[ NewEdgeType, N ]]>(),
 		getAdjacent: function*(node: N) {
 			const edges = result.edgesByNode.get(node) || [];
-			for (const edge of edges) { yield edge; } //TODO: test
+			for (const edge of edges) { yield edge; } // TODO: test
 		}
 	};
 
@@ -143,7 +140,7 @@ export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink : P
 		visited.add(current);
 
 		// console.log ("Opening node", { current });
-		for (const [edge, dest] of getAdjacent(current)) {
+		for (const [ edge, dest ] of getAdjacent(current)) {
 			// console.log ("  Checking adjacent node", { edge, dest });
 			const chains = followEdge(current, edge, dest, visited);
 			const [ forwardEdge, reverseEdge ] = chains;
@@ -165,15 +162,14 @@ export function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink : P
 	return result;
 }
 
-
 /**
- * 
+ *
  * Given a path of edges as returned by trackbackEdges from a simplified graph
  * Concatenate the edgeChains of each simplified edge
  * Reverse the edgeChains when necessary.
  */
 export function flattenPath<E>(path: { edgeChain: E }[]) {
 	return path.reduce(
-		(acc, e) => acc.concat(e.edgeChain), 
-		[] );
+		(acc, e) => acc.concat(e.edgeChain),
+		[]);
 }
