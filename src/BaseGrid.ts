@@ -81,9 +81,9 @@ export class TemplateGrid<T> {
 
 	May fail with an assertion error if there are no cells in the maze.
 	*/
-	randomCell() {
+	randomCell(prng = Math.random) {
 		const len = this._data.length;
-		let pos = randomInt(len);
+		let pos = randomInt(len, prng);
 		for (let i = 0; i < len; ++i) {
 			const result = this._data[pos];
 			if (result) return result;

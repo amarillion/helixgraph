@@ -84,13 +84,13 @@ class Cell {
 // antoher alternative maze generation algorithm
 // THIS works only with a rectangular grid...
 // TODO: move to library
-export function binaryTree(grid, linkCells) {
+export function binaryTree(grid, linkCells, prng = Math.random) {
 	for (const cell of grid.eachNode()) {
 		const neighbors = [ ...grid.getAdjacent(cell) ]
 			.filter(([ key ]) => key === NORTH || key === EAST);
 		
 		if (neighbors.length > 0) {
-			const [ dir, to ] = pickOne(neighbors);
+			const [ dir, to ] = pickOne(neighbors, prng);
 			linkCells(cell, dir, to);
 		}
 	}

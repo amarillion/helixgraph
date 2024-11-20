@@ -11,12 +11,12 @@ export interface PrimTieBreaker {
  * Prioritize nodes that were opened last, but shuffle edges within that node.
  * Produces windy mazes with high river, like the recursive backtracker.
  */
-export const PRIM_LAST_ADDED_RANDOM_EDGES: PrimTieBreaker = (() => {
+export const PRIM_LAST_ADDED_RANDOM_EDGES: PrimTieBreaker = ((prng = Math.random) => {
 	let counter: number;
 	return {
 		start: () => counter = 0,
 		nextNode: () => --counter,
-		next: () => counter + Math.random()
+		next: () => counter + prng()
 	};
 })();
 
@@ -38,11 +38,11 @@ export const PRIM_LAST_ADDED: PrimTieBreaker = (() => {
  * Prioritize edges completely randomly.
  * Produces low-river mazes with lots of branches and lots of short dead-ends.
  */
-export const PRIM_RANDOM: PrimTieBreaker = (() => {
+export const PRIM_RANDOM: PrimTieBreaker = ((prng = Math.random) => {
 	return {
 		start: () => {},
 		nextNode: () => {},
-		next: () => Math.random()
+		next: () => prng()
 	};
 })();
 

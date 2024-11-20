@@ -7,12 +7,14 @@ export class RecursiveBackTrackerIter<N, E> implements IterableIterator<void> {
 	listAdjacent: AdjacencyFunc<N, E>;
 	stack: N[] = [];
 	visited: Set<N> = new Set();
+	prng: () => number;
 
-	constructor(start: N, listAdjacent: AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>) {
+	constructor(start: N, listAdjacent: AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>, prng = Math.random) {
 		this.listAdjacent = listAdjacent;
 		this.linkNodes = linkNodes;
 		this.stack.push(start);
 		this.visited.add(start);
+		this.prng = prng;
 	}
 
 	next(): IteratorResult<void> {
@@ -29,7 +31,7 @@ export class RecursiveBackTrackerIter<N, E> implements IterableIterator<void> {
 				this.stack.pop();
 			}
 			else {
-				const [ dir, node ] = pickOne(unvisitedAdjacents);
+				const [ dir, node ] = pickOne(unvisitedAdjacents, this.prng);
 				this.stack.push(node);
 				this.visited.add(node);
 				this.linkNodes(current, dir, node);
