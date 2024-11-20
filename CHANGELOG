@@ -1,3 +1,8 @@
+version 0.7.4
+
+- Allow injecting a custom RNG for deterministic results
+- LinkFunctions no longer need to return a boolean value
+
 version 0.7.3
 
 - Update dependencies
