@@ -7,7 +7,7 @@
 export type AdjacencyFunc<N, E> = (from: N) => Iterable<[E, N]>;
 
 /** create a link between two nodes */
-export type LinkFunc<N, E> = (from: N, edge: E, to: N) => boolean;
+export type LinkFunc<N, E> = (from: N, edge: E, to: N) => void;
 
 export type PathFindFunc<N, E> =
 	(src: N, dest: N | N[], getAdjacent: AdjacencyFunc<N, E>, options: { [key: string]: unknown }) => Map<N, Step<N, E>>;
