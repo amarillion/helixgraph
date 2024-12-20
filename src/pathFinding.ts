@@ -254,19 +254,19 @@ export function astar<N, E>(source: N, dest: N, getAdjacent: AdjacencyFunc<N, E>
  * @param {*} dest destination node
  * @param {*} prev Map (node, [dir, srcNode]) - result from astar, dijkstra, or breadthFirstSearch
  */
-export function trackbackEdges<N, E>(source: N, dest: N, prev: Map<N, Step<N, E>>) {
+export function trackbackEdges<N, E>(source: N, dest: N, prev: Map<N, Step<N, E>>, maxIterations = 1e6) {
 	const path: E[] = [];
 	const isValid = trackback (source, dest, prev, (from, edge /* , to */) => {
 		path.unshift(edge);
-	});
+	}, maxIterations);
 	return isValid ? path : null;
 }
 
-export function trackbackNodes<N>(source: N, dest: N, prev: Map<N, Step<N, unknown>>) {
+export function trackbackNodes<N>(source: N, dest: N, prev: Map<N, Step<N, unknown>>, maxIterations = 1e6) {
 	const path = [];
 	const isValid = trackback (source, dest, prev, (from, edge, to) => {
 		path.unshift(to);
-	});
+	}, maxIterations);
 	path.unshift(source);
 	return isValid ? path : null;
 }
@@ -292,12 +292,13 @@ export function trackback<N, E>(
 	source: N,
 	dest: N,
 	prev: Map<N, Step<N, E>>,
-	callback: (from: N, edge: E, to: N) => void
+	callback: (from: N, edge: E, to: N) => void,
+	maxIterations = 1e6
 ) {
 	let current = dest;
 
 	// set a maximum no of iterations to prevent infinite loop
-	for (let i = 0; i < 1000; ++i) {
+	for (let i = 0; i < maxIterations; ++i) {
 		const step = prev.get(current);
 		if (!step) {
 			return false; // no valid path
