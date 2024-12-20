@@ -40,16 +40,16 @@
 		"access": "public"
 	},
 	"devDependencies": {
-		"@stylistic/eslint-plugin": "2.11.0",
+		"@stylistic/eslint-plugin": "2.12.1",
 		"@types/jest": "29.5.14",
-		"@typescript-eslint/eslint-plugin": "8.15.0",
-		"@typescript-eslint/parser": "8.15.0",
+		"@typescript-eslint/eslint-plugin": "8.18.1",
+		"@typescript-eslint/parser": "8.18.1",
 		"cross-env": "7.0.3",
 		"eslint": "8.57.0",
 		"eslint-plugin-import": "2.31.0",
 		"jest": "29.7.0",
 		"jest-ts-webcompat-resolver": "1.0.0",
 		"ts-jest": "29.2.5",
-		"typescript": "5.6.3"
+		"typescript": "5.7.2"
 	}
 }
