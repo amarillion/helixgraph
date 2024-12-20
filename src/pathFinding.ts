@@ -61,7 +61,7 @@ export function breadthFirstSearch<N, E>(source: N, dest: N | N[], getAdjacent: 
 
 	open.push(source);
 	dist.set(source, 0);
-	// prev.set(source, { edge: null, from: null, to: source, cost } );
+	prev.set(source, { edge: null, from: null, to: source, cost: 0 });
 
 	let i = maxIterations;
 	while (open.length) {

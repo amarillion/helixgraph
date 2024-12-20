@@ -1,8 +1,16 @@
-import { LINEAR, CYCLICAL } from "./helper/graphData.js";
+import { LINEAR, CYCLICAL, LINEAR_THREE } from "./helper/graphData.js";
 import { indexGraph } from "./helper/indexGraph.js";
-import { bfsVisit, bfsGenerator } from "../src/pathFinding.js";
+import { bfsVisit, bfsGenerator, breadthFirstSearch } from "../src/pathFinding.js";
 
-test("bfs on simple graph", () => {
+test("bfs distance calculations", () => {
+	const graph = indexGraph(LINEAR_THREE);
+	const prevMap = breadthFirstSearch("A", [], graph.getAdjacent);
+	expect(prevMap.get("C")?.cost).toBe(2);
+	expect(prevMap.get("B")?.cost).toBe(1);
+	expect(prevMap.get("A")?.cost).toBe(0);
+});
+
+test("bfs visit on simple graph", () => {
 	const graph = indexGraph(LINEAR);
 	const visited: string[] = [];
 	bfsVisit("A", graph.getAdjacent, (node) => visited.push(node));
@@ -15,7 +23,7 @@ test("bfs generator on simple graph", () => {
 	expect(visited).toEqual([ "A", "B" ]);
 });
 
-test("bfs on cycle", () => {
+test("bfs visit on cycle", () => {
 	const graph = indexGraph(CYCLICAL);
 	const visited: string[] = [];
 	bfsVisit("A", graph.getAdjacent, (node) => visited.push(node));
