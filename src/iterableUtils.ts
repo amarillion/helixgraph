@@ -15,7 +15,7 @@ export class Stream<T> {
 		return new Stream<T>(filter(this.#wrapped, predicate));
 	}
 
-	find(predicate: PredicateFunc<T>): T {
+	find(predicate: PredicateFunc<T>) {
 		return find(this.#wrapped, predicate);
 	}
 

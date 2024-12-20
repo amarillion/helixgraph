@@ -24,8 +24,8 @@ export type PredicateFunc<T> = (t: T) => boolean;
 
 export type Step<N, E> = {
 	to: N,
-	from: N,
-	edge: E,
+	from?: N,
+	edge?: E,
 	cost: number,
 };
 

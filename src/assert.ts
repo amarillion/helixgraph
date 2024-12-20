@@ -4,9 +4,13 @@ class AssertionError extends Error {
 	}
 }
 
-export function assert(test: unknown, msg?: string): asserts test {
+export function assert(test: unknown, msg = ""): asserts test {
 	if (!test) {
-		console.error(msg);
 		throw new AssertionError(msg);
 	}
+}
+
+export function notNull<T>(value?: T) : NonNullable<T> {
+	assert(value !== null && value !== undefined, `Expected value to be non-null and defined, but was ${value}`);
+	return value;
 }

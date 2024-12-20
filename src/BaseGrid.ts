@@ -36,7 +36,7 @@ export class TemplateGrid<T> {
 		this.cellFactory = cellFactory;
 		this.width = width;
 		this.height = height;
-		this._prepareGrid();
+		this._data = this._prepareGrid();
 	}
 
 	/*
@@ -67,12 +67,13 @@ export class TemplateGrid<T> {
 	Override this method if you want to change the topography of the grid
 	*/
 	_prepareGrid() {
-		this._data = new Array(this.width * this.height);
+		const result = new Array(this.width * this.height);
 		for (let x = 0; x < this.width; ++x) {
 			for (let y = 0; y < this.height; ++y) {
-				this._data[this._index(x, y)] = this.cellFactory(x, y, this);
+				result[this._index(x, y)] = this.cellFactory(x, y, this);
 			}
 		}
+		return result;
 	}
 
 	/*

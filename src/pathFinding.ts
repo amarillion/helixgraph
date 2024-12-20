@@ -17,7 +17,7 @@ export function *bfsGenerator<N, E>(source: N, getAdjacent: AdjacencyFunc<N, E>)
 	visited.add(source);
 
 	while (open.length) {
-		const current = open.shift();
+		const current = open.shift()!;
 
 		yield current;
 
@@ -61,15 +61,17 @@ export function breadthFirstSearch<N, E>(source: N, dest: N | N[], getAdjacent: 
 
 	open.push(source);
 	dist.set(source, 0);
-	prev.set(source, { edge: null, from: null, to: source, cost: 0 });
+
+	// TODO: important to make sure distMap.get(source).cost === 0!
+	prev.set(source, { to: source, cost: 0 });
 
 	let i = maxIterations;
 	while (open.length) {
 		i--; // 0 -> -1 means Infinite.
 		if (i === 0) break;
 
-		const current = open.shift();
-		const distance = dist.get(current);
+		const current = open.shift()!;
+		const distance = dist.get(current) || 0;
 
 		if (remain.has(current)) {
 			remain.delete(current);
@@ -95,7 +97,7 @@ export function breadthFirstSearch<N, E>(source: N, dest: N | N[], getAdjacent: 
 }
 
 function spliceLowest<T>(queue: Set<T>, comparator: (a: T, b: T) => number) {
-	let minElt: T = null;
+	let minElt: T | null = null;
 	for (const elt of queue) {
 		if (minElt === null || comparator(elt, minElt) < 0) {
 			minElt = elt;
@@ -153,7 +155,7 @@ export function dijkstra<N, E>(source: N, dest: N | N[], getAdjacent: AdjacencyF
 		// extract the element from Q with the lowest dist. Open is modified in-place.
 		// TODO: optionally use PriorityQueue
 		// O(N^2) like this, O(log N) with priority queue. But in my tests, priority queues only start pulling ahead in large graphs
-		const current = spliceLowest(open, (a, b) => dist.get(a) - dist.get(b));
+		const current = spliceLowest(open, (a, b) => dist.get(a) - dist.get(b))!;
 
 		// check adjacents, calculate distance, or  - if it already had one - check if new path is shorter
 		for (const [ edge, sibling ] of getAdjacent(current)) {
@@ -292,10 +294,10 @@ export function trackback<N, E>(
 	source: N,
 	dest: N,
 	prev: Map<N, Step<N, E>>,
-	callback: (from: N, edge: E, to: N) => void,
+	callback: (from: N | undefined, edge: E | undefined, to: N) => void,
 	maxIterations = 1e6
 ) {
-	let current = dest;
+	let current: N = dest;
 
 	// set a maximum no of iterations to prevent infinite loop
 	for (let i = 0; i < maxIterations; ++i) {
@@ -359,7 +361,7 @@ export function allShortestPaths<N, E>(
  */
 export function edgeBetween<N, E>(getAdjacent: AdjacencyFunc<N, E>, from: N, to: N) {
 	return Stream.of(getAdjacent(from))
-		.find(step => step[1] === to)[0];
+		.find(step => step[1] === to)?.[0];
 }
 
 /**
