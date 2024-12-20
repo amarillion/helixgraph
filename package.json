@@ -1,6 +1,6 @@
 {
 	"name": "@amarillion/helixgraph",
-	"version": "0.7.4",
+	"version": "0.7.5",
 	"description": "A collection of graph algorithms for game development",
 	"keywords": [
 		"pathfinding",
