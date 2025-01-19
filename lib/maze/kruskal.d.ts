@@ -1,5 +1,5 @@
-import { AdjacencyFunc, LinkFunc } from "./definitions.js";
-declare type EdgeType<N, E> = {
+import { AdjacencyFunc, LinkFunc } from "../definitions.js";
+type EdgeType<N, E> = {
     src: N;
     dir: E;
     dest: N;

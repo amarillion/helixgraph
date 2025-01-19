@@ -1,11 +1,11 @@
 /* rule for eslint: */
 /* global Phaser */
-import { astar, trackback, breadthFirstSearch, dijkstra } from "../../lib/pathFinding.js";
-import { manhattanCrossProductHeuristic, manhattanStraightHeuristic, octagonalHeuristic } from "../../lib/astarHeuristics.js";
+import { astar, breadthFirstSearch, dijkstra } from "../../lib/index.js";
+import { trackback } from "../../lib/pathfinding/pathFinding.js";
+import { manhattanCrossProductHeuristic, manhattanStraightHeuristic, octagonalHeuristic } from "../../lib/index.js";
 import { assert } from "../../lib/assert.js";
 
 class Game extends Phaser.Game {
-	
 	constructor() {
 		let cfg = {
 			width: "100%",
@@ -23,7 +23,6 @@ const MAP_SCALE = 5.0;
 const TILE_WALL = 1, TILE_PLAYER = 2, TILE_OPEN = 7, TILE_GOAL = 3;
 
 class GameState {
-	
 	constructor() {
 		this.counter = 0;
 		this.maxIterations = 1;
@@ -53,9 +52,9 @@ class GameState {
 
 		algorithmSelect.addEventListener("change", () => {
 			const valueToFunc = {
-				"astar": astar,
-				"bfs": breadthFirstSearch,
-				"dijkstra": dijkstra
+				astar,
+				bfs: breadthFirstSearch,
+				dijkstra
 			};
 			this.algorithm = valueToFunc[algorithmSelect.value];
 			assert(this.algorithm);
@@ -80,7 +79,7 @@ class GameState {
 		};
 	}
 
-	preload() {		
+	preload() {
 		this.load.image("sprites1", "assets/sprites.png");
 		this.load.tilemap("tilemap1", "assets/level.json", null, Phaser.Tilemap.TILED_JSON);
 		this.load.spritesheet("sprites2", "assets/sprites.png", 8, 8, 8);
@@ -89,23 +88,23 @@ class GameState {
 	findPath(source, dest, maxIterations) {
 		this.heuristic = this.heuristicFactory(source, dest);
 		const dirs = {
-			N: { key : "N", dx:  0, dy:  1, w: 1 },
-			E: { key : "E", dx:  1, dy:  0, w: 1 },
-			S: { key : "S", dx:  0, dy: -1, w: 1 },
-			W: { key : "W", dx: -1, dy:  0, w: 1 },
+			N: { key: "N", dx: 0, dy: 1, w: 1 },
+			E: { key: "E", dx: 1, dy: 0, w: 1 },
+			S: { key: "S", dx: 0, dy: -1, w: 1 },
+			W: { key: "W", dx: -1, dy: 0, w: 1 },
 		};
 		const dirs2 = {
 			...dirs,
-			NE: { key : "NE", dx:  1, dy:  1, w: 1.414 },
-			NW: { key : "NW", dx: -1, dy:  1, w: 1.414 },
-			SE: { key : "SE", dx:  1, dy: -1, w: 1.414 },
-			SW: { key : "SW", dx: -1, dy: -1, w: 1.414 },
+			NE: { key: "NE", dx: 1, dy: 1, w: 1.414 },
+			NW: { key: "NW", dx: -1, dy: 1, w: 1.414 },
+			SE: { key: "SE", dx: 1, dy: -1, w: 1.414 },
+			SW: { key: "SW", dx: -1, dy: -1, w: 1.414 },
 		};
 		const dirsUsed = this.octagonalToggle ? dirs2 : dirs;
 
-		const inRange = (x, y) =>  {
+		const inRange = (x, y) => {
 			return (x >= 0 && x < this.map.width &&
-				y >= 0 && y < this.map.height);	
+				y >= 0 && y < this.map.height);
 		};
 		const map = this.map;
 		function *neighborFunc(tile) {
@@ -117,14 +116,14 @@ class GameState {
 				if (!inRange(nx, ny)) continue;
 				const tile = map.getTile(nx, ny);
 				if (!tile.collides)
-					yield ([key, tile]);
+					yield ([ key, tile ]);
 			}
 		}
 		const weightFunc = (edge) => dirsUsed[edge].w;
-		const opts = { 
+		const opts = {
 			maxIterations,
 			getWeight: weightFunc,
-			getHeuristic: this.heuristic 
+			getHeuristic: this.heuristic
 		};
 		return this.algorithm(source, dest, neighborFunc, opts);
 	}
@@ -136,7 +135,6 @@ class GameState {
 
 		const graphics = this.game.add.graphics(0, 0);
 		graphics.scale.setTo(MAP_SCALE);
-		
 		
 		// draw examined nodes
 		for (const { to, cost } of data.values()) {
@@ -155,7 +153,7 @@ class GameState {
 		
 		// draw the main path
 		graphics.lineStyle(2.0, 0x00FFFF, 0.5);
-		this.validPath = trackback (source, dest, data, (from, edge, to ) => {
+		this.validPath = trackback (source, dest, data, (from, edge, to) => {
 			graphics.moveTo(from.x * 8 + 4, from.y * 8 + 4);
 			graphics.lineTo(to.x * 8 + 4, to.y * 8 + 4);
 		});
@@ -163,7 +161,7 @@ class GameState {
 	}
 
 	// called everytime state is entered
-	create () {
+	create() {
 		this.game.stage.backgroundColor = "#787878";
 		this.game.stage.smoothed = false; // disable antialiasing
 		this.game.input.mouse.capture = true;
@@ -231,7 +229,8 @@ class GameState {
 			const h = this.heuristic(tile);
 
 			// log some information about this tile
-			this.debugText.text = `[${mx}, ${my}] ` + 
+			this.debugText.text =
+				`[${mx}, ${my}] ` +
 				`cost: ${cost && cost.toFixed(2)}; h: ${h && h.toFixed(2)}`;
 		}
 	}
@@ -262,5 +261,4 @@ window.onload = () => {
 
 	/** disable RMB context menu globally */
 	document.body.addEventListener("contextmenu", e => e.preventDefault());
-
 };

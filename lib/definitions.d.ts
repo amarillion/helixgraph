@@ -4,10 +4,10 @@
  * The return tuple's order Edge, Node is chosen so that they map simply
  * to an internal representation as a Key, Value pairs of a Map or js object.
 */
-export declare type AdjacencyFunc<N, E> = (from: N) => Iterable<[E, N]>;
+export type AdjacencyFunc<N, E> = (from: N) => Iterable<[E, N]>;
 /** create a link between two nodes */
-export declare type LinkFunc<N, E> = (from: N, edge: E, to: N) => boolean;
-export declare type PathFindFunc<N, E> = (src: N, dest: N | N[], getAdjacent: AdjacencyFunc<N, E>, options: {
+export type LinkFunc<N, E> = (from: N, edge: E, to: N) => void;
+export type PathFindFunc<N, E> = (src: N, dest: N | N[], getAdjacent: AdjacencyFunc<N, E>, options: {
     [key: string]: unknown;
 }) => Map<N, Step<N, E>>;
 /**
@@ -15,13 +15,13 @@ export declare type PathFindFunc<N, E> = (src: N, dest: N | N[], getAdjacent: Ad
  * For graph representations where E is a unique object, you can return a weight based on E only.
  * For graph representations where E is not unique, you can use the combination of E+N to return a weight.
 */
-export declare type WeightFunc<N, E> = (edge: E, from: N) => number;
+export type WeightFunc<N, E> = (edge: E, from: N) => number;
 /** boolean predicate for filtering, finding etc. */
-export declare type PredicateFunc<T> = (t: T) => boolean;
-export declare type Step<N, E> = {
+export type PredicateFunc<T> = (t: T) => boolean;
+export type Step<N, E> = {
     to: N;
-    from: N;
-    edge: E;
+    from?: N;
+    edge?: E;
     cost: number;
 };
 /** simple way to define a graph  */

@@ -1,5 +1,5 @@
-import { AdjacencyFunc, LinkFunc, WeightFunc } from "./definitions.js";
-import { PriorityQueue } from "./PriorityQueue.js";
+import { AdjacencyFunc, LinkFunc, WeightFunc } from "../definitions.js";
+import { PriorityQueue } from "../PriorityQueue.js";
 export interface PrimTieBreaker {
     start(): void;
     nextNode(): void;
@@ -21,7 +21,7 @@ export declare const PRIM_LAST_ADDED: PrimTieBreaker;
  * Produces low-river mazes with lots of branches and lots of short dead-ends.
  */
 export declare const PRIM_RANDOM: PrimTieBreaker;
-declare type EdgeType<N, E> = {
+type EdgeType<N, E> = {
     src: N;
     dir: E;
     dest: N;

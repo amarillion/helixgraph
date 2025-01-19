@@ -6,7 +6,7 @@ import { AdjacencyFunc, PredicateFunc } from "./definitions.js";
  * @param {*} getAdjacent function that for given node, returns array [ edge, node ] pairs
  *
  * @result a structure containing:
- * 	getWeight, getLeft, getRight, isSoure, isSink and getAdjacent functions,
+ *  getWeight, getLeft, getRight, isSoure, isSink and getAdjacent functions,
  *  as well as the data for those functions.
  */
 export declare function simplify<N, E>(source: N, isSource: PredicateFunc<N>, isSink: PredicateFunc<N>, getAdjacent: AdjacencyFunc<N, E>): {

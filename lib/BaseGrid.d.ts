@@ -1,4 +1,4 @@
-export declare type DirectionType = 1 | 2 | 4 | 8;
+export type DirectionType = 1 | 2 | 4 | 8;
 export declare const NORTH: DirectionType;
 export declare const EAST: DirectionType;
 export declare const SOUTH: DirectionType;
@@ -10,8 +10,8 @@ export declare class TemplateGrid<T> {
     _data: T[];
     constructor(width: number, height: number, cellFactory: (x: number, y: number, parent: unknown) => T);
     applyMask(mask: string[]): this;
-    _prepareGrid(): void;
-    randomCell(): T;
+    _prepareGrid(): any[];
+    randomCell(prng?: () => number): T;
     _index(x: number, y: number): number;
     remove(x: number, y: number): void;
     get(x: number, y: number): T;

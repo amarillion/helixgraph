@@ -3,7 +3,7 @@
 
 import { assert } from "../../lib/assert.js";
 import { TemplateGrid } from "../../lib/BaseGrid.js";
-import { RecursiveBackTrackerIter } from "../../lib/recursiveBacktracker.js";
+import { RecursiveBackTrackerIter } from "../../lib/index.js";
 
 const MSEC_PER_ITERATION = 20;
 const TILE_WIDTH = 64;
@@ -14,8 +14,8 @@ const EAST = 2;
 const SOUTH = 4;
 const WEST = 8;
 
-const HORIZONTAL = EAST|WEST;
-const VERTICAL = NORTH|SOUTH;
+const HORIZONTAL = EAST | WEST;
+const VERTICAL = NORTH | SOUTH;
 
 // for being able to find opposite directions
 const REVERSE = {
@@ -28,25 +28,24 @@ const REVERSE = {
 // Corresponding tile-idx for every combination of the 4 cardinal directions.
 const TILE_IDX_BY_TERRAIN = {
 	[EAST]: 0,
-	[EAST|WEST]: 1,
+	[EAST | WEST]: 1,
 	[WEST]: 2,
 	[0]: 3,
-	[SOUTH|EAST]: 4,
-	[SOUTH|EAST|WEST]: 5,
-	[SOUTH|WEST]: 6,
+	[SOUTH | EAST]: 4,
+	[SOUTH | EAST | WEST]: 5,
+	[SOUTH | WEST]: 6,
 	[SOUTH]: 7,
-	[NORTH|SOUTH|EAST]: 8,
-	[NORTH|SOUTH|EAST|WEST]: 9,
-	[NORTH|SOUTH|WEST]: 10,
-	[NORTH|SOUTH]: 11,
-	[NORTH|EAST]: 12,
-	[NORTH|EAST|WEST]: 13,
-	[NORTH|WEST]: 14,
+	[NORTH | SOUTH | EAST]: 8,
+	[NORTH | SOUTH | EAST | WEST]: 9,
+	[NORTH | SOUTH | WEST]: 10,
+	[NORTH | SOUTH]: 11,
+	[NORTH | EAST]: 12,
+	[NORTH | EAST | WEST]: 13,
+	[NORTH | WEST]: 14,
 	[NORTH]: 15,
 };
 
 class Node {
-
 	constructor(x, y, grid, onChange) {
 		this.x = x;
 		this.y = y;
@@ -58,17 +57,17 @@ class Node {
 	}
 
 	getByDir(dir) {
-		switch(dir) {
-		case NORTH: return this.grid.get(this.x, this.y - 1);
-		case  EAST: return this.grid.get(this.x + 1, this.y);
-		case SOUTH: return this.grid.get(this.x, this.y + 1);
-		case  WEST: return this.grid.get(this.x - 1, this.y);
+		switch (dir) {
+			case NORTH: return this.grid.get(this.x, this.y - 1);
+			case EAST: return this.grid.get(this.x + 1, this.y);
+			case SOUTH: return this.grid.get(this.x, this.y + 1);
+			case WEST: return this.grid.get(this.x - 1, this.y);
 		}
 	}
 
 	createTunnel() {
 		assert(!this.tunnel, "Error, created tunnel twice");
-		this.tunnel = new Node(this.x, this.y, this.grid, () => { this.onChange(this.tunnel); } );
+		this.tunnel = new Node(this.x, this.y, this.grid, () => { this.onChange(this.tunnel); });
 		this.tunnel.tunnel = this; // A tunnel is a pair of nodes that refer to each other
 		return this.tunnel;
 	}
@@ -77,12 +76,12 @@ class Node {
 	*getOpenLinks() {
 		if (this.tunnel) return;
 
-		for (const dir of [NORTH, EAST, SOUTH, WEST]) {
+		for (const dir of [ NORTH, EAST, SOUTH, WEST ]) {
 			const adjacent = this.getByDir(dir);
 			if (adjacent) {
 				// only pristine nodes
 				if (Object.keys(adjacent.links).length === 0) {
-					yield [{ dir, tunnel: false }, adjacent];
+					yield [ { dir, tunnel: false }, adjacent ];
 				}
 				
 				// see if we can create potentially a new tunnel
@@ -92,10 +91,9 @@ class Node {
 					const alreadyHasTunnel = Boolean(adjacent.tunnel);
 					const otherSidePristine = Object.keys(otherSide.links).length === 0;
 					if (otherSidePristine && orthogonal && !alreadyHasTunnel) {
-						yield [{ dir, tunnel: true }, otherSide ];
+						yield [ { dir, tunnel: true }, otherSide ];
 					}
 				}
-
 			}
 		}
 	}
@@ -141,7 +139,6 @@ class Node {
 }
 
 class Scene extends Phaser.Scene {
-	
 	constructor() {
 		super({ key: "Main Scene" });
 		this.prevTime = 0;
@@ -198,7 +195,7 @@ class Scene extends Phaser.Scene {
 
 		const isTunnel = Boolean(node.tunnel);
 		if (isTunnel) {
-			for (const tunnelPart of [node, node.tunnel]) {
+			for (const tunnelPart of [ node, node.tunnel ]) {
 				const dirSet = tunnelPart.dirSet();
 				const layer = (dirSet & HORIZONTAL) > 0 ? this.layer0 : this.layer1;
 				drawNodeOnLayer(layer, tunnelPart);
@@ -209,7 +206,7 @@ class Scene extends Phaser.Scene {
 		}
 	}
 
-	update (time) {
+	update(time) {
 		if (!this.running) return;
 
 		if (time - this.prevTime > MSEC_PER_ITERATION) {
@@ -243,4 +240,5 @@ const config = {
 	scene: Scene
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const game = new Phaser.Game(config);

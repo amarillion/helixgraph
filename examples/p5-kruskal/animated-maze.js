@@ -1,4 +1,4 @@
-import { KruskalIter } from "../../lib/kruskal.js";
+import { KruskalIter } from "../../lib/maze/kruskal.js";
 
 const cos = Math.cos;
 const sin = Math.sin;
@@ -64,9 +64,8 @@ class Grid {
 }
 
 export function createRobinMaze() {
-
 	const GRID_SIZE = 22;
-	const ROWLEN_FOR_RADIUS = initRowLenForRadius(); // number of cells in row of a quadrant		
+	const ROWLEN_FOR_RADIUS = initRowLenForRadius(); // number of cells in row of a quadrant
 	const script = scriptGenerator();
 	let CELL_SIZE = 1;
 	
@@ -83,18 +82,18 @@ export function createRobinMaze() {
 	
 	function createRadialCell(x, y, isSplit) {
 		const cell = new Cell();
-		const r1  = (v) => v * y * CELL_SIZE;
-		const r15 = (v) => v* (y + 0.5) * CELL_SIZE;
-		const r2  = (v) => v * (y + 1) * CELL_SIZE;
+		const r1 = (v) => v * y * CELL_SIZE;
+		const r15 = (v) => v * (y + 0.5) * CELL_SIZE;
+		const r2 = (v) => v * (y + 1) * CELL_SIZE;
 		const quartRowLen = ROWLEN_FOR_RADIUS[y];
 		const angularWidth = (0.5 * PI / quartRowLen);
 		const theta1 = (x * angularWidth);
 		const theta15 = ((x + 0.5) * angularWidth);
 		const theta2 = ((x + 1) * angularWidth);
 		cell.borders = {
-			"IN": (p) => p.arc(0, 0, r1(2), r1(2), theta1, theta2),
-			"CW": (p) => p.line(r1(cos(theta2)), r1(sin(theta2)), r2(cos(theta2)), r2(sin(theta2))),
-			"CCW": (p) => p.line(r1(cos(theta1)), r1(sin(theta1)), r2(cos(theta1)), r2(sin(theta1))),
+			IN: (p) => p.arc(0, 0, r1(2), r1(2), theta1, theta2),
+			CW: (p) => p.line(r1(cos(theta2)), r1(sin(theta2)), r2(cos(theta2)), r2(sin(theta2))),
+			CCW: (p) => p.line(r1(cos(theta1)), r1(sin(theta1)), r2(cos(theta1)), r2(sin(theta1))),
 		};
 		// some radial cells have two neighbors on the outside, and their outer border is split in two.
 		if (isSplit) {
@@ -128,7 +127,7 @@ export function createRobinMaze() {
 				// link counter-clock-wise neighbor
 				if (xx > 0) { cell.link("CCW", row[xx - 1], "CW"); }
 				if (yy > 0) {
-					// does the inner neighbor have two outer neighbors? 
+					// does the inner neighbor have two outer neighbors?
 					const { parentIndex, border } = innerRowIsShorter ?
 						// if so, check which one we are.
 						{ border: (xx % 2 === 0) ? "OUT1" : "OUT2", parentIndex: Math.floor(xx / 2) } :
@@ -158,7 +157,7 @@ export function createRobinMaze() {
 	}
 
 	function updateCellSize(width, height) {
-		const minSize = Math.min(width, height) * 0.9; // minus 10% margin		
+		const minSize = Math.min(width, height) * 0.9; // minus 10% margin
 		CELL_SIZE = Math.max(3, Math.floor(minSize / 50)); // size of a single square
 	}
 
@@ -185,7 +184,6 @@ export function createRobinMaze() {
 			// do nothing for 100 frames before starting over
 			for (let i = 0; i < 100; ++i) { yield; }
 			clearGrid();
-			
 		}
 	}
 
@@ -198,7 +196,6 @@ export function createRobinMaze() {
 			cell => Object.entries(cell.links),
 			(src, border, dest) => src.removeBorder(border, dest),
 		);
-
 	}
 
 	return { setup, onResize, draw };

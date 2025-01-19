@@ -1,6 +1,5 @@
 export class Checkbox extends HTMLElement {
-	
-	constructor() {	
+	constructor() {
 		super();
 		this.attachShadow({ mode: "open" });
 		this._label = this.getAttribute("label") || "";
@@ -48,11 +47,9 @@ export class Checkbox extends HTMLElement {
 		<input type="checkbox"></input>`;
 		this.shadowRoot.querySelector("input").addEventListener("change", (e) => this.onChange(e));
 	}
-
 }
 
 export class Tooltip extends HTMLElement {
-
 	constructor() {
 		super();
 		this.render();
@@ -77,7 +74,6 @@ export class Tooltip extends HTMLElement {
 }
 
 export class Collapsible extends HTMLElement {
-
 	constructor() {
 		super();
 		this.render();
@@ -175,7 +171,6 @@ export class SelectModel {
 */
 
 export class Select extends HTMLElement {
-	
 	constructor() {
 		super();
 		this.attachShadow({ mode: "open" });
@@ -235,4 +230,3 @@ export class Select extends HTMLElement {
 		this.shadowRoot.querySelector("select").addEventListener("change", (e) => this.onChange(e));
 	}
 }
-

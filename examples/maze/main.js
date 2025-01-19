@@ -1,8 +1,9 @@
-import { recursiveBackTracker } from "../../lib/recursiveBacktracker.js";
+import { recursiveBackTracker } from "../../lib/maze/recursiveBacktracker.js";
 import { pickOne } from "../../lib/random.js";
 import { BaseGrid, NORTH, SOUTH, EAST, WEST } from "../../lib/BaseGrid.js";
-import { prim, PRIM_LAST_ADDED_RANDOM_EDGES, PRIM_RANDOM } from "../../lib/prim.js";
-import { kruskal } from "../../lib/kruskal.js";
+import { prim, PRIM_LAST_ADDED_RANDOM_EDGES, PRIM_RANDOM } from "../../lib/maze/prim.js";
+import { kruskal } from "../../lib/maze/kruskal.js";
+import { aldousBroder } from "../../lib/maze/aldousBroder.js";
 import { Collapsible, Select } from "../util/components.js";
 import { assert } from "../../lib/assert.js";
 
@@ -24,9 +25,9 @@ const POINTS = [
 ];
 
 const SEGMENTS = {
-	[NORTH]: POINTS.slice(0,2),
-	[EAST]: POINTS.slice(1,3),
-	[SOUTH]: POINTS.slice(2,4),
+	[NORTH]: POINTS.slice(0, 2),
+	[EAST]: POINTS.slice(1, 3),
+	[SOUTH]: POINTS.slice(2, 4),
 	[WEST]: [ POINTS[3], POINTS[0] ]
 };
 
@@ -34,7 +35,6 @@ const margin = 10;
 
 // cell implementation that keeps track of links to neighboring cells
 class Cell {
-
 	constructor(x, y) {
 		this.x = x;
 		this.y = y;
@@ -52,9 +52,9 @@ class Cell {
 			console.log("WARNING: creating link that already exists: ", { dir, reverse });
 		}
 		this.links[dir] = other;
-		if (reverse) { 
+		if (reverse) {
 			// call recursively, but without reversing again
-			other.link(this, reverse); 
+			other.link(this, reverse);
 		}
 	}
 
@@ -70,7 +70,7 @@ class Cell {
 		ctx.strokeStyle = "black";
 
 		// ctx.lineCap = "round";
-		for (const dir of [NORTH, EAST, SOUTH, WEST]) {
+		for (const dir of [ NORTH, EAST, SOUTH, WEST ]) {
 			if (this.linked(dir)) continue;
 
 			const segment = SEGMENTS[dir];
@@ -85,16 +85,14 @@ class Cell {
 // antoher alternative maze generation algorithm
 // THIS works only with a rectangular grid...
 // TODO: move to library
-export function binaryTree(grid, linkCells) {
-
+export function binaryTree(grid, linkCells, prng = Math.random) {
 	for (const cell of grid.eachNode()) {
-		
-		const neighbors = [...grid.getAdjacent(cell)]
-			.filter(([key]) => key === NORTH || key === EAST);
+		const neighbors = [ ...grid.getAdjacent(cell) ]
+			.filter(([ key ]) => key === NORTH || key === EAST);
 		
 		if (neighbors.length > 0) {
-			const [ dir, to ] = pickOne(neighbors);
-			linkCells(cell, dir, to); 
+			const [ dir, to ] = pickOne(neighbors, prng);
+			linkCells(cell, dir, to);
 		}
 	}
 }
@@ -105,7 +103,6 @@ customElements.define("hxg-select", Select);
 const linkCells = (src, dir, dest) => { src.link(dest, dir, reverse[dir]); };
 
 class Main {
-
 	refreshCanvas() {
 		const canvasWidth = (document.body.clientWidth);
 		const canvasHeight = (document.body.clientHeight);
@@ -122,7 +119,7 @@ class Main {
 
 		const cellFactory = (x, y) => new Cell(x, y);
 		const grid = new BaseGrid(
-			Math.floor((canvasWidth - margin * 2) / CELL_SIZE), 
+			Math.floor((canvasWidth - margin * 2) / CELL_SIZE),
 			Math.floor((canvasHeight - margin * 2) / CELL_SIZE),
 			cellFactory
 		);
@@ -136,39 +133,42 @@ class Main {
 
 	refreshAlgorithm() {
 		switch (this.algorithmSelect.value) {
-		case "recursivebt": 
-			this.algorithm = (grid) => recursiveBackTracker(
-				grid.randomCell(), // start cell
-				n => grid.getAdjacent(n), 
-				linkCells );
-			break;
-		case "kruskal":
-			this.algorithm = (grid) => kruskal(
-				grid.eachNode(),
-				n => grid.getAdjacent(n), 
-				linkCells);
-			break;
-		case "prim_last_node": 
-			this.algorithm = (grid) => prim(
-				grid.randomCell(), // start cell
-				n => grid.getAdjacent(n), 
-				linkCells, {
-					tiebreaker: PRIM_LAST_ADDED_RANDOM_EDGES
-				});
-			break;
-		case "prim_random": 
-			this.algorithm = (grid) => prim(
-				grid.randomCell(), // start cell
-				n => grid.getAdjacent(n), 
-				linkCells, {
-					tiebreaker: PRIM_RANDOM
-				});
-			break;
-		case "binary_tree": 
-			this.algorithm = (grid) => binaryTree(grid, linkCells);
-			break;
-		default:
-			assert(`Coding error - algorithm ${this.algorithmSelect.value} is unknown`);
+			case "recursivebt":
+				this.algorithm = (grid) => recursiveBackTracker(
+					grid.randomCell(), // start cell
+					n => grid.getAdjacent(n),
+					linkCells);
+				break;
+			case "kruskal":
+				this.algorithm = (grid) => kruskal(
+					grid.eachNode(),
+					n => grid.getAdjacent(n),
+					linkCells);
+				break;
+			case "prim_last_node":
+				this.algorithm = (grid) => prim(
+					grid.randomCell(), // start cell
+					n => grid.getAdjacent(n),
+					linkCells, {
+						tiebreaker: PRIM_LAST_ADDED_RANDOM_EDGES
+					});
+				break;
+			case "prim_random":
+				this.algorithm = (grid) => prim(
+					grid.randomCell(), // start cell
+					n => grid.getAdjacent(n),
+					linkCells, {
+						tiebreaker: PRIM_RANDOM
+					});
+				break;
+			case "binary_tree":
+				this.algorithm = (grid) => binaryTree(grid, linkCells);
+				break;
+			case "aldous_broder":
+				this.algorithm = (grid) => aldousBroder(grid.eachNode(), n => grid.getAdjacent(n), linkCells);
+				break;
+			default:
+				assert(`Coding error - algorithm ${this.algorithmSelect.value} is unknown`);
 		}
 
 		this.refreshMaze();
@@ -183,7 +183,8 @@ class Main {
 			{ id: "kruskal", name: "Kruskal's algorithm" },
 			{ id: "prim_last_node", name: "Prim's algorithm (last node)" },
 			{ id: "prim_random", name: "Prim's algorithm (random)" },
-			{ id: "binary_tree", name: "Binary tree" }
+			{ id: "binary_tree", name: "Binary tree" },
+			{ id: "aldous_broder", name: "Aldous-Broder algorithm" },
 		];
 	
 		this.algorithmSelect.callback = () => {
@@ -196,7 +197,6 @@ class Main {
 
 		this.refreshCanvas();
 	}
-
 }
 
 window.onload = () => {
