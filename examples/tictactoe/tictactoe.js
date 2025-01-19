@@ -26,7 +26,7 @@ const analyseBoard = (board) => {
 	return { xcount, ocount };
 };
 
-const currentPlayer = function(board) {
+const currentPlayer = function (board) {
 	const { xcount, ocount } = analyseBoard(board);
 	if (xcount + ocount === 9) return "";
 	return (xcount >= ocount) ? "O" : "X";
@@ -106,12 +106,12 @@ async function main() {
 	const question = (str) => new Promise(resolve => rl.question(str, resolve));
 
 	const drawBoard = (board) => {
-		return `[${board.substr(0, 3)}]\n[${board.substr(3, 3)}]\n[${board.substr(6,3)}]`;
+		return `[${board.substr(0, 3)}]\n[${board.substr(3, 3)}]\n[${board.substr(6, 3)}]`;
 	};
 
 	let state = EMPTY;
 
-	const INTERPRETATION =  {
+	const INTERPRETATION = {
 		[0]: "draw",
 		[1]: "win",
 		[-1]: "lose"

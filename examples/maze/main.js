@@ -25,9 +25,9 @@ const POINTS = [
 ];
 
 const SEGMENTS = {
-	[NORTH]: POINTS.slice(0,2),
-	[EAST]: POINTS.slice(1,3),
-	[SOUTH]: POINTS.slice(2,4),
+	[NORTH]: POINTS.slice(0, 2),
+	[EAST]: POINTS.slice(1, 3),
+	[SOUTH]: POINTS.slice(2, 4),
 	[WEST]: [ POINTS[3], POINTS[0] ]
 };
 

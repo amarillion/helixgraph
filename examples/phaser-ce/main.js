@@ -52,9 +52,9 @@ class GameState {
 
 		algorithmSelect.addEventListener("change", () => {
 			const valueToFunc = {
-				"astar": astar,
-				"bfs": breadthFirstSearch,
-				"dijkstra": dijkstra
+				astar,
+				bfs: breadthFirstSearch,
+				dijkstra
 			};
 			this.algorithm = valueToFunc[algorithmSelect.value];
 			assert(this.algorithm);
@@ -88,21 +88,21 @@ class GameState {
 	findPath(source, dest, maxIterations) {
 		this.heuristic = this.heuristicFactory(source, dest);
 		const dirs = {
-			N: { key : "N", dx:  0, dy:  1, w: 1 },
-			E: { key : "E", dx:  1, dy:  0, w: 1 },
-			S: { key : "S", dx:  0, dy: -1, w: 1 },
-			W: { key : "W", dx: -1, dy:  0, w: 1 },
+			N: { key: "N", dx: 0, dy: 1, w: 1 },
+			E: { key: "E", dx: 1, dy: 0, w: 1 },
+			S: { key: "S", dx: 0, dy: -1, w: 1 },
+			W: { key: "W", dx: -1, dy: 0, w: 1 },
 		};
 		const dirs2 = {
 			...dirs,
-			NE: { key : "NE", dx:  1, dy:  1, w: 1.414 },
-			NW: { key : "NW", dx: -1, dy:  1, w: 1.414 },
-			SE: { key : "SE", dx:  1, dy: -1, w: 1.414 },
-			SW: { key : "SW", dx: -1, dy: -1, w: 1.414 },
+			NE: { key: "NE", dx: 1, dy: 1, w: 1.414 },
+			NW: { key: "NW", dx: -1, dy: 1, w: 1.414 },
+			SE: { key: "SE", dx: 1, dy: -1, w: 1.414 },
+			SW: { key: "SW", dx: -1, dy: -1, w: 1.414 },
 		};
 		const dirsUsed = this.octagonalToggle ? dirs2 : dirs;
 
-		const inRange = (x, y) =>  {
+		const inRange = (x, y) => {
 			return (x >= 0 && x < this.map.width &&
 				y >= 0 && y < this.map.height);
 		};
@@ -161,7 +161,7 @@ class GameState {
 	}
 
 	// called everytime state is entered
-	create () {
+	create() {
 		this.game.stage.backgroundColor = "#787878";
 		this.game.stage.smoothed = false; // disable antialiasing
 		this.game.input.mouse.capture = true;
@@ -229,7 +229,8 @@ class GameState {
 			const h = this.heuristic(tile);
 
 			// log some information about this tile
-			this.debugText.text = `[${mx}, ${my}] ` +
+			this.debugText.text =
+				`[${mx}, ${my}] ` +
 				`cost: ${cost && cost.toFixed(2)}; h: ${h && h.toFixed(2)}`;
 		}
 	}

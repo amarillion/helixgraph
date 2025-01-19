@@ -14,8 +14,8 @@ const EAST = 2;
 const SOUTH = 4;
 const WEST = 8;
 
-const HORIZONTAL = EAST|WEST;
-const VERTICAL = NORTH|SOUTH;
+const HORIZONTAL = EAST | WEST;
+const VERTICAL = NORTH | SOUTH;
 
 // for being able to find opposite directions
 const REVERSE = {
@@ -28,20 +28,20 @@ const REVERSE = {
 // Corresponding tile-idx for every combination of the 4 cardinal directions.
 const TILE_IDX_BY_TERRAIN = {
 	[EAST]: 0,
-	[EAST|WEST]: 1,
+	[EAST | WEST]: 1,
 	[WEST]: 2,
 	[0]: 3,
-	[SOUTH|EAST]: 4,
-	[SOUTH|EAST|WEST]: 5,
-	[SOUTH|WEST]: 6,
+	[SOUTH | EAST]: 4,
+	[SOUTH | EAST | WEST]: 5,
+	[SOUTH | WEST]: 6,
 	[SOUTH]: 7,
-	[NORTH|SOUTH|EAST]: 8,
-	[NORTH|SOUTH|EAST|WEST]: 9,
-	[NORTH|SOUTH|WEST]: 10,
-	[NORTH|SOUTH]: 11,
-	[NORTH|EAST]: 12,
-	[NORTH|EAST|WEST]: 13,
-	[NORTH|WEST]: 14,
+	[NORTH | SOUTH | EAST]: 8,
+	[NORTH | SOUTH | EAST | WEST]: 9,
+	[NORTH | SOUTH | WEST]: 10,
+	[NORTH | SOUTH]: 11,
+	[NORTH | EAST]: 12,
+	[NORTH | EAST | WEST]: 13,
+	[NORTH | WEST]: 14,
 	[NORTH]: 15,
 };
 
@@ -57,11 +57,11 @@ class Node {
 	}
 
 	getByDir(dir) {
-		switch(dir) {
-		case NORTH: return this.grid.get(this.x, this.y - 1);
-		case  EAST: return this.grid.get(this.x + 1, this.y);
-		case SOUTH: return this.grid.get(this.x, this.y + 1);
-		case  WEST: return this.grid.get(this.x - 1, this.y);
+		switch (dir) {
+			case NORTH: return this.grid.get(this.x, this.y - 1);
+			case EAST: return this.grid.get(this.x + 1, this.y);
+			case SOUTH: return this.grid.get(this.x, this.y + 1);
+			case WEST: return this.grid.get(this.x - 1, this.y);
 		}
 	}
 
@@ -206,7 +206,7 @@ class Scene extends Phaser.Scene {
 		}
 	}
 
-	update (time) {
+	update(time) {
 		if (!this.running) return;
 
 		if (time - this.prevTime > MSEC_PER_ITERATION) {
@@ -240,4 +240,5 @@ const config = {
 	scene: Scene
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const game = new Phaser.Game(config);

@@ -32,6 +32,7 @@
 		"@stylistic/quotes": [ "error", "double" ],
 		"@stylistic/max-statements-per-line": [ "off" ],
 		"@stylistic/operator-linebreak": [ "off" ],
+		"@stylistic/yield-star-spacing": [ "off" ], // No space after asterisk in `yield *generator`
 		"@typescript-eslint/explicit-module-boundary-types": [ "off" ],
 		"@stylistic/linebreak-style": [ "error", "unix" ],
 		/** don't allow underscores in names unless they're after this. 

@@ -13,17 +13,17 @@ const BASE_COLOR = "white";
 // inspired by http://qiao.github.io/PathFinding.js/visual/
 
 const RECTANGULAR_4WAY = {
-	N: { key : "N", dx:  0, dy:  1, w: 1 },
-	E: { key : "E", dx:  1, dy:  0, w: 1 },
-	S: { key : "S", dx:  0, dy: -1, w: 1 },
-	W: { key : "W", dx: -1, dy:  0, w: 1 },
+	N: { key: "N", dx: 0, dy: 1, w: 1 },
+	E: { key: "E", dx: 1, dy: 0, w: 1 },
+	S: { key: "S", dx: 0, dy: -1, w: 1 },
+	W: { key: "W", dx: -1, dy: 0, w: 1 },
 };
 const RECTANGULAR_8WAY = {
 	...RECTANGULAR_4WAY,
-	NE: { key : "NE", dx:  1, dy:  1, w: 1.414 },
-	NW: { key : "NW", dx: -1, dy:  1, w: 1.414 },
-	SE: { key : "SE", dx:  1, dy: -1, w: 1.414 },
-	SW: { key : "SW", dx: -1, dy: -1, w: 1.414 },
+	NE: { key: "NE", dx: 1, dy: 1, w: 1.414 },
+	NW: { key: "NW", dx: -1, dy: 1, w: 1.414 },
+	SE: { key: "SE", dx: 1, dy: -1, w: 1.414 },
+	SW: { key: "SW", dx: -1, dy: -1, w: 1.414 },
 };
 const HEX_DIRS = {
 	0: { w: 1, dx: -1, dy: 0 },
@@ -112,37 +112,37 @@ class Main {
 		
 		this.distanceSelect = document.getElementById("distance-select");
 		this.distanceSelect.options = [
-			{id: "manhattan", name:"Manhattan"},
-			{id: "euclidian", name:"Euclidian"},
-			{id: "octagonal", name:"8-Way"},
-			{id: "hexagonal", name:"Catan"},
+			{ id: "manhattan", name: "Manhattan" },
+			{ id: "euclidian", name: "Euclidian" },
+			{ id: "octagonal", name: "8-Way" },
+			{ id: "hexagonal", name: "Catan" },
 		];
 
 		this.tiebreakerSelect = document.getElementById("tiebreaker-select");
 		this.tiebreakerSelect.options = [
-			{id:"crossprod", name:"Cross Product"},
-			{id:"straight", name:"Near bounding box"},
-			{id:"none", name:"None"},
+			{ id: "crossprod", name: "Cross Product" },
+			{ id: "straight", name: "Near bounding box" },
+			{ id: "none", name: "None" },
 		];
 
 		this.gridSelect = document.getElementById("grid-select");
 		this.gridSelect.options = [
-			{ id:"rectangular", name:"Rectangular 4-way"},
-			{ id:"octagonal", name: "Rectangular 8-way"},
-			{ id:"hexagonal", name: "Hexagonal"}
+			{ id: "rectangular", name: "Rectangular 4-way" },
+			{ id: "octagonal", name: "Rectangular 8-way" },
+			{ id: "hexagonal", name: "Hexagonal" }
 		];
 
 		this.colorSelect = document.getElementById("color-select");
 		this.colorSelect.options = [
-			{ id:"cost", name:"Animate path" },
-			{ id:"heuristic", name: "Heuristic" },
-			{ id:"distance", name: "Distance" },
-			{ id:"tiebreaker", name: "Tie-breaker" }
+			{ id: "cost", name: "Animate path" },
+			{ id: "heuristic", name: "Heuristic" },
+			{ id: "distance", name: "Distance" },
+			{ id: "tiebreaker", name: "Tie-breaker" }
 		];
 
 		this.algorithmSelect = document.getElementById("algorithm-select");
 		this.algorithmSelect.options = [
-			{id:"astar", name: "A*"}, {id:"bfs", name: "Breadth First Search"}, {id:"dijkstra", name: "Dijkstra"}
+			{ id: "astar", name: "A*" }, { id: "bfs", name: "Breadth First Search" }, { id: "dijkstra", name: "Dijkstra" }
 		];
 
 		this.greedyCheck = document.getElementById("greedy-checkbox");
@@ -170,9 +170,9 @@ class Main {
 
 		this.algorithmSelect.callback = (newVal) => {
 			const valueToFunc = {
-				"astar": astar,
-				"bfs": breadthFirstSearch,
-				"dijkstra": dijkstra
+				astar,
+				bfs: breadthFirstSearch,
+				dijkstra
 			};
 			this.algorithm = valueToFunc[newVal];
 			assert(this.algorithm);
@@ -190,8 +190,8 @@ class Main {
 
 	distanceFunc() {
 		const distanceFunctions = {
-			manhattan: (x1, y1, x2, y2) => Math.abs(x2-x1) + Math.abs(y2-y1),
-			euclidian: (x1, y1, x2, y2) => Math.sqrt((x2-x1) * (x2-x1) + (y2-y1) * (y2-y1)),
+			manhattan: (x1, y1, x2, y2) => Math.abs(x2 - x1) + Math.abs(y2 - y1),
+			euclidian: (x1, y1, x2, y2) => Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)),
 			octagonal: (x1, y1, x2, y2) => {
 				const adx1 = Math.abs(x2 - x1);
 				const ady1 = Math.abs(y2 - y1);
@@ -215,9 +215,9 @@ class Main {
 				const rx1 = x1 + Math.ceil(y1 / 2);
 				const rx2 = x2 + Math.ceil(y2 / 2);
 				const rdx = rx2 - rx1;
-				const abs_rdx = Math.abs(rdx);
+				const absRdx = Math.abs(rdx);
 				const dy = y2 - y1;
-				const abs_dy = Math.abs(dy);
+				const absDy = Math.abs(dy);
 				/**
 				 * dx < -dy \       /   dx < 0
 				 *           \     /
@@ -232,13 +232,13 @@ class Main {
 				
 				if (rdx * dy < 0) { // one positive, other negative
 					// areas C + D
-					return abs_rdx + abs_dy;
+					return absRdx + absDy;
 				}
-				else if (abs_rdx > abs_dy) { // areas F + A
-					return abs_rdx;
+				else if (absRdx > absDy) { // areas F + A
+					return absRdx;
 				}
 				else { // areas E + B
-					return abs_dy;
+					return absDy;
 				}
 			}
 		};
@@ -252,7 +252,7 @@ class Main {
 	tiebreakerFunc() {
 		const tiebreakerFunctions = {
 			none: () => 0,
-			crossprod: (dx1, dy1, dx2, dy2) => Math.abs(dx1*dy2 - dx2*dy1),
+			crossprod: (dx1, dy1, dx2, dy2) => Math.abs(dx1 * dy2 - dx2 * dy1),
 			straight: (dx1, dy1, dx2, dy2) => {
 				const fx = dx2 === 0 ? 0.5 : dx1 / dx2 + 0.01; // 0.01 is to break tie between horizontal / vertical
 				const fy = dy2 === 0 ? 0.5 : dy1 / dy2;
@@ -298,18 +298,18 @@ class Main {
 
 	selectedMeasure() {
 		const MEASURES = {
-			"heuristic":  d => this.heuristic(d),
-			"distance":   this.distanceFunc(),
-			"tiebreaker": this.tiebreakerFunc(),
+			heuristic: d => this.heuristic(d),
+			distance: this.distanceFunc(),
+			tiebreaker: this.tiebreakerFunc(),
 		};
 		return MEASURES[this.colorSelect.value];
 	}
 
 	visualizeMeasure() {
 		const COLOR_SCALES = {
-			"heuristic":  [ "#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3" ] /* set-3 */,
-			"distance":   [ "#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99" ] /* paired */,
-			"tiebreaker": [ "#d01c8b","#f1b6da","#f7f7f7","#b8e186","#4dac26" ] /* pink-green */,
+			heuristic: [ "#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3" ] /* set-3 */,
+			distance: [ "#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99" ] /* paired */,
+			tiebreaker: [ "#d01c8b", "#f1b6da", "#f7f7f7", "#b8e186", "#4dac26" ] /* pink-green */,
 		};
 
 		const measure = this.selectedMeasure();
@@ -317,11 +317,11 @@ class Main {
 
 		const [ w, h ] = [ this.grid.width, this.grid.height ];
 		const range = [
-			measure(this.grid.get(0,0)),
-			measure(this.grid.get(w-1,0)),
-			measure(this.grid.get(0,h-1)),
-			measure(this.grid.get(w-1,h-1)),
-			measure(this.grid.get(Math.floor(w/2),Math.floor(h/2)))
+			measure(this.grid.get(0, 0)),
+			measure(this.grid.get(w - 1, 0)),
+			measure(this.grid.get(0, h - 1)),
+			measure(this.grid.get(w - 1, h - 1)),
+			measure(this.grid.get(Math.floor(w / 2), Math.floor(h / 2)))
 		];
 		const min = Math.min(...range);
 		const max = Math.max(...range);
@@ -435,6 +435,7 @@ class Main {
 		this.mouseMode = !d.blocked;
 		d.blocked = !d.blocked;
 	}
+	
 	onDrag(p) {
 		const target = document.elementFromPoint(p.clientX, p.clientY);
 		const d = target.data;
@@ -443,6 +444,7 @@ class Main {
 			.transition().duration(200)
 			.attr("fill", this.mapFillColor(d));
 	}
+	
 	onMove(event) {
 		const target = document.elementFromPoint(event.clientX, event.clientY);
 		if (target) {
@@ -466,6 +468,7 @@ class Main {
 			}
 		}
 	}
+	
 	onEnd() {
 		this.mouseMode = null;
 		this.resetPath();
@@ -485,7 +488,7 @@ class Main {
 				.each(
 					// store reference to SVG element.
 					// if we use old fashioned function notation, 'this' is bound to svg element.
-					function(d) { d.elt = this; this.data = d; }
+					function (d) { d.elt = this; this.data = d; }
 				)
 				.attr("points", d => d.points)
 				.attr("transform", d => {

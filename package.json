@@ -20,7 +20,7 @@
 		"build": "tsc",
 		"test": "jest",
 		"test:coverage": "jest --coverage",
-		"lint": "eslint {src,test}/**/*.ts",
+		"lint": "eslint {src,test,examples}/**/*.{ts,js}",
 		"prepublishOnly": "npm run clean; npm run lint && npm t && npm run build"
 	},
 	"author": {

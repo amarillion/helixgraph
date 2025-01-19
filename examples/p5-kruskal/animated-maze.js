@@ -82,18 +82,18 @@ export function createRobinMaze() {
 	
 	function createRadialCell(x, y, isSplit) {
 		const cell = new Cell();
-		const r1  = (v) => v * y * CELL_SIZE;
-		const r15 = (v) => v* (y + 0.5) * CELL_SIZE;
-		const r2  = (v) => v * (y + 1) * CELL_SIZE;
+		const r1 = (v) => v * y * CELL_SIZE;
+		const r15 = (v) => v * (y + 0.5) * CELL_SIZE;
+		const r2 = (v) => v * (y + 1) * CELL_SIZE;
 		const quartRowLen = ROWLEN_FOR_RADIUS[y];
 		const angularWidth = (0.5 * PI / quartRowLen);
 		const theta1 = (x * angularWidth);
 		const theta15 = ((x + 0.5) * angularWidth);
 		const theta2 = ((x + 1) * angularWidth);
 		cell.borders = {
-			"IN": (p) => p.arc(0, 0, r1(2), r1(2), theta1, theta2),
-			"CW": (p) => p.line(r1(cos(theta2)), r1(sin(theta2)), r2(cos(theta2)), r2(sin(theta2))),
-			"CCW": (p) => p.line(r1(cos(theta1)), r1(sin(theta1)), r2(cos(theta1)), r2(sin(theta1))),
+			IN: (p) => p.arc(0, 0, r1(2), r1(2), theta1, theta2),
+			CW: (p) => p.line(r1(cos(theta2)), r1(sin(theta2)), r2(cos(theta2)), r2(sin(theta2))),
+			CCW: (p) => p.line(r1(cos(theta1)), r1(sin(theta1)), r2(cos(theta1)), r2(sin(theta1))),
 		};
 		// some radial cells have two neighbors on the outside, and their outer border is split in two.
 		if (isSplit) {

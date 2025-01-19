@@ -1,3 +1,4 @@
+/* global p5 */
 /**
  * A wrapper for p5 sketching functions that handles canvas creation and resize events.
  */
