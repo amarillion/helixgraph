@@ -1,7 +1,7 @@
-import { Cell, GridGraph, reverse } from "./helper/gridGraph.js";
-import { Stream } from "../src/iterableUtils.js";
-import { kruskal } from "../src/kruskal.js";
-import { DirectionType } from "../src/BaseGrid.js";
+import { Cell, GridGraph, reverse } from "../helper/gridGraph.js";
+import { Stream } from "../../src/iterableUtils.js";
+import { kruskal } from "../../src/maze/kruskal.js";
+import { DirectionType } from "../../src/BaseGrid.js";
 
 test("Kruskal's algorithm", () => {
 	const w = 2;

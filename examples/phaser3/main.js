@@ -3,7 +3,7 @@
 
 import { assert } from "../../lib/assert.js";
 import { TemplateGrid } from "../../lib/BaseGrid.js";
-import { RecursiveBackTrackerIter } from "../../lib/recursiveBacktracker.js";
+import { RecursiveBackTrackerIter } from "../../lib/index.js";
 
 const MSEC_PER_ITERATION = 20;
 const TILE_WIDTH = 64;

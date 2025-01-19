@@ -1,7 +1,8 @@
-import { T_JUNCTION, LINEAR_THREE, CYCLICAL } from "./helper/graphData.js";
-import { indexGraph, FORWARD, REVERSE } from "./helper/indexGraph.js";
-import { simplify, flattenPath } from "../src/simplify.js";
-import { dijkstra, trackbackNodes, trackbackEdges } from "../src/pathFinding.js";
+import { T_JUNCTION, LINEAR_THREE, CYCLICAL } from "../helper/graphData.js";
+import { indexGraph, FORWARD, REVERSE } from "../helper/indexGraph.js";
+import { simplify, flattenPath } from "../../src/simplify.js";
+import { dijkstra } from "../../src/index.js";
+import { trackbackNodes, trackbackEdges } from "../../src/pathfinding/pathFinding.js";
 
 test("Simplified dijkstra: linear", () => {
 	const graph = indexGraph(LINEAR_THREE);

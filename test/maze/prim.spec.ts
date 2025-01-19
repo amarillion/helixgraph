@@ -1,8 +1,8 @@
-import { Cell, GridGraph, reverse } from "./helper/gridGraph.js";
-import { Stream } from "../src/iterableUtils.js";
-import { prim } from "../src/prim.js";
-import { assert } from "../src/assert.js";
-import { DirectionType } from "../src/BaseGrid.js";
+import { Cell, GridGraph, reverse } from "../helper/gridGraph.js";
+import { Stream } from "../../src/iterableUtils.js";
+import { prim } from "../../src/maze/prim.js";
+import { assert } from "../../src/assert.js";
+import { DirectionType } from "../../src/BaseGrid.js";
 
 test("Prim's algorithm", () => {
 	const w = 2;

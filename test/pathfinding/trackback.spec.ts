@@ -1,6 +1,7 @@
-import { breadthFirstSearch, trackbackEdges, trackback } from "../src/pathFinding.js";
-import { indexGraph, FORWARD } from "./helper/indexGraph.js";
-import { LINEAR, CYCLICAL_4SS } from "./helper/graphData.js";
+import { trackbackEdges, trackback } from "../../src/pathfinding/pathFinding.js";
+import { breadthFirstSearch } from "../../src/index.js";
+import { indexGraph, FORWARD } from "../helper/indexGraph.js";
+import { LINEAR, CYCLICAL_4SS } from "../helper/graphData.js";
 
 test("trackback edges simple", () => {
 	const graph = indexGraph(LINEAR);

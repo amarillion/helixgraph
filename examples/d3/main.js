@@ -1,7 +1,8 @@
 // rule for eslint:
 /* global d3 */
 
-import { astar, breadthFirstSearch, dijkstra, trackbackNodes } from "../../lib/pathFinding.js";
+import { astar, breadthFirstSearch, dijkstra } from "../../lib/index.js";
+import { trackbackNodes } from "../../lib/pathfinding/pathFinding.js";
 import { assert } from "../../lib/assert.js";
 import { BaseGrid } from "../../lib/BaseGrid.js";
 import { Collapsible, Select, Tooltip, Checkbox } from "../util/components.js";

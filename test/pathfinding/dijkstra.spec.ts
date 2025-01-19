@@ -1,6 +1,7 @@
-import { breadthFirstSearch, shortestPathsFromSource, edgeBetween } from "../src/pathFinding.js";
-import { indexGraph, FORWARD, REVERSE, filteredAdjacencyFunc } from "./helper/indexGraph.js";
-import { LINEAR, ALTERNATING_AXIS, TWO_ROUTES } from "./helper/graphData.js";
+import { shortestPathsFromSource, edgeBetween } from "../../src/pathfinding/pathFinding.js";
+import { breadthFirstSearch } from "../../src/pathfinding/bfs.js";
+import { indexGraph, FORWARD, REVERSE, filteredAdjacencyFunc } from "../helper/indexGraph.js";
+import { LINEAR, ALTERNATING_AXIS, TWO_ROUTES } from "../helper/graphData.js";
 
 test("simple dijkstra", () => {
 	const graph = indexGraph(LINEAR);

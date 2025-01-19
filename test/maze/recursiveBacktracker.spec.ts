@@ -1,8 +1,8 @@
-import { Cell, GridGraph, reverse } from "./helper/gridGraph.js";
-import { recursiveBackTracker } from "../src/recursiveBacktracker.js";
-import { Stream } from "../src/iterableUtils.js";
-import { assert } from "../src/assert.js";
-import { DirectionType } from "../src/BaseGrid.js";
+import { Cell, GridGraph, reverse } from "../helper/gridGraph.js";
+import { recursiveBackTracker } from "../../src/maze/recursiveBacktracker.js";
+import { Stream } from "../../src/iterableUtils.js";
+import { assert } from "../../src/assert.js";
+import { DirectionType } from "../../src/BaseGrid.js";
 
 test("Recursive backtracker", () => {
 	const w = 2;

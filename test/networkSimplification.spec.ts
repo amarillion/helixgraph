@@ -1,7 +1,7 @@
 import { T_JUNCTION, LINEAR_THREE, DEAD_END, CYCLICAL } from "./helper/graphData.js";
 import { indexGraph, FORWARD, REVERSE } from "./helper/indexGraph.js";
 import { simplify } from "../src/simplify.js";
-import { edgeBetween, edgesBetween } from "../src/pathFinding.js";
+import { edgeBetween, edgesBetween } from "../src/pathfinding/pathFinding.js";
 import { assert } from "../src/assert.js";
 
 test("Simplify network: linear", () => {

@@ -1,14 +1,20 @@
 export {
-	astar,
-	breadthFirstSearch,
+	astar
+} from "./pathfinding/astar.js";
+
+export {
+	breadthFirstSearch
+} from "./pathfinding/bfs.js";
+
+export {
 	dijkstra
-} from "./pathFinding.js";
+} from "./pathfinding/dijkstra.js";
 
 export {
 	manhattanCrossProductHeuristic,
 	manhattanStraightHeuristic,
 	octagonalHeuristic
-} from "./astarHeuristics.js";
+} from "./pathfinding/astarHeuristics.js";
 
 export {
 	recursiveBackTracker, RecursiveBackTrackerIter

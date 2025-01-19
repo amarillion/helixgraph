@@ -1,6 +1,6 @@
-import { LINEAR, CYCLICAL, LINEAR_THREE } from "./helper/graphData.js";
-import { indexGraph } from "./helper/indexGraph.js";
-import { bfsVisit, bfsGenerator, breadthFirstSearch } from "../src/pathFinding.js";
+import { LINEAR, CYCLICAL, LINEAR_THREE } from "../helper/graphData.js";
+import { indexGraph } from "../helper/indexGraph.js";
+import { bfsVisit, bfsGenerator, breadthFirstSearch } from "../../src/pathfinding/bfs.js";
 
 test("bfs distance calculations", () => {
 	const graph = indexGraph(LINEAR_THREE);

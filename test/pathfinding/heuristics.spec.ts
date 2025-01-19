@@ -1,4 +1,4 @@
-import { manhattanStraightHeuristic } from "../src/astarHeuristics.js";
+import { manhattanStraightHeuristic } from "../../src/index.js";
 
 test("Cross product heuristic", () => {
 	for (let y = 0; y < 30; ++y) {
