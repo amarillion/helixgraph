@@ -3,6 +3,7 @@ import { pickOne } from "../../lib/random.js";
 import { BaseGrid, NORTH, SOUTH, EAST, WEST } from "../../lib/BaseGrid.js";
 import { prim, PRIM_LAST_ADDED_RANDOM_EDGES, PRIM_RANDOM } from "../../lib/prim.js";
 import { kruskal } from "../../lib/kruskal.js";
+import { aldousBroder } from "../../lib/maze/aldousBroder.js";
 import { Collapsible, Select } from "../util/components.js";
 import { assert } from "../../lib/assert.js";
 
@@ -132,39 +133,42 @@ class Main {
 
 	refreshAlgorithm() {
 		switch (this.algorithmSelect.value) {
-		case "recursivebt":
-			this.algorithm = (grid) => recursiveBackTracker(
-				grid.randomCell(), // start cell
-				n => grid.getAdjacent(n),
-				linkCells);
-			break;
-		case "kruskal":
-			this.algorithm = (grid) => kruskal(
-				grid.eachNode(),
-				n => grid.getAdjacent(n),
-				linkCells);
-			break;
-		case "prim_last_node":
-			this.algorithm = (grid) => prim(
-				grid.randomCell(), // start cell
-				n => grid.getAdjacent(n),
-				linkCells, {
-					tiebreaker: PRIM_LAST_ADDED_RANDOM_EDGES
-				});
-			break;
-		case "prim_random":
-			this.algorithm = (grid) => prim(
-				grid.randomCell(), // start cell
-				n => grid.getAdjacent(n),
-				linkCells, {
-					tiebreaker: PRIM_RANDOM
-				});
-			break;
-		case "binary_tree":
-			this.algorithm = (grid) => binaryTree(grid, linkCells);
-			break;
-		default:
-			assert(`Coding error - algorithm ${this.algorithmSelect.value} is unknown`);
+			case "recursivebt":
+				this.algorithm = (grid) => recursiveBackTracker(
+					grid.randomCell(), // start cell
+					n => grid.getAdjacent(n),
+					linkCells);
+				break;
+			case "kruskal":
+				this.algorithm = (grid) => kruskal(
+					grid.eachNode(),
+					n => grid.getAdjacent(n),
+					linkCells);
+				break;
+			case "prim_last_node":
+				this.algorithm = (grid) => prim(
+					grid.randomCell(), // start cell
+					n => grid.getAdjacent(n),
+					linkCells, {
+						tiebreaker: PRIM_LAST_ADDED_RANDOM_EDGES
+					});
+				break;
+			case "prim_random":
+				this.algorithm = (grid) => prim(
+					grid.randomCell(), // start cell
+					n => grid.getAdjacent(n),
+					linkCells, {
+						tiebreaker: PRIM_RANDOM
+					});
+				break;
+			case "binary_tree":
+				this.algorithm = (grid) => binaryTree(grid, linkCells);
+				break;
+			case "aldous_broder":
+				this.algorithm = (grid) => aldousBroder(grid.eachNode(), n => grid.getAdjacent(n), linkCells);
+				break;
+			default:
+				assert(`Coding error - algorithm ${this.algorithmSelect.value} is unknown`);
 		}
 
 		this.refreshMaze();
@@ -179,7 +183,8 @@ class Main {
 			{ id: "kruskal", name: "Kruskal's algorithm" },
 			{ id: "prim_last_node", name: "Prim's algorithm (last node)" },
 			{ id: "prim_random", name: "Prim's algorithm (random)" },
-			{ id: "binary_tree", name: "Binary tree" }
+			{ id: "binary_tree", name: "Binary tree" },
+			{ id: "aldous_broder", name: "Aldous-Broder algorithm" },
 		];
 	
 		this.algorithmSelect.callback = () => {
