@@ -1,6 +1,6 @@
-import { LinkFunc, AdjacencyFunc } from "./definitions.js";
-import { Stream } from "./iterableUtils.js";
-import { pickOne } from "./random.js";
+import { LinkFunc, AdjacencyFunc } from "../definitions.js";
+import { Stream } from "../iterableUtils.js";
+import { pickOne } from "../random.js";
 
 export class RecursiveBackTrackerIter<N, E> implements IterableIterator<void> {
 	linkNodes: LinkFunc<N, E>;

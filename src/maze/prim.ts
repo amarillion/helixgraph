@@ -1,5 +1,5 @@
-import { AdjacencyFunc, LinkFunc, WeightFunc } from "./definitions.js";
-import { PriorityQueue } from "./PriorityQueue.js";
+import { AdjacencyFunc, LinkFunc, WeightFunc } from "../definitions.js";
+import { PriorityQueue } from "../PriorityQueue.js";
 
 export interface PrimTieBreaker {
 	start(): void,

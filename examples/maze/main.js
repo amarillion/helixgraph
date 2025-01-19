@@ -1,8 +1,8 @@
-import { recursiveBackTracker } from "../../lib/recursiveBacktracker.js";
+import { recursiveBackTracker } from "../../lib/maze/recursiveBacktracker.js";
 import { pickOne } from "../../lib/random.js";
 import { BaseGrid, NORTH, SOUTH, EAST, WEST } from "../../lib/BaseGrid.js";
-import { prim, PRIM_LAST_ADDED_RANDOM_EDGES, PRIM_RANDOM } from "../../lib/prim.js";
-import { kruskal } from "../../lib/kruskal.js";
+import { prim, PRIM_LAST_ADDED_RANDOM_EDGES, PRIM_RANDOM } from "../../lib/maze/prim.js";
+import { kruskal } from "../../lib/maze/kruskal.js";
 import { aldousBroder } from "../../lib/maze/aldousBroder.js";
 import { Collapsible, Select } from "../util/components.js";
 import { assert } from "../../lib/assert.js";

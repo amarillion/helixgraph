@@ -1,5 +1,5 @@
-import { AdjacencyFunc, LinkFunc } from "./definitions.js";
-import { shuffle } from "./random.js";
+import { AdjacencyFunc, LinkFunc } from "../definitions.js";
+import { shuffle } from "../random.js";
 
 // for internal use
 type EdgeType<N, E> = {

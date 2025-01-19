@@ -364,7 +364,7 @@ class Main {
 		this.validPath = pathData !== null;
 
 		if (this.validPath) {
-			//This is the accessor function we talked about above
+			// This is the accessor function we talked about above
 			var lineFunction = d3.line()
 				.x(d => d.cx)
 				.y(d => d.cy);

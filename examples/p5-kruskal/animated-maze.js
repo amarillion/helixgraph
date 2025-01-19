@@ -1,4 +1,4 @@
-import { KruskalIter } from "../../lib/kruskal.js";
+import { KruskalIter } from "../../lib/maze/kruskal.js";
 
 const cos = Math.cos;
 const sin = Math.sin;

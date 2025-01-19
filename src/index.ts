@@ -12,7 +12,7 @@ export {
 
 export {
 	recursiveBackTracker, RecursiveBackTrackerIter
-} from "./recursiveBacktracker.js";
+} from "./maze/recursiveBacktracker.js";
 
 export {
 	prim,
@@ -20,8 +20,12 @@ export {
 	PRIM_LAST_ADDED,
 	PRIM_LAST_ADDED_RANDOM_EDGES,
 	PRIM_RANDOM
-} from "./prim.js";
+} from "./maze/prim.js";
 
 export {
 	kruskal, KruskalIter
-} from "./kruskal.js";
+} from "./maze/kruskal.js";
+
+export {
+	aldousBroder
+} from "./maze/aldousBroder.js";
