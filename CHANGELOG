@@ -1,3 +1,9 @@
+version 0.8.0
+
+- Add Aldous-Broder maze generation algorithm
+- Re-organize source files in separate folders for path finding and maze generation.
+  This will break some imports if you imported internal functions directly
+
 version 0.7.5
 
 - FIXED in breadthFirstSearch: destMap.get(src) should be 0.
