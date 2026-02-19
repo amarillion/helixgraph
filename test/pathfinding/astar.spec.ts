@@ -3,6 +3,7 @@ import { astar, breadthFirstSearch } from "../../src/index.js";
 import { trackback, trackbackEdges } from "../../src/pathfinding/pathFinding.js";
 import { assert } from "../../src/assert.js";
 import { EAST, NORTH, SOUTH, WEST } from "../../src/BaseGrid.js";
+import { test, expect } from 'vitest';
 
 const chars = {
 	[NORTH]: "^",

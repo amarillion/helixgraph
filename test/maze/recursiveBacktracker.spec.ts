@@ -3,6 +3,7 @@ import { recursiveBackTracker } from "../../src/maze/recursiveBacktracker.js";
 import { Stream } from "../../src/iterableUtils.js";
 import { assert } from "../../src/assert.js";
 import { DirectionType } from "../../src/BaseGrid.js";
+import { test, expect } from 'vitest';
 
 test("Recursive backtracker", () => {
 	const w = 2;

@@ -1,4 +1,5 @@
 import { manhattanStraightHeuristic } from "../../src/index.js";
+import { test } from 'vitest';
 
 test("Cross product heuristic", () => {
 	for (let y = 0; y < 30; ++y) {

@@ -1,6 +1,7 @@
 import { LINEAR, TWO_ROUTES } from "./helper/graphData.js";
 import { indexGraph, FORWARD, REVERSE } from "./helper/indexGraph.js";
 import { edgeBetween } from "../src/pathfinding/pathFinding.js";
+import { test, expect } from 'vitest';
 
 test("linear graph index", () => {
 	const graph = indexGraph(LINEAR);

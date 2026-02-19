@@ -2,6 +2,7 @@ import { Cell, GridGraph, reverse } from "../helper/gridGraph.js";
 import { Stream } from "../../src/iterableUtils.js";
 import { kruskal } from "../../src/maze/kruskal.js";
 import { DirectionType } from "../../src/BaseGrid.js";
+import { test, expect } from 'vitest';
 
 test("Kruskal's algorithm", () => {
 	const w = 2;

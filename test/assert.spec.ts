@@ -1,4 +1,5 @@
 import { assert } from "../src/assert.js";
+import { test, expect } from 'vitest';
 
 test("assert throws an exception when false", () => {
 	const t = () => assert(false, "my message");

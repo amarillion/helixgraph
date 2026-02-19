@@ -3,6 +3,7 @@ import { indexGraph, FORWARD, REVERSE } from "../helper/indexGraph.js";
 import { simplify, flattenPath } from "../../src/simplify.js";
 import { dijkstra } from "../../src/index.js";
 import { trackbackNodes, trackbackEdges } from "../../src/pathfinding/pathFinding.js";
+import { test, expect } from 'vitest';
 
 test("Simplified dijkstra: linear", () => {
 	const graph = indexGraph(LINEAR_THREE);

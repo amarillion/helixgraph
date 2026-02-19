@@ -1,6 +1,7 @@
 import { dijkstra, astar, breadthFirstSearch } from "../../src/index.js";
 import { trackbackNodes } from "../../src/pathfinding/pathFinding.js";
 import { assert } from "../../src/assert.js";
+import { test, expect } from 'vitest';
 
 // generates an infinite binary tree
 function *getAdjacentGenerator(node: number): Iterable<[string, number]> {

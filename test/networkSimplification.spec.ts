@@ -3,6 +3,7 @@ import { indexGraph, FORWARD, REVERSE } from "./helper/indexGraph.js";
 import { simplify } from "../src/simplify.js";
 import { edgeBetween, edgesBetween } from "../src/pathfinding/pathFinding.js";
 import { assert } from "../src/assert.js";
+import { test, expect } from 'vitest';
 
 test("Simplify network: linear", () => {
 	const graph = indexGraph(LINEAR_THREE);

@@ -3,6 +3,7 @@ import { Stream } from "../../src/iterableUtils.js";
 import { prim } from "../../src/maze/prim.js";
 import { assert } from "../../src/assert.js";
 import { DirectionType } from "../../src/BaseGrid.js";
+import { test, expect } from 'vitest';
 
 test("Prim's algorithm", () => {
 	const w = 2;

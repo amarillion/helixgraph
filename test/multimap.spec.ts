@@ -1,4 +1,5 @@
 import { mmArrayPush, mmSetAdd } from "../src/multimap.js";
+import { test, expect } from 'vitest';
 
 test("mmArrayPush", () => {
 	const mmap = new Map<number, number[]>();

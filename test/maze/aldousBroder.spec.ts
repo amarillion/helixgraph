@@ -2,6 +2,7 @@ import { Cell, GridGraph, reverse } from "../helper/gridGraph.js";
 import { Stream } from "../../src/iterableUtils.js";
 import { aldousBroder } from "../../src/maze/aldousBroder.js";
 import { DirectionType } from "../../src/BaseGrid.js";
+import { test, expect } from 'vitest';
 
 test("Aldous-Broder algorithm", () => {
 	const w = 2;
