@@ -79,7 +79,6 @@ export function kruskal<N, E>(nodeIterator: Iterable<N>, getUndirectedEdges: Adj
 	const iter = new KruskalIter(nodeIterator, getUndirectedEdges, linkNodes);
 	let maxIt = maxIterations;
 	
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	for (const _ of iter) {
 		if (maxIt > 0) {
 			if (--maxIt === 0) { throw new Error("Infinite loop detected"); }

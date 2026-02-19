@@ -1,4 +1,3 @@
-/* eslint-disable @stylistic/key-spacing */
 import { GridGraph, MAP, reverse } from "../helper/gridGraph.js";
 import { astar, breadthFirstSearch } from "../../src/index.js";
 import { trackback, trackbackEdges } from "../../src/pathfinding/pathFinding.js";

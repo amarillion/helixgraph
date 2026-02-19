@@ -49,7 +49,6 @@ export class RecursiveBackTrackerIter<N, E> implements IterableIterator<void> {
 
 export function recursiveBackTracker<N, E>(start: N, listAdjacent: AdjacencyFunc<N, E>, linkNodes: LinkFunc<N, E>) {
 	const iter = new RecursiveBackTrackerIter(start, listAdjacent, linkNodes);
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	for (const _ of iter) {
 		/* pass */
 	}

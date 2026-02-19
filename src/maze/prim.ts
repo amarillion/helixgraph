@@ -145,7 +145,6 @@ export function prim<N, E>(
 ) {
 	const iter = new PrimIter(startNode, getAdjacent, linkNodes, { getWeight, tiebreaker });
 	let maxIt = maxIterations;
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	for (const _ of iter) {
 		if (--maxIt === 0) { throw new Error("Infinite loop detected"); }
 	}
