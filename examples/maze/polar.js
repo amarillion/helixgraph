@@ -28,6 +28,8 @@ class Cell {
 
 	// TODO: extract rendering code to separate class.
 	render(ctx) {
+		if (!this.visited) { return; }
+		
 		ctx.lineWidth = 1.0;
 		ctx.strokeStyle = "black";
 

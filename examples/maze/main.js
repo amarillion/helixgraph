@@ -1,8 +1,8 @@
-import { recursiveBackTracker } from "../../lib/maze/recursiveBacktracker.js";
+import { RecursiveBackTrackerIter } from "../../lib/maze/recursiveBacktracker.js";
 import { pickOne } from "../../lib/random.js";
-import { prim, PRIM_LAST_ADDED_RANDOM_EDGES, PRIM_RANDOM } from "../../lib/maze/prim.js";
-import { kruskal } from "../../lib/maze/kruskal.js";
-import { aldousBroder } from "../../lib/maze/aldousBroder.js";
+import { PrimIter, PRIM_LAST_ADDED_RANDOM_EDGES, PRIM_RANDOM } from "../../lib/maze/prim.js";
+import { KruskalIter } from "../../lib/maze/kruskal.js";
+import { AldousBroderIter } from "../../lib/maze/aldousBroder.js";
 import { Checkbox, Collapsible, Select } from "../util/components.js";
 import { assert } from "../../lib/assert.js";
 import { EAST, NORTH } from "../../lib/BaseGrid.js";
@@ -41,14 +41,26 @@ class Main {
 		this.refreshMaze();
 	}
 
-	refreshMaze() {
-		this.refreshGrid();
-
-		this.algorithm(this.grid, linkCells);
+	render() {
 		const ctx = this.canvas.getContext("2d");
 		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		for (const node of this.grid.eachNode()) {
 			node.render(ctx);
+		}
+	}
+
+	refreshMaze() {
+		this.refreshGrid();
+
+		if (this.animated) {
+			this.iter = this.animation();
+		}
+		else {
+			this.iter = null;
+
+			// run the algorithm to completion immediately
+			for (const _ of this.algorithm(this.grid)) { /* pass */}
+			this.render();
 		}
 	}
 
@@ -69,19 +81,19 @@ class Main {
 	refreshAlgorithm() {
 		switch (this.algorithmSelect.value) {
 			case "recursivebt":
-				this.algorithm = (grid) => recursiveBackTracker(
+				this.algorithm = (grid) => new RecursiveBackTrackerIter(
 					grid.randomCell(), // start cell
 					n => grid.getAdjacent(n),
 					linkCells);
 				break;
 			case "kruskal":
-				this.algorithm = (grid) => kruskal(
+				this.algorithm = (grid) => new KruskalIter(
 					grid.eachNode(),
 					n => grid.getAdjacent(n),
 					linkCells);
 				break;
 			case "prim_last_node":
-				this.algorithm = (grid) => prim(
+				this.algorithm = (grid) => new PrimIter(
 					grid.randomCell(), // start cell
 					n => grid.getAdjacent(n),
 					linkCells, {
@@ -89,18 +101,18 @@ class Main {
 					});
 				break;
 			case "prim_random":
-				this.algorithm = (grid) => prim(
+				this.algorithm = (grid) => new PrimIter(
 					grid.randomCell(), // start cell
 					n => grid.getAdjacent(n),
 					linkCells, {
 						tiebreaker: PRIM_RANDOM
 					});
 				break;
-			case "binary_tree":
-				this.algorithm = (grid) => binaryTree(grid, linkCells);
-				break;
+			// case "binary_tree":
+			// 	this.algorithm = (grid) => binaryTree(grid, linkCells);
+			// 	break;
 			case "aldous_broder":
-				this.algorithm = (grid) => aldousBroder(grid.eachNode(), n => grid.getAdjacent(n), linkCells);
+				this.algorithm = (grid) => new AldousBroderIter(grid.eachNode(), n => grid.getAdjacent(n), linkCells);
 				break;
 			default:
 				assert(`Coding error - algorithm ${this.algorithmSelect.value} is unknown`);
@@ -114,13 +126,14 @@ class Main {
 	
 		this.algorithmSelect = document.getElementById("algorithm-select");
 		this.gridSelect = document.getElementById("grid-select");
+		this.animationCheckbox = document.getElementById("animation-checkbox");
 
 		this.algorithmSelect.options = [
 			{ id: "recursivebt", name: "Recursive Backtracker" },
 			{ id: "kruskal", name: "Kruskal's algorithm" },
 			{ id: "prim_last_node", name: "Prim's algorithm (last node)" },
 			{ id: "prim_random", name: "Prim's algorithm (random)" },
-			{ id: "binary_tree", name: "Binary tree" },
+			// { id: "binary_tree", name: "Binary tree" },
 			{ id: "aldous_broder", name: "Aldous-Broder algorithm" },
 		];
 	
@@ -143,6 +156,11 @@ class Main {
 		this.gridSelect.callback = () => {
 			this.refreshMaze();
 		};
+
+		this.animationCheckbox.callback = (newVal) => {
+			this.animated = newVal;
+			this.refreshMaze();
+		};
 		
 		window.onresize = () => {
 			this.refreshCanvas();
@@ -150,6 +168,26 @@ class Main {
 
 		this.refreshCanvas();
 
+		setInterval(() => {
+			this.update();
+		}, 17);
+
+	}
+
+	*animation() {
+		const iter = this.algorithm(this.grid);
+		while (true) {
+			const { done } = iter.next();
+			if (done) break;
+			yield;
+		}
+	}
+
+	update() {
+		if (this.iter) {
+			this.iter.next();
+			this.render();
+		}
 	}
 }
 
