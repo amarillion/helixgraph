@@ -5,7 +5,6 @@ const PI = Math.PI;
 class Cell {
 	constructor() {
 		this.links = {}; // key: border name, value: adjacent cell.
-		this.visited = false; // hide cells that have not been visited by the maze generator
 		this.borders = {}; // key: border name, value: function to draw border
 		this.fill = (/* p, color */) => { }; // function to fill area of cell.
 	}
@@ -20,20 +19,23 @@ class Cell {
 
 	/** During maze generation, erase borders for adjacent pairs of cells */
 	link(dest, dir) {
-		this.visited = dest.visited = true;
 		delete this.borders[dir];
 		const reverseDir = Object.keys(dest.links).find(b => dest.links[b] === this);
 		delete dest.borders[reverseDir];
 	}
 
+	linked(dir) {
+		return dir in this.borders;
+	}
+
 	// TODO: extract rendering code to separate class.
 	render(ctx) {
-		if (!this.visited) { return; }
-		
+		this.renderBorders(ctx);
+	}
+
+	renderBorders(ctx) {
 		ctx.lineWidth = 1.0;
 		ctx.strokeStyle = "black";
-
-		// TODO: fill current hue.
 
 		// ctx.lineCap = "round";
 		for (const drawBorder of Object.values(this.borders)) {
@@ -48,16 +50,6 @@ class Cell {
 class Grid {
 	constructor() {
 		this.rows = [];
-	}
-
-	//TODO: extract rendering code to separate class.
-	render(p, state) {
-		for (const cell of this.eachNode()) {
-			if (cell.visited) {
-				const hue = (state.setByNode.get(cell) * 23) % 360;
-				cell.render(p, hue);
-			}
-		}
 	}
 
 	*eachNode() {
@@ -123,13 +115,13 @@ export function createPolarGrid(canvasWidth, canvasHeight) {
 		else {
 			cell.borders.OUT = (p) => p.arc(cx, cy, r2(2) / 2, theta1, theta2);
 		}
-		cell.fill = (p, hue) => {
-			p.noFill();
-			p.colorMode(p.HSL, 360);
-			p.stroke(hue, 200, 200);
-			p.strokeWeight(CELL_SIZE);
-			p.strokeCap(p.SQUARE);
-			p.arc(cx, cy, r15(2), theta1, theta2);
+		cell.fill = (ctx, color) => {
+			ctx.strokeStyle = color;
+			ctx.lineWidth = CELL_SIZE + 1; // add one to prevent gaps
+			ctx.lineCap = "butt";
+			ctx.beginPath();
+			ctx.arc(cx, cy, r15(2) / 2, theta1, theta2);
+			ctx.stroke();
 		};
 		return cell;
 	}

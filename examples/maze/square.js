@@ -32,7 +32,6 @@ class Cell {
 		this.x = x;
 		this.y = y;
 		this.links = {};
-		this.visited = false;
 	}
 
 	/**
@@ -53,7 +52,6 @@ class Cell {
 	}
 
 	link(other, dir) {
-		this.visited = other.visited = true;
 		this.linkHelper(other, dir, reverse[dir]);
 	}
 
@@ -66,8 +64,15 @@ class Cell {
 	
 	// TODO: extract rendering code to separate class.
 	render(ctx) {
-		if (!this.visited) { return; }
+		this.renderBorders(ctx);
+	}
 
+	fill(ctx, color) {
+		ctx.fillStyle = color;
+		ctx.fillRect(margin + this.px, margin + this.py, CELL_SIZE, CELL_SIZE);
+	}
+
+	renderBorders(ctx) {
 		ctx.lineWidth = 1.0;
 		ctx.strokeStyle = "black";
 
