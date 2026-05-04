@@ -117,19 +117,10 @@ class Main {
 			this.iter = this.animation();
 		}
 		else {
-			this.iter = null;
-
 			// run the algorithm to completion immediately
 			for (const _ of this.algorithm(this.grid)) { /* pass */}
 
-			if (this.algorithmSelect.value === "kruskal") {
-				// kruskal doesn't build a spanning tree in a way that grows outwards from the start node,
-				// but rather adds random edges between random nodes in the maze, which results in a very patchy coloring.
-				this.calculateDistances();
-				this.colorReady = true;
-			}
-
-			this.render();
+			this.onMazeCompleted();
 		}
 	}
 
@@ -265,6 +256,19 @@ class Main {
 			if (done) break;
 			yield;
 		}
+		this.onMazeCompleted();
+	}
+
+	onMazeCompleted() {
+		this.iter = null;
+		if (this.algorithmSelect.value === "kruskal") {
+			// kruskal doesn't build a spanning tree in a way that grows outwards from the start node,
+			// but rather adds random edges between random nodes in the maze, which results in a very patchy coloring.
+			this.calculateDistances();
+			this.colorReady = true;
+			console.log("maze completed, distances calculated, ready to color");
+		}
+		this.render();
 	}
 
 	update() {
