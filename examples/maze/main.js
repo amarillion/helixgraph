@@ -10,6 +10,7 @@ import { createSquareGrid } from "./square.js";
 import { createPolarGrid } from "./polar.js";
 import { createTriangularGrid } from "./triangular.js";
 import { breadthFirstSearch } from "../../lib/pathfinding/bfs.js";
+import { Stream } from "../../lib/iterableUtils.js";
 
 // antoher alternative maze generation algorithm
 // THIS works only with a rectangular grid...
@@ -77,9 +78,11 @@ class Main {
 
 	calculateDistances() {
 		const map = breadthFirstSearch(
-			this.firstNode,
+			this.grid.eachNode().next().value,
 			null,
-			n => this.grid.getAdjacent(n).filter(([ dir, _neighbor ]) => n.linked(dir)),
+			n => Stream.of(this.grid.getAdjacent(n))
+				.filter(([ dir, _neighbor ]) => n.linked(dir))
+				.collect(),
 		);
 		this.maxCost = 0;
 		for (const [ node, step ] of map.entries()) {
@@ -93,7 +96,7 @@ class Main {
 		ctx.fillStyle = 'white';
 		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		
-		if (this.colorReady) {
+		if (this.distanceMapReady && this.wantsColoring) {
 			for (const node of this.grid.eachNode()) {
 				if (!node.visited) continue;
 				node.fill(ctx, `rgb(${[
@@ -112,6 +115,8 @@ class Main {
 
 	refreshMaze() {
 		this.refreshGrid();
+
+		this.distanceMapReady = this.algorithmSelect.value !== "kruskal";
 
 		if (this.animated) {
 			this.iter = this.animation();
@@ -233,7 +238,6 @@ class Main {
 		
 		this.colorCheckbox.callback = (newVal) => {
 			this.wantsColoring = newVal;
-			this.colorReady = this.wantsColoring && this.algorithmSelect.value !== "kruskal";
 			this.render();
 		};
 
@@ -265,8 +269,7 @@ class Main {
 			// kruskal doesn't build a spanning tree in a way that grows outwards from the start node,
 			// but rather adds random edges between random nodes in the maze, which results in a very patchy coloring.
 			this.calculateDistances();
-			this.colorReady = true;
-			console.log("maze completed, distances calculated, ready to color");
+			this.distanceMapReady = true;
 		}
 		this.render();
 	}

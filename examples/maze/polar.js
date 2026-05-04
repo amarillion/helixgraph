@@ -25,7 +25,7 @@ class Cell {
 	}
 
 	linked(dir) {
-		return dir in this.borders;
+		return !(dir in this.borders);
 	}
 
 	// TODO: extract rendering code to separate class.
