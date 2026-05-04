@@ -8,6 +8,7 @@ import { assert } from "../../lib/assert.js";
 import { EAST, NORTH } from "../../lib/BaseGrid.js";
 import { createSquareGrid } from "./square.js";
 import { createPolarGrid } from "./polar.js";
+import { createTriangularGrid } from "./triangular.js";
 import { breadthFirstSearch } from "../../lib/pathfinding/bfs.js";
 
 // antoher alternative maze generation algorithm
@@ -142,6 +143,9 @@ class Main {
 			case 'polar':
 				this.grid = createPolarGrid(canvasWidth, canvasHeight);
 				break;
+			case 'triangular':
+				this.grid = createTriangularGrid(canvasWidth, canvasHeight);
+				break;
 			default:
 				this.grid = createSquareGrid(canvasWidth, canvasHeight);
 				break;
@@ -218,11 +222,11 @@ class Main {
 		this.gridSelect.options = [
 			{ id: "square", name: "Square" },
 			{ id: "polar", name: "Polar" },
+			{ id: "triangular", name: "Triangular" },
 			/*
 			{ id: "hexagonal", name: "Hexagonal" },
 			{ id: "diamonds", name: "Diamonds" },
 			{ id: "cairo", name: "Cairo" },
-			{ id: "triangular", name: "Triangular" },
 			{ id: "voronoi", name: "Voronoi" },
 			 */
 		];
