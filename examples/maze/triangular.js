@@ -1,8 +1,6 @@
-import { randomInt } from "../../lib/random.js";
-import { prim, PRIM_LAST_ADDED } from "../../lib/maze/prim.js";
 import { BaseGrid } from "../../lib/BaseGrid.js";
 
-const NE = "NE", N = "N", NW = "NW", SE = "SE", S = "S", SW = "SW"; 
+const NE = "NE", N = "N", NW = "NW", SE = "SE", S = "S", SW = "SW";
 
 // for being able to find the opposite direction
 const reverse = {
@@ -107,7 +105,6 @@ class TriangularCell {
 		return dir in this.links;
 	}
 
-	//TODO: generator?
 	*neighborFunc() {
 		for (const [ key, { dx, dy } ] of Object.entries(this.dirs)) {
 			const nx = this.x + dx;
