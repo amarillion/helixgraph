@@ -1,86 +1,16 @@
-import { recursiveBackTracker } from "../../lib/maze/recursiveBacktracker.js";
+import { RecursiveBackTrackerIter } from "../../lib/maze/recursiveBacktracker.js";
 import { pickOne } from "../../lib/random.js";
-import { BaseGrid, NORTH, SOUTH, EAST, WEST } from "../../lib/BaseGrid.js";
-import { prim, PRIM_LAST_ADDED_RANDOM_EDGES, PRIM_RANDOM } from "../../lib/maze/prim.js";
-import { kruskal } from "../../lib/maze/kruskal.js";
-import { aldousBroder } from "../../lib/maze/aldousBroder.js";
-import { Collapsible, Select } from "../util/components.js";
+import { PrimIter, PRIM_LAST_ADDED_RANDOM_EDGES, PRIM_RANDOM } from "../../lib/maze/prim.js";
+import { KruskalIter } from "../../lib/maze/kruskal.js";
+import { AldousBroderIter } from "../../lib/maze/aldousBroder.js";
+import { Checkbox, Collapsible, Select } from "../util/components.js";
 import { assert } from "../../lib/assert.js";
-
-// for being able to find the opposite direction
-const reverse = {
-	[NORTH]: SOUTH,
-	[SOUTH]: NORTH,
-	[EAST]: WEST,
-	[WEST]: EAST
-};
-
-const CELL_SIZE = 20;
-
-const POINTS = [
-	{ x: 0, y: 0 },
-	{ x: CELL_SIZE, y: 0 },
-	{ x: CELL_SIZE, y: CELL_SIZE },
-	{ x: 0, y: CELL_SIZE }
-];
-
-const SEGMENTS = {
-	[NORTH]: POINTS.slice(0, 2),
-	[EAST]: POINTS.slice(1, 3),
-	[SOUTH]: POINTS.slice(2, 4),
-	[WEST]: [ POINTS[3], POINTS[0] ]
-};
-
-const margin = 10;
-
-// cell implementation that keeps track of links to neighboring cells
-class Cell {
-	constructor(x, y) {
-		this.x = x;
-		this.y = y;
-		this.links = {};
-	}
-
-	/**
-	 * @param {*} other cell to link to
-	 * @param {*} dir one of NORTH, EAST, SOUTH, WEST
-	 * @param {*} reverse optional - supply a reverse direction if you want to make
-	 *   the link bidirectional
-	 */
-	link(other, dir, reverse) {
-		if (dir in this.links) {
-			console.log("WARNING: creating link that already exists: ", { dir, reverse });
-		}
-		this.links[dir] = other;
-		if (reverse) {
-			// call recursively, but without reversing again
-			other.link(this, reverse);
-		}
-	}
-
-	linked(dir) {
-		return dir in this.links;
-	}
-
-	get px() { return this.x * CELL_SIZE; }
-	get py() { return this.y * CELL_SIZE; }
-	
-	render(ctx) {
-		ctx.lineWidth = 1.0;
-		ctx.strokeStyle = "black";
-
-		// ctx.lineCap = "round";
-		for (const dir of [ NORTH, EAST, SOUTH, WEST ]) {
-			if (this.linked(dir)) continue;
-
-			const segment = SEGMENTS[dir];
-			ctx.beginPath();
-			ctx.moveTo(margin + this.px + segment[0].x, margin + this.py + segment[0].y);
-			ctx.lineTo(margin + this.px + segment[1].x, margin + this.py + segment[1].y);
-			ctx.stroke();
-		}
-	}
-}
+import { EAST, NORTH } from "../../lib/BaseGrid.js";
+import { createSquareGrid } from "./square.js";
+import { createPolarGrid } from "./polar.js";
+import { createTriangularGrid } from "./triangular.js";
+import { breadthFirstSearch } from "../../lib/pathfinding/bfs.js";
+import { Stream } from "../../lib/iterableUtils.js";
 
 // antoher alternative maze generation algorithm
 // THIS works only with a rectangular grid...
@@ -98,11 +28,44 @@ export function binaryTree(grid, linkCells, prng = Math.random) {
 }
 
 customElements.define("hxg-collapsible", Collapsible);
+customElements.define("hxg-checkbox", Checkbox);
 customElements.define("hxg-select", Select);
 
-const linkCells = (src, dir, dest) => { src.link(dest, dir, reverse[dir]); };
-
 class Main {
+	// let maxCost = 0;
+	// let firstNode = null;
+
+	linkCells = (src, dir, dest) => {
+		src.link(dest, dir);
+
+		// TODO: use set to not touch internal state of cells
+		src.visited = true;
+		dest.visited = true;
+
+		if (!this.firstNode) {
+			this.firstNode = src;
+		}
+
+		// on-the-fly calculation of distances for coloring, doesn't work with kruskal.
+		if (this.algorithmSelect.value !== "kruskal") {
+			// TOOD: use map to not touch internal state of cells
+			if (src.cost) {
+				dest.cost = src.cost + 1;
+				this.maxCost = Math.max(this.maxCost, dest.cost);
+			}
+			else {
+				if (dest.cost) {
+					src.cost = dest.cost + 1;
+					this.maxCost = Math.max(this.maxCost, src.cost);
+				}
+				else {
+					src.cost = 1;
+					this.maxCost = Math.max(this.maxCost, src.cost);
+				}
+			}
+		}
+	};
+
 	refreshCanvas() {
 		const canvasWidth = (document.body.clientWidth);
 		const canvasHeight = (document.body.clientHeight);
@@ -113,59 +76,116 @@ class Main {
 		this.refreshMaze();
 	}
 
+	calculateDistances() {
+		const map = breadthFirstSearch(
+			this.grid.eachNode().next().value,
+			null,
+			n => Stream.of(this.grid.getAdjacent(n))
+				.filter(([ dir, _neighbor ]) => n.linked(dir))
+				.collect(),
+		);
+		this.maxCost = 0;
+		for (const [ node, step ] of map.entries()) {
+			node.cost = step.cost;
+			this.maxCost = Math.max(this.maxCost, step.cost);
+		}
+	}
+
+	render() {
+		const ctx = this.canvas.getContext("2d");
+		ctx.fillStyle = 'white';
+		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		
+		if (this.distanceMapReady && this.wantsColoring) {
+			for (const node of this.grid.eachNode()) {
+				if (!node.visited) continue;
+				node.fill(ctx, `rgb(${[
+					(node.cost / this.maxCost) * 255, // red
+					100, // green
+					50, // blue
+				].join(',')})`);
+			}
+		}
+
+		for (const node of this.grid.eachNode()) {
+			if (!node.visited) continue;
+			node.render(ctx);
+		}
+	}
+
 	refreshMaze() {
+		this.refreshGrid();
+
+		this.distanceMapReady = this.algorithmSelect.value !== "kruskal";
+
+		if (this.animated) {
+			this.iter = this.animation();
+		}
+		else {
+			// run the algorithm to completion immediately
+			for (const _ of this.algorithm(this.grid)) { /* pass */}
+
+			this.onMazeCompleted();
+		}
+	}
+
+	refreshGrid() {
 		const canvasWidth = (document.body.clientWidth);
 		const canvasHeight = (document.body.clientHeight);
 
-		const cellFactory = (x, y) => new Cell(x, y);
-		const grid = new BaseGrid(
-			Math.floor((canvasWidth - margin * 2) / CELL_SIZE),
-			Math.floor((canvasHeight - margin * 2) / CELL_SIZE),
-			cellFactory
-		);
-		this.algorithm(grid);
-		const ctx = this.canvas.getContext("2d");
-		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		for (const node of grid.eachNode()) {
-			node.render(ctx);
+		this.maxCost = 0;
+
+		switch(this.gridSelect.value) {
+			case 'polar':
+				this.grid = createPolarGrid(canvasWidth, canvasHeight);
+				break;
+			case 'triangular':
+				this.grid = createTriangularGrid(canvasWidth, canvasHeight);
+				break;
+			default:
+				this.grid = createSquareGrid(canvasWidth, canvasHeight);
+				break;
 		}
 	}
 
 	refreshAlgorithm() {
 		switch (this.algorithmSelect.value) {
 			case "recursivebt":
-				this.algorithm = (grid) => recursiveBackTracker(
+				this.algorithm = (grid) => new RecursiveBackTrackerIter(
 					grid.randomCell(), // start cell
 					n => grid.getAdjacent(n),
-					linkCells);
+					this.linkCells);
 				break;
 			case "kruskal":
-				this.algorithm = (grid) => kruskal(
+				this.algorithm = (grid) => new KruskalIter(
 					grid.eachNode(),
 					n => grid.getAdjacent(n),
-					linkCells);
+					this.linkCells);
 				break;
 			case "prim_last_node":
-				this.algorithm = (grid) => prim(
+				this.algorithm = (grid) => new PrimIter(
 					grid.randomCell(), // start cell
 					n => grid.getAdjacent(n),
-					linkCells, {
+					this.linkCells, {
 						tiebreaker: PRIM_LAST_ADDED_RANDOM_EDGES
 					});
 				break;
 			case "prim_random":
-				this.algorithm = (grid) => prim(
+				this.algorithm = (grid) => new PrimIter(
 					grid.randomCell(), // start cell
 					n => grid.getAdjacent(n),
-					linkCells, {
+					this.linkCells, {
 						tiebreaker: PRIM_RANDOM
 					});
 				break;
-			case "binary_tree":
-				this.algorithm = (grid) => binaryTree(grid, linkCells);
-				break;
+			// case "binary_tree":
+			// 	this.algorithm = (grid) => binaryTree(grid, linkCells);
+			// 	break;
 			case "aldous_broder":
-				this.algorithm = (grid) => aldousBroder(grid.eachNode(), n => grid.getAdjacent(n), linkCells);
+				this.algorithm = (grid) => new AldousBroderIter(
+					grid.eachNode(),
+					n => grid.getAdjacent(n),
+					this.linkCells);
 				break;
 			default:
 				assert(`Coding error - algorithm ${this.algorithmSelect.value} is unknown`);
@@ -178,12 +198,16 @@ class Main {
 		this.canvas = document.getElementById("myCanvas");
 	
 		this.algorithmSelect = document.getElementById("algorithm-select");
+		this.gridSelect = document.getElementById("grid-select");
+		this.animationCheckbox = document.getElementById("animation-checkbox");
+		this.colorCheckbox = document.getElementById("color-checkbox");
+
 		this.algorithmSelect.options = [
 			{ id: "recursivebt", name: "Recursive Backtracker" },
 			{ id: "kruskal", name: "Kruskal's algorithm" },
 			{ id: "prim_last_node", name: "Prim's algorithm (last node)" },
 			{ id: "prim_random", name: "Prim's algorithm (random)" },
-			{ id: "binary_tree", name: "Binary tree" },
+			// { id: "binary_tree", name: "Binary tree" },
 			{ id: "aldous_broder", name: "Aldous-Broder algorithm" },
 		];
 	
@@ -191,11 +215,70 @@ class Main {
 			this.refreshAlgorithm();
 		};
 	
+		this.gridSelect.options = [
+			{ id: "square", name: "Square" },
+			{ id: "polar", name: "Polar" },
+			{ id: "triangular", name: "Triangular" },
+			/*
+			{ id: "hexagonal", name: "Hexagonal" },
+			{ id: "diamonds", name: "Diamonds" },
+			{ id: "cairo", name: "Cairo" },
+			{ id: "voronoi", name: "Voronoi" },
+			 */
+		];
+		
+		this.gridSelect.callback = () => {
+			this.refreshMaze();
+		};
+
+		this.animationCheckbox.callback = (newVal) => {
+			this.animated = newVal;
+			this.refreshMaze();
+		};
+		
+		this.colorCheckbox.callback = (newVal) => {
+			this.wantsColoring = newVal;
+			this.render();
+		};
+
 		window.onresize = () => {
 			this.refreshCanvas();
 		};
 
 		this.refreshCanvas();
+
+		setInterval(() => {
+			this.update();
+		}, 17);
+
+	}
+
+	*animation() {
+		const iter = this.algorithm(this.grid);
+		while (true) {
+			const { done } = iter.next();
+			if (done) break;
+			yield;
+		}
+		this.onMazeCompleted();
+	}
+
+	onMazeCompleted() {
+		this.iter = null;
+		if (this.algorithmSelect.value === "kruskal") {
+			// kruskal doesn't build a spanning tree in a way that grows outwards from the start node,
+			// but rather adds random edges between random nodes in the maze, which results in a very patchy coloring.
+			this.calculateDistances();
+			this.distanceMapReady = true;
+		}
+		this.render();
+	}
+
+	update() {
+		if (this.iter) {
+			this.iter.next();
+			this.render();
+		}
 	}
 }
 
