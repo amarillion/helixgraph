@@ -117,6 +117,7 @@ class Main {
 				break;
 			case 'degree':
 				for (const node of this.grid.eachNode()) {
+					if (!node.visited) continue;
 					const degree = this.degree(node);
 					const color =
 						(degree <= 1 ? 'hotpink':
