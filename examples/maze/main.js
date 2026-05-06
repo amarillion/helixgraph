@@ -76,6 +76,12 @@ class Main {
 		this.refreshMaze();
 	}
 
+	degree(n) {
+		return Stream.of(this.grid.getAdjacent(n))
+			.filter(([ dir, _neighbor ]) => n.linked(dir))
+			.size();
+	}
+
 	calculateDistances() {
 		const map = breadthFirstSearch(
 			this.grid.eachNode().next().value,
@@ -96,15 +102,34 @@ class Main {
 		ctx.fillStyle = 'white';
 		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		
-		if (this.distanceMapReady && this.wantsColoring) {
-			for (const node of this.grid.eachNode()) {
-				if (!node.visited) continue;
-				node.fill(ctx, `rgb(${[
-					(node.cost / this.maxCost) * 255, // red
-					100, // green
-					50, // blue
-				].join(',')})`);
-			}
+		switch (this.colorSelect.value) {
+			case 'dist':
+				if (this.distanceMapReady) {
+					for (const node of this.grid.eachNode()) {
+						if (!node.visited) continue;
+						node.fill(ctx, `rgb(${[
+							(node.cost / this.maxCost) * 255, // red
+							100, // green
+							50, // blue
+						].join(',')})`);
+					}
+				}
+				break;
+			case 'degree':
+				for (const node of this.grid.eachNode()) {
+					const degree = this.degree(node);
+					const color =
+						(degree <= 1 ? 'hotpink':
+							(degree > 2 ? 'lightblue':
+								'white'
+							)
+						);
+					node.fill(ctx, color);
+				}
+				break;
+			default:
+				// no coloring
+				break;
 		}
 
 		for (const node of this.grid.eachNode()) {
@@ -200,7 +225,7 @@ class Main {
 		this.algorithmSelect = document.getElementById("algorithm-select");
 		this.gridSelect = document.getElementById("grid-select");
 		this.animationCheckbox = document.getElementById("animation-checkbox");
-		this.colorCheckbox = document.getElementById("color-checkbox");
+		this.colorSelect = document.getElementById("color-select");
 
 		this.algorithmSelect.options = [
 			{ id: "recursivebt", name: "Recursive Backtracker" },
@@ -236,8 +261,13 @@ class Main {
 			this.refreshMaze();
 		};
 		
-		this.colorCheckbox.callback = (newVal) => {
-			this.wantsColoring = newVal;
+		this.colorSelect.options = [
+			{ id: "none", name: "None" },
+			{ id: "dist", name: "Distance" },
+			{ id: "degree", name: "Degree" },
+		];
+
+		this.colorSelect.callback = () => {
 			this.render();
 		};
 
