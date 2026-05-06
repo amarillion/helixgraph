@@ -281,6 +281,14 @@ class Main {
 			this.update();
 		}, 17);
 
+		const urlParams = new URLSearchParams(window.location.search);
+		const paramValue = urlParams.get("ui");
+		
+		if (paramValue === "hidden") {
+			document.getElementById("ui").style.display = "none";
+		}
+
+
 	}
 
 	*animation() {
