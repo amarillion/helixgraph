@@ -222,10 +222,10 @@ class Main {
 	constructor() {
 		this.canvas = document.getElementById("myCanvas");
 	
-		this.algorithmSelect = document.getElementById("algorithm-select");
-		this.gridSelect = document.getElementById("grid-select");
-		this.animationCheckbox = document.getElementById("animation-checkbox");
-		this.colorSelect = document.getElementById("color-select");
+		this.algorithmSelect = document.getElementById("algorithm");
+		this.gridSelect = document.getElementById("grid");
+		this.animationCheckbox = document.getElementById("animation");
+		this.colorSelect = document.getElementById("color");
 
 		this.algorithmSelect.options = [
 			{ id: "recursivebt", name: "Recursive Backtracker" },
