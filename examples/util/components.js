@@ -3,10 +3,18 @@ export class Checkbox extends HTMLElement {
 		super();
 		this.attachShadow({ mode: "open" });
 		this._label = this.getAttribute("label") || "";
+		this.paramName = this.id.toLowerCase().replace(/\s+/g, '_');
 		this.binding = null;
 		this.render();
 		this._callback = () => {};
 		this.oldValue = null;
+
+		this.initFromURL();
+		
+		// respond to back/forward navigation
+		window.addEventListener('popstate', () => {
+			this.initFromURL();
+		});
 	}
 
 	set callback(val) {
@@ -25,6 +33,38 @@ export class Checkbox extends HTMLElement {
 		const isChecked = event.target.checked;
 		this._callback(isChecked, this.oldValue);
 		this.oldValue = isChecked;
+
+		this.updateURLParam(isChecked);
+	}
+
+	updateURLParam(value) {
+		const url = new URL(window.location.href);
+		
+		if (value) {
+			url.searchParams.set(this.paramName, 'true');
+		} else {
+			url.searchParams.set(this.paramName, 'false');
+		}
+		
+		// Update URL without reloading the page
+		window.history.pushState({}, '', url);
+	}
+
+
+	initFromURL() {
+		const urlParams = new URLSearchParams(window.location.search);
+		const paramValue = urlParams.get(this.paramName);
+		
+		if (paramValue !== null) {
+			// Set checkbox state from URL parameter
+			const isChecked = paramValue === 'true' || paramValue === '1' || paramValue === 'on';
+			const checkbox = this.shadowRoot.querySelector("input");
+			if (checkbox) {
+				checkbox.checked = isChecked;
+				this._callback(isChecked, this.oldValue);
+				this.oldValue = isChecked;
+			}
+		}
 	}
 
 	render() {
@@ -177,10 +217,18 @@ export class Select extends HTMLElement {
 	
 		this._options = [];
 		this._label = this.getAttribute("label") || "";
+		this.paramName = this.id.toLowerCase().replace(/\s+/g, '_');
 		this.binding = null;
 		this.render();
 		this._callback = () => {};
 		this.oldValue = null;
+
+		// this.initFromURL(); // does not take effect before rendering the options
+		
+		// respond to back/forward navigation
+		window.addEventListener('popstate', () => {
+			this.initFromURL();
+		});
 	}
 
 	set label(val) {
@@ -191,6 +239,7 @@ export class Select extends HTMLElement {
 	set options(idNamePairs) {
 		this._options = idNamePairs;
 		this.render();
+		this.initFromURL(); // re-apply URL parameter after re-rendering options
 	}
 
 	set callback(val) {
@@ -208,6 +257,36 @@ export class Select extends HTMLElement {
 	onChange(event) {
 		this._callback(event.target.value, this.oldValue);
 		this.oldValue = event.target.value;
+		this.updateURLParam(event.target.value);
+	}
+
+	updateURLParam(value) {
+		const url = new URL(window.location.href);
+		
+		if (value) {
+			url.searchParams.set(this.paramName, value);
+		} else {
+			url.searchParams.delete(this.paramName);
+		}
+		
+		// Update URL without reloading the page
+		window.history.pushState({}, '', url);
+	}
+
+
+	initFromURL() {
+		const urlParams = new URLSearchParams(window.location.search);
+		const paramValue = urlParams.get(this.paramName);
+		
+		if (paramValue !== null) {
+			// Set checkbox state from URL parameter
+			const select = this.shadowRoot.querySelector("select");
+			if (select) {
+				select.value = paramValue;
+				this._callback(paramValue, this.oldValue);
+				this.oldValue = paramValue;
+			}
+		}
 	}
 
 	render() {
