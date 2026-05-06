@@ -1,3 +1,9 @@
+version 0.8.1
+
+- Added iterator version of Aldous-Broder algorithm.
+- Expanded Maze generator example with animations, colors, and multiple grid types.
+- Updated dev dependencies
+
 version 0.8.0
 
 - Add Aldous-Broder maze generation algorithm
