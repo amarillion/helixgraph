@@ -98,6 +98,11 @@ class Main {
 	}
 
 	render() {
+		if (!this.grid) {
+			// grid not available yet, try again later.
+			return;
+		}
+
 		const ctx = this.canvas.getContext("2d");
 		ctx.fillStyle = 'white';
 		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -117,6 +122,7 @@ class Main {
 				break;
 			case 'degree':
 				for (const node of this.grid.eachNode()) {
+					if (!node.visited) continue;
 					const degree = this.degree(node);
 					const color =
 						(degree <= 1 ? 'hotpink':
@@ -140,6 +146,10 @@ class Main {
 
 	refreshMaze() {
 		this.refreshGrid();
+		if (!this.grid) {
+			// grid not available yet, try again later.
+			return;
+		}
 
 		this.distanceMapReady = this.algorithmSelect.value !== "kruskal";
 
@@ -157,6 +167,11 @@ class Main {
 	refreshGrid() {
 		const canvasWidth = (document.body.clientWidth);
 		const canvasHeight = (document.body.clientHeight);
+
+		if (canvasWidth * canvasHeight === 0) {
+			this.grid = null;
+			return;
+		}
 
 		this.maxCost = 0;
 
@@ -292,9 +307,9 @@ class Main {
 	}
 
 	*animation() {
-		const iter = this.algorithm(this.grid);
+		const steps = this.algorithm(this.grid);
 		while (true) {
-			const { done } = iter.next();
+			const { done } = steps.next();
 			if (done) break;
 			yield;
 		}
