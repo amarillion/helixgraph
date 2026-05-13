@@ -151,8 +151,8 @@ class Scene extends Phaser.Scene {
 
 	reset() {
 		if (this.map) this.map.destroy();
-		const mw = Math.max(1, Math.floor(this.scale.width / TILE_WIDTH));
-		const mh = Math.max(1, Math.floor(this.scale.height / TILE_HEIGHT));
+		const mw = Math.max(3, Math.floor(this.scale.width / TILE_WIDTH));
+		const mh = Math.max(3, Math.floor(this.scale.height / TILE_HEIGHT));
 
 		this.map = this.make.tilemap({ tileWidth: TILE_WIDTH, tileHeight: TILE_HEIGHT, width: mw, height: mh });
 		const tiles = this.map.addTilesetImage("pipes");
